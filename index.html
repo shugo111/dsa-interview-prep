@@ -460,6 +460,12 @@ body.dark .dsapi{background:rgba(255,255,255,.03); border-color:#26304a;}
 .dsapi-note{margin:0 0 8px; font-size:12.5px; color:var(--muted2,#6b7280);}
 .dsapi .snippet{margin:0;}
 </style>
+
+<style>
+/* CX-BADGE-FIX: colored complexity pills need white text (a later .cx rule
+   clobbered it, leaving dark text on dark green/brown = unreadable). */
+.cx.good, .cx.bad{color:#fff;}
+</style>
 </head>
 <body class="show-java">
 
