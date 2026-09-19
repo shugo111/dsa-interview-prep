@@ -421,6 +421,35 @@ h2:hover .anchorlink, .part-divider h1:hover .anchorlink{opacity:.65;}
 .side-tools button:hover{border-color:var(--brand); color:var(--brand);}
 
 </style>
+
+<style>
+/* DEEPDIVE-CSS ===== deeper-dive + iteration dry-run blocks ===== */
+.deepdive{margin:18px 0 6px; border:1px solid var(--line2,#e5e7eb); border-left:4px solid var(--brand,#4f46e5);
+  border-radius:12px; padding:16px 18px; background:linear-gradient(180deg,rgba(79,70,229,.05),rgba(79,70,229,0));}
+body.dark .deepdive{border-color:#26304a; border-left-color:#7c8cff;
+  background:linear-gradient(180deg,rgba(124,140,255,.10),rgba(124,140,255,0));}
+.deepdive > h3{margin:0 0 10px; font-size:15px; letter-spacing:-.01em;}
+.dd-intuition p{margin:6px 0; line-height:1.6; font-size:14.5px;}
+.dd-intuition b{color:var(--brand,#4f46e5);}
+body.dark .dd-intuition b{color:#a5b4fc;}
+.dd-input{margin:14px 0 8px; font-size:14px;}
+.dd-result{margin:10px 0 2px; font-size:14px; padding:8px 12px; border-radius:8px;
+  background:rgba(34,197,94,.10); border:1px solid rgba(34,197,94,.30);}
+body.dark .dd-result{background:rgba(34,197,94,.12); border-color:rgba(34,197,94,.35);}
+table.itr{width:100%; border-collapse:collapse; margin:8px 0 4px; font-size:13px;
+  font-variant-numeric:tabular-nums; display:block; overflow-x:auto;}
+table.itr thead th{position:sticky; top:0; background:var(--brand,#4f46e5); color:#fff; font-weight:600;
+  text-align:left; padding:7px 10px; white-space:nowrap;}
+table.itr td{padding:6px 10px; border-bottom:1px solid var(--line2,#e5e7eb); vertical-align:top;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;}
+table.itr tbody tr:nth-child(even){background:rgba(2,6,23,.03);}
+body.dark table.itr td{border-color:#26304a;}
+body.dark table.itr tbody tr:nth-child(even){background:rgba(255,255,255,.04);}
+table.itr td:first-child{font-weight:700; color:var(--brand,#4f46e5);}
+body.dark table.itr td:first-child{color:#a5b4fc;}
+.deepdive code{background:rgba(2,6,23,.06); padding:1px 5px; border-radius:5px; font-size:12.5px;}
+body.dark .deepdive code{background:rgba(255,255,255,.08); color:#e6edf3;}
+</style>
 </head>
 <body class="show-java">
 
@@ -4353,6 +4382,34 @@ while (stack.length &gt; 0) {
 </ol>
 <p>Answer <b>2</b> islands. Sinking in place is the trick that turns an O(V²) idea into one linear pass.</p>
 <div class="pit"><b>Pitfalls:</b> recursion depth on a 10⁶-node path graph will overflow the stack — go iterative. On graphs, forgetting <code>visited</code> gives infinite loops on cycles.</div>
+
+<div class="deepdive">
+<h3>🔬 Deeper dive &amp; dry run</h3>
+<div class="dd-intuition">
+  <p><b>Why it works.</b> Flood fill treats connectivity as an equivalence relation: DFS from an unvisited land cell marks every cell reachable via land-adjacency as belonging to the same component before the outer scan moves on. The invariant is "once a component is entered, it is fully consumed" — so the outer loop's count of DFS launches equals exactly the number of connected components, no double counting possible because every visited cell is permanently marked.</p>
+  <p><b>When to reach for it.</b> "Count islands / regions / connected components", "number of provinces/clusters", "fill/paint connected area", or any grid/graph problem asking to group nodes by reachability rather than by shortest distance (that would be BFS instead, though either works for pure counting).</p>
+  <p><b>Complexity.</b> <code>O(rows &times; cols)</code> time and space — each cell is visited once; the explicit stack (or call stack for recursion) holds at most <code>O(rows &times; cols)</code> frontier cells in the worst case (e.g. a spiral-shaped island).</p>
+  <p><b>Pitfalls &amp; variations.</b> Recursive DFS on a huge grid can blow the call stack — switch to an explicit stack for grids that might exceed a few thousand cells. Forgetting to mark a cell visited immediately when pushed (vs. when popped) re-pushes duplicates. Variants: 8-directional connectivity (add diagonals), counting island <i>area</i>/<i>perimeter</i> instead of count, or flood-filling with a replacement value (classic "Flood Fill" LC problem) instead of a visited set.</p>
+</div>
+<p class="dd-input"><b>Trace input:</b> <code>grid = [[1,1,0,0],[1,0,0,1],[0,0,1,1],[0,0,0,1]]</code> (1 = land, 0 = water) — <i>count connected land components (islands), 4-directional.</i></p>
+<table class="itr">
+<thead><tr><th>Step</th><th>Action</th><th>Stack</th><th>Visited (new)</th><th>Islands</th><th>Note</th></tr></thead>
+<tbody>
+<tr><td>0</td><td>outer scan hits (0,0)=1, unvisited</td><td>[(0,0)]</td><td>&mdash;</td><td>0</td><td>launch DFS #1</td></tr>
+<tr><td>1</td><td>pop (0,0), push land neighbors</td><td>[(1,0),(0,1)]</td><td>(0,0)</td><td>0</td><td>down &amp; right are land</td></tr>
+<tr><td>2</td><td>pop (0,1)</td><td>[(1,0)]</td><td>(0,1)</td><td>0</td><td>(0,2) and (1,1) are water</td></tr>
+<tr><td>3</td><td>pop (1,0)</td><td>[]</td><td>(1,0)</td><td>0</td><td>(1,1) water, (2,0) water &rarr; stack empty</td></tr>
+<tr><td>4</td><td>island #1 closed, size 3</td><td>[]</td><td>&mdash;</td><td>1</td><td>{(0,0),(0,1),(1,0)}</td></tr>
+<tr><td>5</td><td>outer scan hits (1,3)=1, unvisited</td><td>[(1,3)]</td><td>&mdash;</td><td>1</td><td>launch DFS #2</td></tr>
+<tr><td>6</td><td>pop (1,3), push down neighbor</td><td>[(2,3)]</td><td>(1,3)</td><td>1</td><td>(0,3) water, left (1,2) water</td></tr>
+<tr><td>7</td><td>pop (2,3), push down &amp; left</td><td>[(3,3),(2,2)]</td><td>(2,3)</td><td>1</td><td>both (3,3) and (2,2) are land</td></tr>
+<tr><td>8</td><td>pop (2,2)</td><td>[(3,3)]</td><td>(2,2)</td><td>1</td><td>up/down/left all water</td></tr>
+<tr><td>9</td><td>pop (3,3)</td><td>[]</td><td>(3,3)</td><td>1</td><td>left (3,2) is water &rarr; stack empty</td></tr>
+<tr><td>10</td><td>island #2 closed, size 4</td><td>[]</td><td>&mdash;</td><td>2</td><td>{(1,3),(2,3),(2,2),(3,3)}</td></tr>
+</tbody>
+</table>
+<p class="dd-result"><b>Result:</b> <code>2</code> islands. The trace shows each DFS launch fully draining its stack before the outer scan resumes — that "drain before moving on" behavior is what makes the launch count equal the component count.</p>
+</div>
 </div>
 
 <!-- ================= 3. BACKTRACKING ================= -->
@@ -4545,6 +4602,31 @@ i=1    {}                {1}
  {} {3}{2}{2,3}   {1}{1,3} {1,2}{1,2,3}</code></pre></div>
 <p>The 8 leaves are exactly the 2³ subsets. Each edge is a choose; each return is an un-choose that pops the last element so the buffer is reused.</p>
 <div class="tip"><b>Pruning ideas:</b> sort first and skip duplicates (<code>if(i&gt;start &amp;&amp; a[i]==a[i-1]) continue;</code>) for unique subsets; cut a branch when a partial sum already exceeds the target; bound the remaining best-possible against the current best.</div>
+
+<div class="deepdive">
+<h3>🔬 Deeper dive &amp; dry run</h3>
+<div class="dd-intuition">
+  <p><b>Why it works.</b> Backtracking explores a decision tree where each path from the root encodes one partial/complete choice sequence, and the recursion maintains the invariant "path == the exact set of choices made on the current call stack". Because you undo (<code>pop</code>) a choice immediately after exploring its subtree, the same mutable <code>path</code> buffer can be reused for every branch — the tree is walked without ever materializing more than one branch's worth of state at a time.</p>
+  <p><b>When to reach for it.</b> "Generate all subsets/permutations/combinations", "find all ways to partition/place X", constraint-satisfaction (N-Queens, Sudoku), or anything requiring exhaustive enumeration with early pruning of invalid branches.</p>
+  <p><b>Complexity.</b> For subsets of an <i>n</i>-element set: <code>O(2^n)</code> time and results (every subset is emitted), <code>O(n)</code> extra space for the recursion stack/path buffer (excluding the output).</p>
+  <p><b>Pitfalls &amp; variations.</b> Forgetting to copy <code>path</code> before appending it to results stores a reference that later mutates — always snapshot (e.g. <code>path[:]</code>). Off-by-one on the start index causes duplicate or missing subsets. Variants: "subsets II" (dedupe with sorted input + skip-equal-siblings), permutations (loop over all unused indices instead of <code>i..n</code>), combination sum (allow reuse / prune by running total).</p>
+</div>
+<p class="dd-input"><b>Trace input:</b> <code>nums = [1,2,3]</code>, <code>backtrack(start, path)</code> records <code>path</code> into <code>result</code> on every call, then loops <code>i</code> from <code>start</code> to <code>n-1</code> choosing <code>nums[i]</code> &mdash; <i>enumerate all 2&sup3; subsets.</i></p>
+<table class="itr">
+<thead><tr><th>Step</th><th>start</th><th>path</th><th>Action</th><th>result so far</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>0</td><td><code>[]</code></td><td>record</td><td>[[]]</td></tr>
+<tr><td>2</td><td>1</td><td><code>[1]</code></td><td>choose nums[0]=1, record</td><td>[[], [1]]</td></tr>
+<tr><td>3</td><td>2</td><td><code>[1,2]</code></td><td>choose nums[1]=2, record</td><td>+[1,2]</td></tr>
+<tr><td>4</td><td>3</td><td><code>[1,2,3]</code></td><td>choose nums[2]=3, record</td><td>+[1,2,3]</td></tr>
+<tr><td>5</td><td>3</td><td><code>[1,3]</code></td><td>pop 2 &amp; 3, choose nums[2]=3, record</td><td>+[1,3]</td></tr>
+<tr><td>6</td><td>2</td><td><code>[2]</code></td><td>pop back to [], choose nums[1]=2, record</td><td>+[2]</td></tr>
+<tr><td>7</td><td>3</td><td><code>[2,3]</code></td><td>choose nums[2]=3, record</td><td>+[2,3]</td></tr>
+<tr><td>8</td><td>3</td><td><code>[3]</code></td><td>pop back to [], choose nums[2]=3, record</td><td>+[3]</td></tr>
+</tbody>
+</table>
+<p class="dd-result"><b>Result:</b> all 8 subsets: <code>[[],[1],[1,2],[1,2,3],[1,3],[2],[2,3],[3]]</code>. The trace shows every "record" happens at call <i>entry</i> — the include/exclude choice for each element is implicit in whether the loop reaches it before <code>start</code> advances past it.</p>
+</div>
 </div>
 
 <!-- ================= 4. D&C / TREE DP ================= -->
@@ -4653,6 +4735,30 @@ function build(lo: number, hi: number): (TreeNode | null)[] {
 <tr><td>3</td><td>{1,2} (2)</td><td>∅ (1)</td><td>2×1 = 2</td></tr>
 </table>
 <p>Total = 2+1+2 = <b>5</b> = Catalan(3). The DP formula <code>dp[3]=dp[0]dp[2]+dp[1]dp[1]+dp[2]dp[0]</code> gives the same 5 in O(n²).</p>
+
+<div class="deepdive">
+<h3>🔬 Deeper dive &amp; dry run</h3>
+<div class="dd-intuition">
+  <p><b>Why it works.</b> Tree DP via divide &amp; conquer maintains the invariant "the recursive call on a subtree returns a locally-sufficient summary (here: subtree height) while updating a globally-shared best-so-far as a side effect". Post-order traversal guarantees both children's summaries are known before the parent combines them, so the parent never needs to re-descend — each edge is examined exactly once when contributing to its parent's answer.</p>
+  <p><b>When to reach for it.</b> Any tree question phrased as "the answer might route <i>through</i> a node combining its subtrees" — diameter, max path sum, balanced-tree check, subtree counts/sums. Signal: the answer isn't a simple root-to-leaf value, it's a whole-tree property built from combining children.</p>
+  <p><b>Complexity.</b> <code>O(n)</code> time — one post-order visit per node; <code>O(h)</code> space for the recursion stack (<code>h</code> = tree height, worst case <code>O(n)</code> for a skewed tree).</p>
+  <p><b>Pitfalls &amp; variations.</b> Computing height and diameter in two separate passes is a common <code>O(n&sup2;)</code> mistake — fold both into one post-order return. Forgetting that a <code>null</code> child contributes height 0, not &minus;1, shifts the diameter off by one. Variants: max path sum allowing negative-value pruning, "diameter" measured in nodes vs. edges (know which the problem wants).</p>
+</div>
+<p class="dd-input"><b>Trace input:</b> binary tree rooted at 1: <code>1(2(4(7),5),3(&middot;,6))</code> &mdash; <i>find the tree's diameter (longest path between any two nodes, in edges) via one post-order pass.</i></p>
+<table class="itr">
+<thead><tr><th>Step</th><th>Node</th><th>leftH</th><th>rightH</th><th>diam so far</th><th>height returned</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>7</td><td>0</td><td>0</td><td>0</td><td>1</td></tr>
+<tr><td>2</td><td>4</td><td>1</td><td>0</td><td>1</td><td>2</td></tr>
+<tr><td>3</td><td>5</td><td>0</td><td>0</td><td>1</td><td>1</td></tr>
+<tr><td>4</td><td>2</td><td>2</td><td>1</td><td>3</td><td>3</td></tr>
+<tr><td>5</td><td>6</td><td>0</td><td>0</td><td>3</td><td>1</td></tr>
+<tr><td>6</td><td>3</td><td>0</td><td>1</td><td>3</td><td>2</td></tr>
+<tr><td>7</td><td>1 (root)</td><td>3</td><td>2</td><td>5</td><td>4</td></tr>
+</tbody>
+</table>
+<p class="dd-result"><b>Result:</b> diameter = <code>5</code> edges, realized by the path <code>7&rarr;4&rarr;2&rarr;1&rarr;3&rarr;6</code>. The trace shows the diameter updates only at nodes where a path could route <i>through</i> them (left height + right height), while the returned height is a separate, smaller number used purely by the parent.</p>
+</div>
 </div>
 
 <!-- ================= 5. TOPO SORT ================= -->
@@ -4760,6 +4866,28 @@ function build(lo: number, hi: number): (TreeNode | null)[] {
 </table>
 <p>Order <b>[0,1,2,3]</b>; 4 of 4 emitted ⇒ no cycle. (<code>[0,2,1,3]</code> is equally valid.)</p>
 <div class="pit"><b>Pitfall:</b> to detect an impossible schedule you must check the emitted count, not assume success — a cycle silently leaves nodes stuck at in-degree &gt; 0.</div>
+
+<div class="deepdive">
+<h3>🔬 Deeper dive &amp; dry run</h3>
+<div class="dd-intuition">
+  <p><b>Why it works.</b> Kahn's algorithm maintains the invariant "a node is only safe to output once every prerequisite has already been output" &mdash; enforced by only enqueueing nodes whose in-degree has dropped to zero. Each time a node is processed, it "pays off" its outgoing edges by decrementing its neighbors' in-degree, so a neighbor becomes eligible the instant its last prerequisite is satisfied. If the algorithm terminates with fewer nodes output than exist, a cycle is blocking progress &mdash; some node's in-degree never reaches zero.</p>
+  <p><b>When to reach for it.</b> "Course schedule / build order / task dependencies", "can all tasks be completed given prerequisites", or any DAG where you need <i>an</i> ordering (not necessarily unique) consistent with directed edges.</p>
+  <p><b>Complexity.</b> <code>O(V + E)</code> time &mdash; each vertex enqueued/dequeued once, each edge relaxed once; <code>O(V)</code> space for the in-degree array and queue.</p>
+  <p><b>Pitfalls &amp; variations.</b> Building the adjacency list in the wrong direction (prerequisite&rarr;course vs. course&rarr;prerequisite) silently inverts the whole ordering. Forgetting the cycle check (<code>len(order) &lt; numCourses</code>) makes the function silently return a partial, wrong answer instead of detecting infeasibility. DFS-based topo sort (post-order + reverse, with a 3-color visited state to catch back-edges) is the alternative implementation, often preferred when you also need explicit cycle-path reporting.</p>
+</div>
+<p class="dd-input"><b>Trace input:</b> 4 courses, prerequisite edges <code>0&rarr;1, 0&rarr;2, 1&rarr;3, 2&rarr;3</code> (edge <code>u&rarr;v</code> means "finish u before v") &mdash; <i>find a valid course order, or detect it's impossible.</i></p>
+<table class="itr">
+<thead><tr><th>Step</th><th>Popped</th><th>indegree[0..3]</th><th>Queue after</th><th>Order so far</th></tr></thead>
+<tbody>
+<tr><td>0</td><td>&mdash;</td><td>[0,1,1,2]</td><td>[0]</td><td>[]</td></tr>
+<tr><td>1</td><td>0</td><td>[0,0,0,2]</td><td>[1,2]</td><td>[0]</td></tr>
+<tr><td>2</td><td>1</td><td>[0,0,0,1]</td><td>[2]</td><td>[0,1]</td></tr>
+<tr><td>3</td><td>2</td><td>[0,0,0,0]</td><td>[3]</td><td>[0,1,2]</td></tr>
+<tr><td>4</td><td>3</td><td>[0,0,0,0]</td><td>[]</td><td>[0,1,2,3]</td></tr>
+</tbody>
+</table>
+<p class="dd-result"><b>Result:</b> order <code>[0,1,2,3]</code>, length 4 = numCourses &rarr; feasible, no cycle. The trace shows course 3's in-degree dropping by one at both step 2 and step 3 &mdash; it only becomes eligible once <i>both</i> prerequisites 1 and 2 have fired.</p>
+</div>
 </div>
 
 <!-- ================= 6. DIJKSTRA ================= -->
@@ -4876,6 +5004,31 @@ function build(lo: number, hi: number): (TreeNode | null)[] {
 </table>
 <p>Final distances <b>[0,3,1,4]</b>. The stale <code>(1,4)</code> entry shows why the <code>d &gt; dist[u]</code> guard matters — it silently discards outdated heap entries instead of re-processing them.</p>
 <div class="tip"><b>Family map:</b> all-same-weight → BFS (§1); weights ∈ {0,1} → 0-1 BFS deque; non-negative weights → Dijkstra; negative edges → Bellman-Ford; all-pairs → Floyd-Warshall O(V³).</div>
+
+<div class="deepdive">
+<h3>🔬 Deeper dive &amp; dry run</h3>
+<div class="dd-intuition">
+  <p><b>Why it works.</b> Dijkstra maintains the invariant "once a node is popped from the min-priority-queue with a distance matching its current best estimate, that distance is final" &mdash; because every edge weight is non-negative, no undiscovered path through an unvisited (necessarily &ge; current-min) node could ever beat it. The algorithm greedily settles nodes in non-decreasing order of shortest distance, relaxing (<code>dist[v] = min(dist[v], dist[u] + w)</code>) each outgoing edge as a node settles.</p>
+  <p><b>When to reach for it.</b> "Shortest/cheapest path" with <i>weighted, non-negative</i> edges &mdash; network latency, flight cost, weighted grids. If negative edges are possible, this invariant breaks and you need Bellman-Ford instead.</p>
+  <p><b>Complexity.</b> <code>O((V + E) log V)</code> with a binary-heap priority queue &mdash; each edge can push one heap entry, each push/pop is <code>O(log V)</code>. <code>O(V)</code> space for <code>dist[]</code> plus <code>O(E)</code> for stale heap entries.</p>
+  <p><b>Pitfalls &amp; variations.</b> Not checking for stale/outdated heap entries (a node can be pushed multiple times at different distances before settling) causes redundant or, if mishandled, incorrect relaxations. Using Dijkstra on a graph with negative weights silently gives a wrong answer instead of erroring. Variants: A* (Dijkstra + admissible heuristic to bias the frontier), 0-1 BFS / plain BFS as cheaper special cases when weights are uniform.</p>
+</div>
+<p class="dd-input"><b>Trace input:</b> weighted graph, edges <code>A-B:4, A-C:1, C-B:2, B-D:5, C-D:8, D-E:3, B-E:10</code>, source <code>A</code> &mdash; <i>find shortest distance to every node, in particular to E.</i></p>
+<table class="itr">
+<thead><tr><th>Step</th><th>Pop (node,dist)</th><th>Relaxations</th><th>PQ after</th><th>dist[A,B,C,D,E]</th></tr></thead>
+<tbody>
+<tr><td>0</td><td>&mdash;</td><td>&mdash;</td><td>[(0,A)]</td><td>[0,&infin;,&infin;,&infin;,&infin;]</td></tr>
+<tr><td>1</td><td>(A,0)</td><td>B: 0+4=4; C: 0+1=1</td><td>[(1,C),(4,B)]</td><td>[0,4,1,&infin;,&infin;]</td></tr>
+<tr><td>2</td><td>(C,1)</td><td>B: 1+2=3&lt;4; D: 1+8=9</td><td>[(3,B),(4,B)*,(9,D)]</td><td>[0,3,1,9,&infin;]</td></tr>
+<tr><td>3</td><td>(B,3)</td><td>D: 3+5=8&lt;9; E: 3+10=13</td><td>[(4,B)*,(8,D),(9,D)*,(13,E)]</td><td>[0,3,1,8,13]</td></tr>
+<tr><td>4</td><td>(B,4) &mdash; stale</td><td>skip, dist[B] already 3</td><td>[(8,D),(9,D)*,(13,E)]</td><td>[0,3,1,8,13]</td></tr>
+<tr><td>5</td><td>(D,8)</td><td>E: 8+3=11&lt;13</td><td>[(9,D)*,(11,E),(13,E)*]</td><td>[0,3,1,8,11]</td></tr>
+<tr><td>6</td><td>(D,9) &mdash; stale</td><td>skip, dist[D] already 8</td><td>[(11,E),(13,E)*]</td><td>[0,3,1,8,11]</td></tr>
+<tr><td>7</td><td>(E,11)</td><td>settle E &mdash; final</td><td>[(13,E)*]</td><td>[0,3,1,8,11]</td></tr>
+</tbody>
+</table>
+<p class="dd-result"><b>Result:</b> shortest A&rarr;E = <code>11</code>, via <code>A-C-B-D-E</code> (1+2+5+3). The trace's two stale pops (steps 4 &amp; 6, marked *) show why the "skip if popped distance &ne; current best" guard is required &mdash; the queue can hold multiple outdated entries for the same node.</p>
+</div>
 </div>
 
 <!-- ================= 7. DSU ================= -->
@@ -4996,6 +5149,34 @@ public:
 </table>
 <p><code>find(0)==find(2)</code> → true (both root 0). Components = <b>2</b>: {0,1,2} and {3,4}. Trying <code>union(0,2)</code> returns false (same set) — that "false" is how Kruskal skips cycle-forming edges.</p>
 <div class="tip"><b>α(n)</b> is the inverse Ackermann function — ≤ 4 for any n you'll ever see, so treat DSU ops as effectively constant.</div>
+
+<div class="deepdive">
+<h3>🔬 Deeper dive &amp; dry run</h3>
+<div class="dd-intuition">
+  <p><b>Why it works.</b> DSU maintains the invariant "two elements are in the same set if and only if <code>find</code> resolves them to the same root", and <code>union</code> preserves it by attaching one root under the other. Path compression (pointing every visited node directly at the root during <code>find</code>) and union by rank/size keep the trees shallow, so the invariant stays cheap to check even after many unions.</p>
+  <p><b>When to reach for it.</b> "Number of connected components/provinces/islands (as a list of pairwise connections rather than a grid)", "are these two nodes connected", "detect a cycle while adding edges one at a time" (redundant connection problems), Kruskal's MST.</p>
+  <p><b>Complexity.</b> With path compression + union by rank: <code>O(&alpha;(n))</code> amortized per operation (effectively constant), <code>O(n)</code> space for the parent (and optional rank) array.</p>
+  <p><b>Pitfalls &amp; variations.</b> Skipping path compression <i>and</i> union by rank degrades <code>find</code> to <code>O(n)</code> worst case on a skewed chain. Forgetting to decrement a running "component count" on successful union forces an <code>O(n)</code> final pass to count distinct roots. Variants: weighted union-find (track a relative offset/ratio between nodes), DSU with rollback (for offline queries needing undo).</p>
+</div>
+<p class="dd-input"><b>Trace input:</b> <code>isConnected</code> matrix for 5 cities, upper triangle checked pair by pair &mdash; connections present at <code>(0,1), (1,2), (3,4)</code> &mdash; <i>count the number of provinces (connected components).</i></p>
+<table class="itr">
+<thead><tr><th>Step</th><th>Pair (i,j)</th><th>matrix[i][j]</th><th>Action</th><th>parent[0..4]</th><th>Provinces</th></tr></thead>
+<tbody>
+<tr><td>0</td><td>&mdash;</td><td>&mdash;</td><td>init</td><td>[0,1,2,3,4]</td><td>5</td></tr>
+<tr><td>1</td><td>(0,1)</td><td>1</td><td>union &mdash; root(0)=0, root(1)=1, differ</td><td>[0,0,2,3,4]</td><td>4</td></tr>
+<tr><td>2</td><td>(0,2)</td><td>0</td><td>skip</td><td>[0,0,2,3,4]</td><td>4</td></tr>
+<tr><td>3</td><td>(0,3)</td><td>0</td><td>skip</td><td>[0,0,2,3,4]</td><td>4</td></tr>
+<tr><td>4</td><td>(0,4)</td><td>0</td><td>skip</td><td>[0,0,2,3,4]</td><td>4</td></tr>
+<tr><td>5</td><td>(1,2)</td><td>1</td><td>union &mdash; root(1)=0, root(2)=2, differ</td><td>[0,0,0,3,4]</td><td>3</td></tr>
+<tr><td>6</td><td>(1,3)</td><td>0</td><td>skip</td><td>[0,0,0,3,4]</td><td>3</td></tr>
+<tr><td>7</td><td>(1,4)</td><td>0</td><td>skip</td><td>[0,0,0,3,4]</td><td>3</td></tr>
+<tr><td>8</td><td>(2,3)</td><td>0</td><td>skip</td><td>[0,0,0,3,4]</td><td>3</td></tr>
+<tr><td>9</td><td>(2,4)</td><td>0</td><td>skip</td><td>[0,0,0,3,4]</td><td>3</td></tr>
+<tr><td>10</td><td>(3,4)</td><td>1</td><td>union &mdash; root(3)=3, root(4)=4, differ</td><td>[0,0,0,3,3]</td><td>2</td></tr>
+</tbody>
+</table>
+<p class="dd-result"><b>Result:</b> <code>2</code> provinces &mdash; roots <code>{0,3}</code>. Cities 0,1,2 collapse into root 0; cities 3,4 collapse into root 3. The provinces count only ever decreases, and only on a successful union between two distinct roots &mdash; the eight skipped pairs never touch <code>parent[]</code>.</p>
+</div>
 </div>
 
 <!-- ================= 8. BINARY SEARCH ================= -->
@@ -5122,6 +5303,28 @@ function feasible(piles: number[], speed: number, h: number): boolean {
 </table>
 <p>Answer <b>4</b>. Note we never enumerate speeds — 4 probes cover the whole range 1..11.</p>
 <div class="pit"><b>Pitfalls:</b> off-by-one is the whole game. Pin down whether your interval is <code>[lo,hi]</code> (loop while <code>lo&lt;=hi</code>) or <code>[lo,hi)</code> (loop while <code>lo&lt;hi</code>), and use <code>lo+(hi-lo)/2</code> to dodge integer overflow. For "largest feasible", mirror the moves.</p></div>
+
+<div class="deepdive">
+<h3>🔬 Deeper dive &amp; dry run</h3>
+<div class="dd-intuition">
+  <p><b>Why it works.</b> Binary search on the answer requires a monotonic <code>feasible(x)</code> predicate: if speed <code>x</code> works, every larger speed also works (and every smaller speed that fails, all smaller speeds also fail). That monotonicity turns "find the minimum feasible x" into ordinary binary search over the answer space <code>[lo, hi]</code>, converging by halving regardless of how expensive <code>feasible(x)</code> is to evaluate.</p>
+  <p><b>When to reach for it.</b> "Minimum/maximum X such that condition holds", "smallest capacity/speed/threshold to finish within a limit" &mdash; Koko Eating Bananas, Ship Packages Within D Days, split array largest sum. Signal: the array itself isn't sorted for a value search; instead you're searching an <i>answer range</i> against a checkable predicate.</p>
+  <p><b>Complexity.</b> <code>O(n log(range))</code> &mdash; <code>log(range)</code> binary-search steps, each paying <code>O(n)</code> to evaluate <code>feasible</code>. Space <code>O(1)</code> beyond input.</p>
+  <p><b>Pitfalls &amp; variations.</b> Using <code>mid = (lo+hi)//2</code> with <code>hi = mid</code> on the feasible branch but forgetting <code>lo = mid + 1</code> on the infeasible branch causes an infinite loop. Off-by-one on whether <code>hi</code> starts at <code>max(piles)</code> or <code>sum(piles)</code> changes correctness for edge cases like a single giant pile. Variants: search where the predicate is "cost &le; budget" instead of "time &le; limit" &mdash; the shape is identical, only the checker changes.</p>
+</div>
+<p class="dd-input"><b>Trace input:</b> <code>piles = [3,6,7,11]</code>, <code>h = 8</code> hours &mdash; <i>find the minimum eating speed k so <code>sum(ceil(pile/k))  &le;  h</code>.</i></p>
+<table class="itr">
+<thead><tr><th>Step</th><th>lo</th><th>hi</th><th>mid</th><th>hours(mid)</th><th>feasible?</th><th>Action</th></tr></thead>
+<tbody>
+<tr><td>0</td><td>1</td><td>11</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>search space = candidate speeds 1..max(piles)</td></tr>
+<tr><td>1</td><td>1</td><td>11</td><td>6</td><td>1+1+2+2=6</td><td>yes (6&le;8)</td><td>hi = 6</td></tr>
+<tr><td>2</td><td>1</td><td>6</td><td>3</td><td>1+2+3+4=10</td><td>no (10&gt;8)</td><td>lo = 4</td></tr>
+<tr><td>3</td><td>4</td><td>6</td><td>5</td><td>1+2+2+3=8</td><td>yes (8&le;8)</td><td>hi = 5</td></tr>
+<tr><td>4</td><td>4</td><td>5</td><td>4</td><td>1+2+2+3=8</td><td>yes (8&le;8)</td><td>hi = 4 &rarr; lo==hi, stop</td></tr>
+</tbody>
+</table>
+<p class="dd-result"><b>Result:</b> minimum speed <code>k = 4</code>. The trace shows the window <code>[lo,hi]</code> shrinking from 11 candidates to 1 in four steps (<code>log2(11)&approx;3.5</code>), and that speed 3 (checked implicitly, would take 10h) fails while 4 exactly meets the 8h budget.</p>
+</div>
 </div>
 
 <!-- ================= 9. HEAP ================= -->
@@ -5274,6 +5477,29 @@ function median(): number {
 <tr><td>4</td><td>[5,6]</td><td>add 4 → poll 4</td></tr>
 </table>
 <p>Heap holds the two largest {5,6}; its min (top) = <b>5</b> is the 2nd largest.</p>
+
+<div class="deepdive">
+<h3>🔬 Deeper dive &amp; dry run</h3>
+<div class="dd-intuition">
+  <p><b>Why it works.</b> A size-<i>k</i> min-heap maintains the invariant "the heap always holds the <i>k</i> largest elements seen so far, with the smallest of those k sitting at the top". Every new element either grows the heap (while under capacity) or gets compared against the current k-th largest (the heap's min) and only survives if it beats it &mdash; so after processing the whole stream, the heap's minimum is exactly the k-th largest overall.</p>
+  <p><b>When to reach for it.</b> "Kth largest/smallest", "top-k frequent", "k closest points", or any streaming/online scenario where you can't sort the whole input up front (or want better than <code>O(n log n)</code>). Signal words: "kth", "top k", "k most/least".</p>
+  <p><b>Complexity.</b> <code>O(n log k)</code> time &mdash; each of <code>n</code> elements does at most one <code>O(log k)</code> push/pop; <code>O(k)</code> space for the heap (vs. <code>O(n log n)</code>/<code>O(n)</code> for full sort).</p>
+  <p><b>Pitfalls &amp; variations.</b> Using a max-heap of the full input instead of a min-heap capped at size k throws away the whole point of the technique (back to <code>O(n log n)</code>). Forgetting to pop back down to size k after a push leaves the heap unbounded. Variants: "kth smallest" flips to a max-heap of size k; "k closest points" compares by distance instead of raw value; quickselect is the <code>O(n)</code> average-case alternative when you don't need a running/streaming answer.</p>
+</div>
+<p class="dd-input"><b>Trace input:</b> <code>nums = [7,10,4,3,20,15]</code>, <code>k = 2</code> &mdash; <i>find the 2nd largest element using a min-heap capped at size k.</i></p>
+<table class="itr">
+<thead><tr><th>Step</th><th>Element</th><th>Heap before</th><th>Action</th><th>Heap after</th><th>Size</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>7</td><td>[]</td><td>push (under capacity)</td><td>[7]</td><td>1</td></tr>
+<tr><td>2</td><td>10</td><td>[7]</td><td>push (now at capacity)</td><td>[7,10]</td><td>2</td></tr>
+<tr><td>3</td><td>4</td><td>[7,10]</td><td>push then pop-min(4)</td><td>[7,10]</td><td>2</td></tr>
+<tr><td>4</td><td>3</td><td>[7,10]</td><td>push then pop-min(3)</td><td>[7,10]</td><td>2</td></tr>
+<tr><td>5</td><td>20</td><td>[7,10]</td><td>push then pop-min(7)</td><td>[10,20]</td><td>2</td></tr>
+<tr><td>6</td><td>15</td><td>[10,20]</td><td>push then pop-min(10)</td><td>[15,20]</td><td>2</td></tr>
+</tbody>
+</table>
+<p class="dd-result"><b>Result:</b> heap top (min) = <code>15</code> = the 2nd largest (full sorted order: 20,15,10,7,4,3). Elements 4 and 3 never survive a single round in the heap because they're immediately the new minimum &mdash; the trace shows the heap self-correcting after every push.</p>
+</div>
 </div>
 
 <!-- ================= 10. TWO POINTERS ================= -->
@@ -5441,6 +5667,28 @@ function median(): number {
 </table>
 <p>Three steps instead of the six pairs a double loop would test. Each pointer only moves one direction, so total work is linear.</p>
 <div class="tip"><b>Finding the cycle's entry:</b> after fast/slow meet, reset one pointer to the head and advance both at 1x — they meet at the loop start (Floyd's second phase).</div>
+
+<div class="deepdive">
+<h3>🔬 Deeper dive &amp; dry run</h3>
+<div class="dd-intuition">
+  <p><b>Why it works.</b> On a sorted array, two pointers <code>l</code> and <code>r</code> maintain the invariant "every pair already skipped past could not possibly sum to target, given the array's order". If <code>nums[l] + nums[r] &gt; target</code>, decreasing <code>r</code> is the <i>only</i> way to shrink the sum (since all values between the old and new <code>r</code> are &ge; the new <code>nums[r]</code>, pairing any of them with <code>l</code> would still overshoot); symmetric logic justifies advancing <code>l</code> when the sum is too small. Each move provably eliminates a whole row/column of the pair matrix, never a false eliminate.</p>
+  <p><b>When to reach for it.</b> "Sorted array, find a pair/triplet summing to X", "container with most water", "remove duplicates in place", palindrome checks &mdash; anything where the array is sorted (or can be) and you're relating a value at one end to a value at the other.</p>
+  <p><b>Complexity.</b> <code>O(n)</code> time &mdash; <code>l</code> and <code>r</code> together traverse the array at most once; <code>O(1)</code> extra space, no hash map needed (unlike the unsorted two-sum).</p>
+  <p><b>Pitfalls &amp; variations.</b> Applying this technique on an <i>unsorted</i> array without sorting first breaks the elimination argument entirely. Using <code>l &lt; r</code> vs. <code>l &le; r</code> as the loop bound matters when the array has an odd middle element that could pair with itself only if duplicates are allowed. Variants: 3Sum (fix one element, two-pointer the rest), container-with-most-water (move the pointer at the shorter wall, not the smaller value).</p>
+</div>
+<p class="dd-input"><b>Trace input:</b> <code>nums = [-6,-4,-1,0,2,3,5,7,9,11]</code> (sorted), <code>target = 9</code> &mdash; <i>find a pair of indices whose values sum to target.</i></p>
+<table class="itr">
+<thead><tr><th>Step</th><th>l</th><th>r</th><th>nums[l]</th><th>nums[r]</th><th>sum</th><th>Action</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>0</td><td>9</td><td>-6</td><td>11</td><td>5</td><td>5 &lt; 9 &rarr; l++</td></tr>
+<tr><td>2</td><td>1</td><td>9</td><td>-4</td><td>11</td><td>7</td><td>7 &lt; 9 &rarr; l++</td></tr>
+<tr><td>3</td><td>2</td><td>9</td><td>-1</td><td>11</td><td>10</td><td>10 &gt; 9 &rarr; r--</td></tr>
+<tr><td>4</td><td>2</td><td>8</td><td>-1</td><td>9</td><td>8</td><td>8 &lt; 9 &rarr; l++</td></tr>
+<tr><td>5</td><td>3</td><td>8</td><td>0</td><td>9</td><td>9</td><td>9 == 9 &rarr; found</td></tr>
+</tbody>
+</table>
+<p class="dd-result"><b>Result:</b> pair found at indices <code>(3,8)</code>, values <code>(0,9)</code>. The trace shows <code>l</code> advancing three separate times and <code>r</code> retreating once &mdash; every move is justified purely by whether the current sum overshot or undershot 9, never by re-checking a skipped pair.</p>
+</div>
 </div>
 
 <!-- ================= 11. SLIDING WINDOW ================= -->
@@ -5626,6 +5874,31 @@ function atMost(a: number[], k: number): number {
 <tr><td>7</td><td>b</td><td>5→7</td><td>b</td><td>3</td></tr>
 </table>
 <p>Answer <b>3</b>. <code>left</code> only ever moves right, so both pointers together do ≤ 2n steps.</p>
+
+<div class="deepdive">
+<h3>🔬 Deeper dive &amp; dry run</h3>
+<div class="dd-intuition">
+<p><b>Why it works.</b> The window [left, right] maintains the invariant "no duplicate characters inside the window." When extending right introduces a duplicate of some character c, the window's left edge only needs to jump to <code>lastSeen[c] + 1</code> &mdash; everything before that still satisfies the invariant, and skipping character-by-character would revisit states already proven invalid. A hash map of last-seen indices turns each shrink into O(1) instead of a linear scan.</p>
+<p><b>When to reach for it.</b> Look for "contiguous subarray/substring" combined with a constraint that can only get worse as the window grows (distinct chars, sum &le; target, at most k distinct, etc.) &mdash; i.e. the constraint is monotonic in window size, so once it breaks, only shrinking from the left can fix it.</p>
+<p><b>Complexity.</b> O(n) time &mdash; left and right each move forward at most n times total; O(min(n, &Sigma;)) space for the last-seen map/set, where &Sigma; is the alphabet size.</p>
+<p><b>Pitfalls &amp; variations.</b> Forgetting to move left directly to <code>lastSeen[c] + 1</code> (instead of one step at a time) turns O(n) into O(n&sup2;). Confusing "at most k distinct" (shrink while count &gt; k) with "no repeats" (shrink while duplicate exists) is a common mix-up. Variants: fixed-size window (no left recompute, just slide), and "shrink-while-valid" windows that maximize rather than minimize.</p>
+</div>
+<p class="dd-input"><b>Trace input:</b> <code>s = "abcabcbb"</code> &mdash; <i>find the length of the longest substring with no repeated characters.</i></p>
+<table class="itr">
+<thead><tr><th>right</th><th>char</th><th>lastSeen before</th><th>left</th><th>window</th><th>len</th><th>best</th></tr></thead>
+<tbody>
+<tr><td>0</td><td>a</td><td>-</td><td>0</td><td>[0,0]</td><td>1</td><td>1</td></tr>
+<tr><td>1</td><td>b</td><td>-</td><td>0</td><td>[0,1]</td><td>2</td><td>2</td></tr>
+<tr><td>2</td><td>c</td><td>-</td><td>0</td><td>[0,2]</td><td>3</td><td>3</td></tr>
+<tr><td>3</td><td>a</td><td>0 (&gt;=left)</td><td>1</td><td>[1,3]</td><td>3</td><td>3</td></tr>
+<tr><td>4</td><td>b</td><td>1 (&gt;=left)</td><td>2</td><td>[2,4]</td><td>3</td><td>3</td></tr>
+<tr><td>5</td><td>c</td><td>2 (&gt;=left)</td><td>3</td><td>[3,5]</td><td>3</td><td>3</td></tr>
+<tr><td>6</td><td>b</td><td>4 (&gt;=left)</td><td>5</td><td>[5,6]</td><td>2</td><td>3</td></tr>
+<tr><td>7</td><td>b</td><td>6 (&gt;=left)</td><td>7</td><td>[7,7]</td><td>1</td><td>3</td></tr>
+</tbody>
+</table>
+<p class="dd-result"><b>Result:</b> Longest length is 3 (e.g. "abc"). The trace shows the window never shrinks more than one step past the offending duplicate, and left is monotonic non-decreasing throughout &mdash; the source of the O(n) bound.</p>
+</div>
 </div>
 
 <!-- ================= 12. MONOTONIC STACK ================= -->
@@ -5754,6 +6027,31 @@ function atMost(a: number[], k: number): number {
 <tr><td>6 (76)</td><td>pop 5 → res[5]=1; pop 2 → res[2]=4</td><td>[6]</td></tr>
 </table>
 <p>Result <b>[1,1,4,2,1,1,0]</b>. Index 2 (75°) waited 4 days for 76°; index 6 never warms so stays 0.</p>
+
+<div class="deepdive">
+<h3>🔬 Deeper dive &amp; dry run</h3>
+<div class="dd-intuition">
+<p><b>Why it works.</b> The stack holds indices whose "answer" is still unresolved, kept in strictly decreasing order of value. When a new element arrives that beats the top of the stack, it simultaneously resolves every stack entry it beats (because the stack is sorted), so each index is popped exactly once &mdash; that's what keeps the total work linear despite the nested-looking pop loop.</p>
+<p><b>When to reach for it.</b> Signals: "next greater/smaller element", "distance to the next warmer/taller/larger", or "largest rectangle/area under a skyline." Anything where the answer for position i depends on the nearest future (or past) element satisfying an order relation.</p>
+<p><b>Complexity.</b> O(n) time &mdash; amortized, since each index is pushed once and popped at most once; O(n) space for the stack.</p>
+<p><b>Pitfalls &amp; variations.</b> Using <code>&gt;=</code> vs <code>&gt;</code> in the comparison changes whether equal values resolve each other &mdash; get this backwards and duplicates silently break. Forgetting leftover stack entries never get a "next" (they default to 0/-1) is a frequent off-by-one. Variants: next-smaller (flip comparison), circular arrays (traverse the array twice), and previous-greater (traverse right-to-left).</p>
+</div>
+<p class="dd-input"><b>Trace input:</b> <code>temps = [73,74,75,71,69,72,76,73]</code> &mdash; <i>for each day, find how many days until a strictly warmer day.</i></p>
+<table class="itr">
+<thead><tr><th>i</th><th>temp</th><th>stack before</th><th>pops (idx&rarr;ans)</th><th>stack after</th></tr></thead>
+<tbody>
+<tr><td>0</td><td>73</td><td>[]</td><td>-</td><td>[0]</td></tr>
+<tr><td>1</td><td>74</td><td>[0]</td><td>0&rarr;1</td><td>[1]</td></tr>
+<tr><td>2</td><td>75</td><td>[1]</td><td>1&rarr;1</td><td>[2]</td></tr>
+<tr><td>3</td><td>71</td><td>[2]</td><td>-</td><td>[2,3]</td></tr>
+<tr><td>4</td><td>69</td><td>[2,3]</td><td>-</td><td>[2,3,4]</td></tr>
+<tr><td>5</td><td>72</td><td>[2,3,4]</td><td>4&rarr;1, 3&rarr;2</td><td>[2,5]</td></tr>
+<tr><td>6</td><td>76</td><td>[2,5]</td><td>5&rarr;1, 2&rarr;4</td><td>[6]</td></tr>
+<tr><td>7</td><td>73</td><td>[6]</td><td>-</td><td>[6,7]</td></tr>
+</tbody>
+</table>
+<p class="dd-result"><b>Result:</b> ans = [1,1,4,2,1,1,0,0]; indices 6 and 7 stay on the stack forever and default to 0. The trace shows day 6 (76&deg;, the max) triggers a double pop, resolving both day 5 and day 2 in one step.</p>
+</div>
 </div>
 
 <!-- ================= 13. PREFIX SUMS ================= -->
@@ -5873,6 +6171,30 @@ function build(): number[] {
 <tr><td>1</td><td>3</td><td>1</td><td>1</td><td>2</td><td>{…,3:1}</td></tr>
 </table>
 <p>Answer <b>2</b> — the subarrays <code>[1,1]</code> at indices (0,1) and (1,2). The map turns "find an earlier prefix" into an O(1) lookup.</p>
+
+<div class="deepdive">
+<h3>🔬 Deeper dive &amp; dry run</h3>
+<div class="dd-intuition">
+<p><b>Why it works.</b> Any subarray sum <code>nums[i..j]</code> equals <code>prefix[j] - prefix[i-1]</code>. Fixing j, the count of valid starting points is exactly the number of earlier prefix sums equal to <code>prefix[j] - k</code>. Storing prefix-sum frequencies in a hash map turns "count subarrays ending here with sum k" into an O(1) lookup instead of rescanning from every start.</p>
+<p><b>When to reach for it.</b> "Number of subarrays with sum/XOR equal to k", "subarray sum divisible by k", or anything phrased as a range-sum query repeated over many ranges &mdash; especially when negatives are allowed, ruling out sliding window.</p>
+<p><b>Complexity.</b> O(n) time &mdash; one pass accumulating the running sum and one map lookup/update per index; O(n) space for the frequency map.</p>
+<p><b>Pitfalls &amp; variations.</b> Must seed the map with <code>{0: 1}</code> to count subarrays starting at index 0. Look up <code>prefix - k</code> before inserting the current prefix, or a subarray can incorrectly "match itself" as a zero-length span. Variants: difference arrays for O(1) range-update/O(n) rebuild, and 2D prefix sums for submatrix queries.</p>
+</div>
+<p class="dd-input"><b>Trace input:</b> <code>nums = [1,1,1,0,1,1]</code>, <code>k = 2</code> &mdash; <i>count subarrays summing to exactly 2.</i></p>
+<table class="itr">
+<thead><tr><th>j</th><th>num</th><th>prefix</th><th>lookup key (prefix-k)</th><th>count found</th><th>ans</th><th>freq map after</th></tr></thead>
+<tbody>
+<tr><td>-</td><td>-</td><td>0</td><td>-</td><td>-</td><td>0</td><td>{0:1}</td></tr>
+<tr><td>0</td><td>1</td><td>1</td><td>-1</td><td>0</td><td>0</td><td>{0:1,1:1}</td></tr>
+<tr><td>1</td><td>1</td><td>2</td><td>0</td><td>1</td><td>1</td><td>{0:1,1:1,2:1}</td></tr>
+<tr><td>2</td><td>1</td><td>3</td><td>1</td><td>1</td><td>2</td><td>{0:1,1:1,2:1,3:1}</td></tr>
+<tr><td>3</td><td>0</td><td>3</td><td>1</td><td>1</td><td>3</td><td>{0:1,1:1,2:1,3:2}</td></tr>
+<tr><td>4</td><td>1</td><td>4</td><td>2</td><td>1</td><td>4</td><td>{0:1,1:1,2:1,3:2,4:1}</td></tr>
+<tr><td>5</td><td>1</td><td>5</td><td>3</td><td>2</td><td>6</td><td>{0:1,1:1,2:1,3:2,4:1,5:1}</td></tr>
+</tbody>
+</table>
+<p class="dd-result"><b>Result:</b> 6 subarrays sum to 2: (0,1), (1,2), (1,3), (2,4), (3,5), (4,5). The double count at j=5 (prefix 3 seen twice) shows how one lookup can resolve multiple matches at once.</p>
+</div>
 </div>
 
 <!-- ================= 14. DP I ================= -->
@@ -6108,6 +6430,30 @@ function build(): number[] {
 </table>
 <p>Answer <b>3</b> coins (5+5+1). Each <code>dp[a]</code> is computed once and reused — that reuse is the entire speedup over the recursion above.</p>
 <div class="pit"><b>Combinations vs permutations:</b> in counting problems, coin-outer/amount-inner counts unordered combos; swapping the loops counts ordered sequences. Getting this backwards is the most common DP counting bug.</div>
+
+<div class="deepdive">
+<h3>🔬 Deeper dive &amp; dry run</h3>
+<div class="dd-intuition">
+<p><b>Why it works.</b> <code>dp[i]</code> = fewest coins to make amount i, and it obeys the recurrence <code>dp[i] = 1 + min(dp[i-c])</code> over every coin c &le; i. This is valid because an optimal solution for i must end in some last coin c, and removing that coin leaves an optimal solution for the smaller amount i-c &mdash; the classic optimal-substructure argument that lets us build answers for larger amounts strictly from already-finalized smaller ones.</p>
+<p><b>When to reach for it.</b> "Fewest/most ways to reach a target using unlimited/limited copies of given items" &mdash; coin change, combination/permutation counting, unbounded knapsack. The target decomposes into a smaller instance of the same problem via one item choice.</p>
+<p><b>Complexity.</b> O(amount &times; coins) time &mdash; one pass over coins for each amount from 1 to target; O(amount) space for the 1D dp array.</p>
+<p><b>Pitfalls &amp; variations.</b> Initializing dp with 0 instead of infinity/sentinel for unreachable amounts silently produces wrong minimums. Iterating amount in the outer loop vs. coin in the outer loop changes counting problems from combinations to permutations (order matters) &mdash; mixing this up is the most common bug. Variants: 0/1 knapsack (loop items outer, amount inner, descending) vs. unbounded knapsack (amount inner, ascending, as here).</p>
+</div>
+<p class="dd-input"><b>Trace input:</b> <code>coins = [1,3,4]</code>, <code>amount = 6</code> &mdash; <i>fewest coins that sum exactly to 6.</i></p>
+<table class="itr">
+<thead><tr><th>i</th><th>candidates (dp[i-c]+1)</th><th>dp[i]</th></tr></thead>
+<tbody>
+<tr><td>0</td><td>base case</td><td>0</td></tr>
+<tr><td>1</td><td>dp[0]+1=1</td><td>1</td></tr>
+<tr><td>2</td><td>dp[1]+1=2</td><td>2</td></tr>
+<tr><td>3</td><td>dp[2]+1=3, dp[0]+1=1</td><td>1</td></tr>
+<tr><td>4</td><td>dp[3]+1=2, dp[1]+1=2, dp[0]+1=1</td><td>1</td></tr>
+<tr><td>5</td><td>dp[4]+1=2, dp[2]+1=3, dp[1]+1=2</td><td>2</td></tr>
+<tr><td>6</td><td>dp[5]+1=3, dp[3]+1=2, dp[2]+1=3</td><td>2</td></tr>
+</tbody>
+</table>
+<p class="dd-result"><b>Result:</b> dp[6] = 2 (e.g. 3+3). The table shows dp[3] and dp[4] hitting 1 coin directly, which is what lets dp[6] and dp[5] beat the naive all-ones count.</p>
+</div>
 </div>
 
 <!-- ================= 15. DP II ================= -->
@@ -6357,6 +6703,31 @@ function build(): number[] {
     A    0  1  2  2  3  3
     B    0  1  2  2  3  4</code></pre></div>
 <p>Bottom-right = <b>4</b> — e.g. the common subsequence <code>"BCAB"</code>. Every cell reads only its three neighbours, so the whole grid is O(m·n).</p>
+
+<div class="deepdive">
+<h3>🔬 Deeper dive &amp; dry run</h3>
+<div class="dd-intuition">
+<p><b>Why it works.</b> <code>dp[i][j]</code> = LCS length of the first i chars of s1 and first j chars of s2. If the current characters match, they must both belong to the LCS, so <code>dp[i][j] = dp[i-1][j-1] + 1</code>; if they don't match, the LCS of the prefixes can't use both characters, so it's the better of dropping one: <code>max(dp[i-1][j], dp[i][j-1])</code>. Every cell only needs the row above and the current row, which is why row-by-row filling works.</p>
+<p><b>When to reach for it.</b> Two sequences, asking for the longest common/similar structure preserving relative order (not contiguity) &mdash; LCS, edit distance, shortest common supersequence, longest palindromic subsequence (LCS of s with reverse(s)).</p>
+<p><b>Complexity.</b> O(m&middot;n) time and O(m&middot;n) space for the full table; space reducible to O(min(m,n)) by keeping only two rows if reconstruction isn't needed.</p>
+<p><b>Pitfalls &amp; variations.</b> Off-by-one on the 1-indexed dp table vs. 0-indexed strings is the single most common bug. Confusing LCS (subsequence, order preserved, gaps allowed) with longest common substring (contiguous) leads to the wrong recurrence entirely (substring resets to 0 on mismatch). Variants: edit distance replaces the match branch with insert/delete/replace costs.</p>
+</div>
+<p class="dd-input"><b>Trace input:</b> <code>s1 = "ABCBDAB"</code>, <code>s2 = "BDCABA"</code> &mdash; <i>length of the longest common subsequence.</i></p>
+<table class="itr">
+<thead><tr><th>i</th><th>s1[i]</th><th>dp row (j=1..6, vs B,D,C,A,B,A)</th></tr></thead>
+<tbody>
+<tr><td>0</td><td>-</td><td>0,0,0,0,0,0</td></tr>
+<tr><td>1</td><td>A</td><td>0,0,0,1,1,1</td></tr>
+<tr><td>2</td><td>B</td><td>1,1,1,1,2,2</td></tr>
+<tr><td>3</td><td>C</td><td>1,1,2,2,2,2</td></tr>
+<tr><td>4</td><td>B</td><td>1,1,2,2,3,3</td></tr>
+<tr><td>5</td><td>D</td><td>1,2,2,2,3,3</td></tr>
+<tr><td>6</td><td>A</td><td>1,2,2,3,3,4</td></tr>
+<tr><td>7</td><td>B</td><td>1,2,2,3,4,4</td></tr>
+</tbody>
+</table>
+<p class="dd-result"><b>Result:</b> dp[7][6] = 4 (one valid LCS is "BCBA"). Watch row 6&rarr;7: the match at s1[7]=B against s2[5]=B lifts dp[7][5] from 3 to 4 by pulling from dp[6][4]=3, showing the diagonal-plus-one rule in action.</p>
+</div>
 </div>
 
 <!-- ================= 16. BITMASK DP ================= -->
@@ -6470,6 +6841,31 @@ mask &amp; -mask                                       // lowest set bit</code><
 <tr><td>111 = {0,1,2}</td><td>all visited</td><td>dp[111][2]=dp[011][1]+dist(1,2)=1+2=3</td></tr>
 </table>
 <p>Best path visiting all three ends at node 2 with cost <b>3</b> (0→1→2). Each subset is solved once and feeds larger subsets — the exponential factor is 2ⁿ, not n!.</p>
+
+<div class="deepdive">
+<h3>🔬 Deeper dive &amp; dry run</h3>
+<div class="dd-intuition">
+<p><b>Why it works.</b> A bitmask compresses "which subset of nodes has been visited" into a single integer, so <code>dp[mask][j]</code> = min cost of a path that has visited exactly the nodes in mask and currently sits at j. The recurrence extends smaller masks by one bit: <code>dp[mask][j] = min over prev in mask (prev&ne;j) of dp[mask without j][prev] + dist[prev][j]</code>. Because a mask with k bits set only depends on masks with k-1 bits, processing masks in increasing numeric order (or by popcount) guarantees dependencies are ready.</p>
+<p><b>When to reach for it.</b> n is small (&le; ~20) and the state is "a subset of items/nodes visited/used" &mdash; TSP, set-cover-style counting, assigning n tasks to n slots, or DP over subsets of a small graph.</p>
+<p><b>Complexity.</b> O(2^n &middot; n&sup2;) time (each of 2^n masks, times n choices of current node, times n choices of previous node); O(2^n &middot; n) space for the dp table.</p>
+<p><b>Pitfalls &amp; variations.</b> Forgetting to add the return-to-start edge when the problem wants a cycle (Hamiltonian tour) vs. an open path is the classic omission. Bit-index confusion &mdash; using node id directly as the bit position only works if nodes are 0-indexed and the start node is excluded from the mask. Variants: profile/broken-profile DP for grid tiling uses the same bitmask-over-a-frontier idea.</p>
+</div>
+<p class="dd-input"><b>Trace input:</b> 4 cities {0=start,1,2,3}, dist(0,1)=10, dist(0,2)=15, dist(0,3)=20, dist(1,2)=35, dist(1,3)=25, dist(2,3)=30 &mdash; <i>min-cost tour visiting all cities once and returning to 0 (TSP over the 3 non-start nodes).</i></p>
+<table class="itr">
+<thead><tr><th>mask (bits=1,2,4)</th><th>dp[mask][end]</th><th>via</th></tr></thead>
+<tbody>
+<tr><td>{1}</td><td>dp[1][1]=10</td><td>0&rarr;1</td></tr>
+<tr><td>{2}</td><td>dp[2][2]=15</td><td>0&rarr;2</td></tr>
+<tr><td>{4}</td><td>dp[4][3]=20</td><td>0&rarr;3</td></tr>
+<tr><td>{1,2}</td><td>dp[3][1]=50, dp[3][2]=45</td><td>2&rarr;1, 1&rarr;2</td></tr>
+<tr><td>{1,4}</td><td>dp[5][1]=45, dp[5][3]=35</td><td>3&rarr;1, 1&rarr;3</td></tr>
+<tr><td>{2,4}</td><td>dp[6][2]=50, dp[6][3]=45</td><td>3&rarr;2, 2&rarr;3</td></tr>
+<tr><td>{1,2,4}</td><td>dp[7][1]=70, dp[7][2]=65, dp[7][3]=75</td><td>best of predecessor masks + edge</td></tr>
+<tr><td>close tour</td><td>min(70+10, 65+15, 75+20) = 80</td><td>best: 0&rarr;1&rarr;3&rarr;2&rarr;0</td></tr>
+</tbody>
+</table>
+<p class="dd-result"><b>Result:</b> Optimal tour cost is 80 (0&rarr;1&rarr;3&rarr;2&rarr;0 or its reverse). dp[7][2]=65 is built from dp[5][3]=35 + dist(3,2)=30, which itself came from dp[1][1]=10 + dist(1,3)=25 &mdash; a chain showing each mask strictly reuses the previous popcount's answers.</p>
+</div>
 </div>
 
 <!-- ================= 17. GREEDY ================= -->
@@ -6559,6 +6955,30 @@ mask &amp; -mask                                       // lowest set bit</code><
 </table>
 <p><b>3</b> meetings. <b>Why earliest-end is safe:</b> the meeting that frees the room soonest leaves the most room for the rest — swapping in any other first choice can't beat it (exchange argument).</p>
 <div class="pit"><b>Pitfall:</b> greedy on the wrong key silently gives near-right answers. For "max non-overlapping" sort by <i>end</i>; sorting by start or by length is a classic wrong turn.</div>
+
+<div class="deepdive">
+<h3>🔬 Deeper dive &amp; dry run</h3>
+<div class="dd-intuition">
+<p><b>Why it works.</b> Sorting by finish time and always keeping the interval that frees up the earliest is optimal because of an exchange argument: for any optimal solution, swapping its first-finishing interval for the earliest-finishing candidate never makes things worse and can only leave more room for later picks. The greedy choice never needs to be reconsidered &mdash; that's what makes it greedy rather than requiring backtracking.</p>
+<p><b>When to reach for it.</b> "Maximum number of non-overlapping intervals", "minimum number of rooms/platforms", or any problem where a locally-best choice (by some sort key) provably can't be beaten by saving the resource for later &mdash; provable via exchange argument or matroid structure.</p>
+<p><b>Complexity.</b> O(n log n) time dominated by the sort; O(1) extra space beyond the sort (O(n) if the sort isn't in-place).</p>
+<p><b>Pitfalls &amp; variations.</b> Sorting by start time instead of finish time is the most common wrong greedy &mdash; it isn't optimal for maximizing count. Using <code>&gt;</code> instead of <code>&gt;=</code> when comparing start to lastEnd changes whether touching endpoints count as overlapping. Variants: weighted interval scheduling needs DP instead of greedy (greedy fails once profit varies), and minimum platforms/rooms sorts start and end events together instead.</p>
+</div>
+<p class="dd-input"><b>Trace input:</b> intervals sorted by end: A(1,3), B(2,5), C(4,6), D(6,7), E(5,8), F(7,9), G(8,10) &mdash; <i>max count of non-overlapping intervals.</i></p>
+<table class="itr">
+<thead><tr><th>interval</th><th>lastEnd before</th><th>start &gt;= lastEnd?</th><th>decision</th><th>lastEnd after</th></tr></thead>
+<tbody>
+<tr><td>A(1,3)</td><td>-&infin;</td><td>yes</td><td>take</td><td>3</td></tr>
+<tr><td>B(2,5)</td><td>3</td><td>no (2&lt;3)</td><td>skip</td><td>3</td></tr>
+<tr><td>C(4,6)</td><td>3</td><td>yes</td><td>take</td><td>6</td></tr>
+<tr><td>D(6,7)</td><td>6</td><td>yes</td><td>take</td><td>7</td></tr>
+<tr><td>E(5,8)</td><td>7</td><td>no (5&lt;7)</td><td>skip</td><td>7</td></tr>
+<tr><td>F(7,9)</td><td>7</td><td>yes</td><td>take</td><td>9</td></tr>
+<tr><td>G(8,10)</td><td>9</td><td>no (8&lt;9)</td><td>skip</td><td>9</td></tr>
+</tbody>
+</table>
+<p class="dd-result"><b>Result:</b> 4 intervals selected: A, C, D, F. Note B and E are skipped even though each individually looks fine &mdash; they only conflict with the greedy pick, which is exactly the trade the exchange argument guarantees won't cost us the optimum.</p>
+</div>
 </div>
 
 <!-- ================= 18. TRIE ================= -->
@@ -6753,6 +7173,33 @@ public:
 <tr><td>search("apples")</td><td>no child 's' after e</td><td>false</td></tr>
 </table>
 <p>"app" and "apple" share the "app" path — stored once, so 5 nodes hold both words.</p>
+
+<div class="deepdive">
+<h3>🔬 Deeper dive &amp; dry run</h3>
+<div class="dd-intuition">
+<p><b>Why it works.</b> Each trie node represents a shared prefix; children branch on the next character, so any two words sharing a prefix share the same path from the root and only diverge where the strings actually differ. An <code>isEnd</code> flag per node distinguishes "this prefix exists in the tree" from "this prefix is itself a complete stored word" &mdash; the same node can be both a mid-path prefix for one word and a terminator for another.</p>
+<p><b>When to reach for it.</b> "Search / autocomplete / prefix match over a dictionary of strings", counting words with a given prefix, or word search on a grid with a dictionary &mdash; anywhere repeated prefix comparisons against a fixed word set would otherwise be redone from scratch.</p>
+<p><b>Complexity.</b> O(L) time per insert/search where L is the word length, independent of dictionary size; O(total characters &times; alphabet branching) space in the worst case (shared prefixes reduce this in practice).</p>
+<p><b>Pitfalls &amp; variations.</b> Confusing "search" (must end exactly on a node with <code>isEnd=true</code>) with "startsWith" (just needs the path to exist) is the classic bug. Not reusing existing nodes on insert (always creating fresh nodes) breaks the whole point of prefix sharing. Variants: compressed/radix tries collapse single-child chains; suffix tries/Aho-Corasick extend this to multi-pattern matching.</p>
+</div>
+<p class="dd-input"><b>Trace input:</b> insert "app", insert "apple", then <code>search("app")</code> and <code>search("appl")</code> &mdash; <i>build a trie over {"app","apple"} and test membership.</i></p>
+<table class="itr">
+<thead><tr><th>op</th><th>char</th><th>node path</th><th>action</th><th>isEnd after</th></tr></thead>
+<tbody>
+<tr><td>insert "app"</td><td>a</td><td>root&rarr;a</td><td>create</td><td>false</td></tr>
+<tr><td>insert "app"</td><td>p</td><td>a&rarr;p</td><td>create</td><td>false</td></tr>
+<tr><td>insert "app"</td><td>p</td><td>ap&rarr;p</td><td>create</td><td>true</td></tr>
+<tr><td>insert "apple"</td><td>a</td><td>root&rarr;a</td><td>reuse</td><td>false</td></tr>
+<tr><td>insert "apple"</td><td>p</td><td>a&rarr;p</td><td>reuse</td><td>false</td></tr>
+<tr><td>insert "apple"</td><td>p</td><td>ap&rarr;p</td><td>reuse (already isEnd)</td><td>true</td></tr>
+<tr><td>insert "apple"</td><td>l</td><td>app&rarr;l</td><td>create</td><td>false</td></tr>
+<tr><td>insert "apple"</td><td>e</td><td>appl&rarr;e</td><td>create</td><td>true</td></tr>
+<tr><td>search "app"</td><td>a,p,p</td><td>root&rarr;a&rarr;p&rarr;p</td><td>path exists, check isEnd</td><td>true &rarr; found</td></tr>
+<tr><td>search "appl"</td><td>a,p,p,l</td><td>root&rarr;a&rarr;p&rarr;p&rarr;l</td><td>path exists, check isEnd</td><td>false &rarr; not found</td></tr>
+</tbody>
+</table>
+<p class="dd-result"><b>Result:</b> "app" is found (isEnd=true at that node); "appl" exists only as a prefix (isEnd=false), so search reports false even though the path is walkable &mdash; the distinction the trie exists to make cheap.</p>
+</div>
 </div>
 
 <!-- ================= 19. INTERVALS ================= -->
@@ -6870,6 +7317,29 @@ public:
 <tr><td>[15,18]</td><td>15 ≤ 10 no</td><td>flush [8,10], start</td><td>cur=[15,18]</td></tr>
 </table>
 <p>Output <b>[[1,6],[8,10],[15,18]]</b>. Sorting guarantees any interval that overlaps <code>cur</code> comes right after it.</p>
+
+<div class="deepdive">
+<h3>🔬 Deeper dive &amp; dry run</h3>
+<div class="dd-intuition">
+<p><b>Why it works.</b> After sorting by start time, any interval that overlaps the currently-open merged interval must have a start &le; the current merged end (since it's sorted, later intervals can only start later or equal). So a single left-to-right sweep with one "current merged interval" suffices &mdash; the moment a new interval's start exceeds the current end, every future interval (sorted) is also guaranteed disjoint from it, so it can be closed off for good.</p>
+<p><b>When to reach for it.</b> "Merge overlapping intervals", "insert an interval into a sorted list", meeting-room/free-time problems, or any question about intervals where the answer only depends on order along one axis &mdash; sort, then sweep once.</p>
+<p><b>Complexity.</b> O(n log n) time for the sort (the sweep itself is O(n)); O(n) space for the output (O(log n) extra if sorting in place).</p>
+<p><b>Pitfalls &amp; variations.</b> Comparing with <code>&lt;</code> instead of <code>&lt;=</code> at the boundary decides whether touching intervals like [1,3] and [3,5] merge &mdash; get the problem's convention right. Forgetting to sort first (or sorting by end instead of start) breaks the single-pass guarantee. Variants: sweep-line with separate start/end events (for counting overlaps at any point) instead of merging whole intervals.</p>
+</div>
+<p class="dd-input"><b>Trace input:</b> <code>intervals = [[1,3],[2,6],[5,7],[8,10],[9,12],[15,18]]</code> (already sorted by start) &mdash; <i>merge all overlapping intervals.</i></p>
+<table class="itr">
+<thead><tr><th>current</th><th>last merged</th><th>overlap? (start &lt;= last.end)</th><th>merged list after</th></tr></thead>
+<tbody>
+<tr><td>[1,3]</td><td>none</td><td>-</td><td>[[1,3]]</td></tr>
+<tr><td>[2,6]</td><td>[1,3]</td><td>yes (2&lt;=3)</td><td>[[1,6]]</td></tr>
+<tr><td>[5,7]</td><td>[1,6]</td><td>yes (5&lt;=6)</td><td>[[1,7]]</td></tr>
+<tr><td>[8,10]</td><td>[1,7]</td><td>no (8&gt;7)</td><td>[[1,7],[8,10]]</td></tr>
+<tr><td>[9,12]</td><td>[8,10]</td><td>yes (9&lt;=10)</td><td>[[1,7],[8,12]]</td></tr>
+<tr><td>[15,18]</td><td>[8,12]</td><td>no (15&gt;12)</td><td>[[1,7],[8,12],[15,18]]</td></tr>
+</tbody>
+</table>
+<p class="dd-result"><b>Result:</b> Merged output is [[1,7],[8,12],[15,18]]. The merged end keeps extending (3&rarr;6&rarr;7) across two consecutive overlaps before the sweep hits a genuine gap at [8,10], showing merges can chain across more than one input interval.</p>
+</div>
 </div>
 
 <!-- ================= 20. LINKED LIST ================= -->
@@ -6997,6 +7467,30 @@ public:
 <tr><td>3</td><td>3</td><td>null</td><td>3→2→1→null</td></tr>
 </table>
 <p>Return <code>prev = 3</code>. Saving <code>next</code> first is what keeps the tail reachable after each flip.</p>
+
+<div class="deepdive">
+<h3>🔬 Deeper dive &amp; dry run</h3>
+<div class="dd-intuition">
+<p><b>Why it works.</b> The invariant held before each step is "everything from the original head up to (but not including) curr has already been reversed and points backward, prev is the new head of that reversed segment, and curr still points forward into the untouched remainder." Each iteration peels one node off the untouched remainder, flips its pointer to point at prev, then advances both prev and curr by one &mdash; so the reversed-prefix invariant is preserved and grows by exactly one node per step.</p>
+<p><b>When to reach for it.</b> Any "reverse/rearrange a linked list in place" task &mdash; full reversal, reverse in groups of k, reverse a sublist [left,right], or detect/remove a cycle (Floyd's) &mdash; the shared tool is a small fixed set of pointers (prev/curr/next, or slow/fast) advanced with no extra data structure.</p>
+<p><b>Complexity.</b> O(n) time &mdash; one pass, one pointer reassignment per node; O(1) space &mdash; no recursion stack, no auxiliary list (recursive reversal trades this for O(n) call-stack space).</p>
+<p><b>Pitfalls &amp; variations.</b> Saving <code>next</code> after (instead of before) reassigning <code>curr.next</code> loses the rest of the list irrecoverably. Returning <code>curr</code> instead of <code>prev</code> as the new head after the loop ends (curr is null at that point) is the classic off-by-one. Variants: reversing only a sublist requires stitching the reversed segment back between two saved boundary pointers; reversing in groups of k requires recursion or an explicit stack of segment boundaries.</p>
+</div>
+<p class="dd-input"><b>Trace input:</b> <code>1 &rarr; 2 &rarr; 3 &rarr; 4 &rarr; 5 &rarr; 6</code> &mdash; <i>reverse the linked list in place, iteratively.</i></p>
+<table class="itr">
+<thead><tr><th>step</th><th>prev</th><th>curr</th><th>next (saved)</th><th>action</th></tr></thead>
+<tbody>
+<tr><td>0 (init)</td><td>null</td><td>1</td><td>-</td><td>start</td></tr>
+<tr><td>1</td><td>1</td><td>2</td><td>2</td><td>1.next = null</td></tr>
+<tr><td>2</td><td>2</td><td>3</td><td>3</td><td>2.next = 1</td></tr>
+<tr><td>3</td><td>3</td><td>4</td><td>4</td><td>3.next = 2</td></tr>
+<tr><td>4</td><td>4</td><td>5</td><td>5</td><td>4.next = 3</td></tr>
+<tr><td>5</td><td>5</td><td>6</td><td>6</td><td>5.next = 4</td></tr>
+<tr><td>6</td><td>6</td><td>null</td><td>null</td><td>6.next = 5; loop ends (curr null)</td></tr>
+</tbody>
+</table>
+<p class="dd-result"><b>Result:</b> New head is prev = 6, giving <code>6 &rarr; 5 &rarr; 4 &rarr; 3 &rarr; 2 &rarr; 1</code>. Each row's "action" shows the reversed prefix growing by exactly one link, and the loop terminates precisely when curr falls off the end.</p>
+</div>
 </div>
 
 <!-- ================= 21. HASHING ================= -->
@@ -7093,6 +7587,28 @@ for (const x of a) freq.set(x, (freq.get(x) ?? 0) + 1);   // idiomatic counter</
 <tr><td>1</td><td>7</td><td>2</td><td>yes → [0,1]</td><td>—</td></tr>
 </table>
 <p>Answer <b>[0,1]</b> in one pass; the map converts "does a partner exist earlier?" into an O(1) check.</p>
+
+<div class="deepdive">
+<h3>🔬 Deeper dive &amp; dry run</h3>
+<div class="dd-intuition">
+  <p><b>Why it works.</b> A hashmap turns "have I seen a value that completes this condition?" into an O(1) average lookup, letting one pass replace nested loops. The invariant is: at index <code>i</code>, the map contains exactly the elements from indices <code>0..i-1</code>, so a hit reflects a valid, earlier partner — never the current element itself.</p>
+  <p><b>When to reach for it.</b> Phrases like "find two numbers that sum to", "count subarrays with sum k", "first repeating element", "longest run with at most k distinct" or "group items by a derived key" — anything trading O(n²) pairwise comparison for O(n) with O(1) membership/frequency checks.</p>
+  <p><b>Complexity.</b> Time O(n): one pass, O(1) average hashmap ops. Space O(n) worst case: every element gets its own map entry.</p>
+  <p><b>Pitfalls &amp; variations.</b> Checking the map <i>before</i> inserting the current element (otherwise an element can pair with itself); storing only presence when the answer needs the index/count; when the key domain is small and bounded (26 letters, digits 0–9), a fixed-size array is faster than a hashmap and avoids collision overhead.</p>
+</div>
+<p class="dd-input"><b>Trace input:</b> <code>nums = [2, 11, 3, 15, 7, 4], target = 9</code> — <i>find the indices of two numbers that sum to the target.</i></p>
+<table class="itr">
+<thead><tr><th>Step</th><th>i</th><th>num</th><th>target−num</th><th>seen (before)</th><th>Hit?</th><th>Action</th></tr></thead>
+<tbody>
+<tr><td>0</td><td>0</td><td>2</td><td>7</td><td>{}</td><td>no</td><td>insert 2→0</td></tr>
+<tr><td>1</td><td>1</td><td>11</td><td>-2</td><td>{2:0}</td><td>no</td><td>insert 11→1</td></tr>
+<tr><td>2</td><td>2</td><td>3</td><td>6</td><td>{2:0, 11:1}</td><td>no</td><td>insert 3→2</td></tr>
+<tr><td>3</td><td>3</td><td>15</td><td>-6</td><td>{2:0, 11:1, 3:2}</td><td>no</td><td>insert 15→3</td></tr>
+<tr><td>4</td><td>4</td><td>7</td><td>2</td><td>{2:0, 11:1, 3:2, 15:3}</td><td>yes (2 at idx 0)</td><td>return [0, 4]</td></tr>
+</tbody>
+</table>
+<p class="dd-result"><b>Result:</b> indices <code>[0, 4]</code> (values 2 and 7) sum to 9. The trace shows the lookup always happens before the insert, so an element can never be matched with itself.</p>
+</div>
 </div>
 
 <!-- ================= 22. STACK ================= -->
@@ -7210,6 +7726,30 @@ for (const x of a) freq.set(x, (freq.get(x) ?? 0) + 1);   // idiomatic counter</
 <tr><td>)</td><td>pop ( == match</td><td>(empty)</td></tr>
 </table>
 <p>Ends empty → <b>valid</b>. <code>"([)]"</code> would pop <code>(</code> to match <code>]</code> — mismatch → invalid.</p>
+
+<div class="deepdive">
+<h3>🔬 Deeper dive &amp; dry run</h3>
+<div class="dd-intuition">
+  <p><b>Why it works.</b> A stack enforces "last opened, first closed" — the invariant is that the top of the stack is always the most recently opened, unmatched item, which is exactly what nested structures (brackets, tags, function calls, expressions) require for a match.</p>
+  <p><b>When to reach for it.</b> Validating/matching nested delimiters, evaluating expressions with precedence, "undo the most recent unresolved thing" (basic calculator, decode string, remove adjacent duplicates), or finding the next greater/smaller element via a monotonic stack.</p>
+  <p><b>Complexity.</b> Time O(n): one pass, O(1) push/pop. Space O(n) worst case: an all-openers input like <code>"(((("</code>.</p>
+  <p><b>Pitfalls &amp; variations.</b> Popping without first checking the stack isn't empty (unmatched closer crashes or false-matches); forgetting to check the stack is empty at the very end (unmatched opener passes silently); mixing bracket types without a closer→opener lookup map. Variant: a <i>monotonic</i> stack keeps elements sorted instead of matching pairs, used for next-greater-element and histogram problems.</p>
+</div>
+<p class="dd-input"><b>Trace input:</b> <code>s = "{[()]}"</code> — <i>determine whether the brackets are validly nested.</i></p>
+<table class="itr">
+<thead><tr><th>Step</th><th>char</th><th>Action</th><th>Stack after (bottom→top)</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>{</td><td>opener → push</td><td>{</td></tr>
+<tr><td>2</td><td>[</td><td>opener → push</td><td>{ [</td></tr>
+<tr><td>3</td><td>(</td><td>opener → push</td><td>{ [ (</td></tr>
+<tr><td>4</td><td>)</td><td>closer → top is ( → match → pop</td><td>{ [</td></tr>
+<tr><td>5</td><td>]</td><td>closer → top is [ → match → pop</td><td>{</td></tr>
+<tr><td>6</td><td>}</td><td>closer → top is { → match → pop</td><td>(empty)</td></tr>
+<tr><td>7</td><td>end of string</td><td>stack is empty → valid</td><td>(empty)</td></tr>
+</tbody>
+</table>
+<p class="dd-result"><b>Result:</b> valid (true). Every closer resolved against the current top of stack, and the stack was empty at the end — the trace shows both conditions are necessary, not just "no crash mid-scan".</p>
+</div>
 </div>
 
 <!-- ================= 23. DESIGN ================= -->
@@ -7360,6 +7900,32 @@ public:
 <tr><td>get(2)</td><td>1,3</td><td>−1 (gone)</td></tr>
 </table>
 <p>Every op is O(1) because the map finds entries and the ordering list tracks recency simultaneously.</p>
+
+<div class="deepdive">
+<h3>🔬 Deeper dive &amp; dry run</h3>
+<div class="dd-intuition">
+  <p><b>Why it works.</b> Pairing a hashmap (O(1) key→node lookup) with a doubly linked list (O(1) unlink/move-to-front) maintains two invariants at once: the map always points to a live node, and the list order always reflects recency. Eviction becomes "drop the tail" with no scanning.</p>
+  <p><b>When to reach for it.</b> The problem demands O(1) (or amortized O(1)) for both a keyed lookup and an order-sensitive operation: LRU/LFU cache, min-stack, browser history, "insert/delete/getRandom in O(1)".</p>
+  <p><b>Complexity.</b> Time O(1) per get/put. Space O(capacity): one map entry + one list node per cached key.</p>
+  <p><b>Pitfalls &amp; variations.</b> A hashmap alone loses order (can't find the LRU key in O(1)); a list alone loses O(1) lookup; forgetting that <code>get</code> must also move the accessed node to the front (not just <code>put</code>) breaks the recency invariant; eviction must happen at capacity, and must happen for a <i>new</i> key, not an update to an existing one.</p>
+</div>
+<p class="dd-input"><b>Trace input:</b> <code>LRUCache(capacity=2)</code>; <code>put(1,1); put(2,2); get(1); put(3,3); get(2); put(4,4); get(1); get(3); get(4)</code> — <i>the canonical LC146 walkthrough.</i></p>
+<table class="itr">
+<thead><tr><th>Step</th><th>Operation</th><th>Cache (MRU→LRU)</th><th>Evicted</th><th>Returned</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>put(1,1)</td><td>[1]</td><td>—</td><td>—</td></tr>
+<tr><td>2</td><td>put(2,2)</td><td>[2, 1]</td><td>—</td><td>—</td></tr>
+<tr><td>3</td><td>get(1)</td><td>[1, 2]</td><td>—</td><td>1</td></tr>
+<tr><td>4</td><td>put(3,3)</td><td>[3, 1]</td><td>2</td><td>—</td></tr>
+<tr><td>5</td><td>get(2)</td><td>[3, 1]</td><td>—</td><td>-1</td></tr>
+<tr><td>6</td><td>put(4,4)</td><td>[4, 3]</td><td>1</td><td>—</td></tr>
+<tr><td>7</td><td>get(1)</td><td>[4, 3]</td><td>—</td><td>-1</td></tr>
+<tr><td>8</td><td>get(3)</td><td>[3, 4]</td><td>—</td><td>3</td></tr>
+<tr><td>9</td><td>get(4)</td><td>[4, 3]</td><td>—</td><td>4</td></tr>
+</tbody>
+</table>
+<p class="dd-result"><b>Result:</b> returns <code>1, -1, -1, 3, 4</code>, matching the standard LC146 example exactly. The trace shows a plain <code>get</code> still reorders the list even though it never inserts — the detail most implementations get wrong.</p>
+</div>
 </div>
 
 <!-- ================= 24. SIMULATION ================= -->
@@ -7454,6 +8020,29 @@ public:
 // 4 5 6      → 1 2 3 · 6 9 · 8 7 · 4 · 5
 // 7 8 9</code></pre></div>
 <p>Top row (1,2,3), right col (6,9), bottom row reversed (8,7), left col (4), center (5) → <b>[1,2,3,6,9,8,7,4,5]</b>. Each border shrinks after it's consumed, and the two <code>if</code> guards stop a single leftover row/column from being walked twice.</p>
+
+<div class="deepdive">
+<h3>🔬 Deeper dive &amp; dry run</h3>
+<div class="dd-intuition">
+  <p><b>Why it works.</b> Simulation problems don't hinge on a clever formula — they hinge on precisely maintained state (position, direction, shrinking boundaries) updated exactly per the rules given. Correctness comes from getting each state transition and boundary check exactly right.</p>
+  <p><b>When to reach for it.</b> The problem literally describes a step-by-step process — walk a grid, deal cards, run a simulated game/robot — and asks for the state after N steps or the full output order. No shortcut exists; you model exactly what's described.</p>
+  <p><b>Complexity.</b> Time O(cells) or O(steps): every cell/step is touched once. Space O(1) extra beyond the output: a handful of boundary/position variables.</p>
+  <p><b>Pitfalls &amp; variations.</b> Off-by-one when shrinking an inclusive boundary; forgetting to re-check <code>top ≤ bottom</code> / <code>left ≤ right</code> between the horizontal and vertical sweeps of the same lap (causes double-visiting the middle row/column on odd-sized inputs); direction-cycling logic drifting on non-square matrices.</p>
+</div>
+<p class="dd-input"><b>Trace input:</b> <code>matrix = [[1,2,3],[4,5,6],[7,8,9]]</code> — <i>read all elements in spiral order.</i></p>
+<table class="itr">
+<thead><tr><th>Step</th><th>Leg</th><th>Boundaries before (T,B,L,R)</th><th>Cells visited</th><th>Result so far</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>top row, left→right</td><td>T0 B2 L0 R2</td><td>1, 2, 3</td><td>[1,2,3]</td></tr>
+<tr><td>2</td><td>right col, top→bottom</td><td>T1 B2 L0 R2</td><td>6, 9</td><td>[1,2,3,6,9]</td></tr>
+<tr><td>3</td><td>bottom row, right→left</td><td>T1 B2 L0 R1</td><td>8, 7</td><td>[1,2,3,6,9,8,7]</td></tr>
+<tr><td>4</td><td>left col, bottom→top</td><td>T1 B1 L0 R1</td><td>4</td><td>[1,2,3,6,9,8,7,4]</td></tr>
+<tr><td>5</td><td>top row, left→right</td><td>T1 B1 L1 R1</td><td>5</td><td>[1,2,3,6,9,8,7,4,5]</td></tr>
+<tr><td>6</td><td>loop check: T2 &gt; B1</td><td>T2 B1 L1 R1</td><td>(none — loop exits)</td><td>[1,2,3,6,9,8,7,4,5]</td></tr>
+</tbody>
+</table>
+<p class="dd-result"><b>Result:</b> <code>[1, 2, 3, 6, 9, 8, 7, 4, 5]</code>. Each leg shrinks exactly one boundary and re-tests the loop condition, which is what stops the sweep from re-visiting the center cell.</p>
+</div>
 </div>
 
 <!-- ================= 25. MATH / BIT ================= -->
@@ -7528,6 +8117,29 @@ x ^= (1 &lt;&lt; i);                // toggle bit i</code></pre></div>
 
 <h3>Worked example — single number in <code>[4,1,2,1,2]</code></h3>
 <p>XOR is associative/commutative, so order doesn't matter: <code>4^1^2^1^2 = 4^(1^1)^(2^2) = 4^0^0 = </code><b>4</b>. The two 1s and two 2s annihilate, leaving the loner.</p>
+
+<div class="deepdive">
+<h3>🔬 Deeper dive &amp; dry run</h3>
+<div class="dd-intuition">
+  <p><b>Why it works.</b> XOR is its own inverse and commutative/associative, so XOR-ing every element cancels any value that appears an even number of times (<code>a^a=0</code>). The running invariant is "accumulator = XOR of all values not yet cancelled," so after a full pass only the odd-count value(s) survive.</p>
+  <p><b>When to reach for it.</b> "Every element appears twice except one," parity/toggle questions, swapping without a temp variable, or representing a set as a bitmask (subset enumeration, "missing number") — anywhere equality-under-XOR determines the answer.</p>
+  <p><b>Complexity.</b> Time O(n): one pass. Space O(1): a single accumulator.</p>
+  <p><b>Pitfalls &amp; variations.</b> Plain XOR only isolates a single odd-count value cleanly when everything else appears in pairs — "Single Number II" (others appear 3×) and "Single Number III" (two singles) need bit-counting or a partitioning bit, not plain XOR alone; reaching for addition/subtraction instead of XOR risks overflow and needs sorting.</p>
+</div>
+<p class="dd-input"><b>Trace input:</b> <code>nums = [4, 1, 2, 1, 2]</code> — <i>find the element that appears exactly once.</i></p>
+<table class="itr">
+<thead><tr><th>Step</th><th>num</th><th>num (binary)</th><th>result before</th><th>result after (binary)</th></tr></thead>
+<tbody>
+<tr><td>0 (init)</td><td>—</td><td>—</td><td>—</td><td>000 (0)</td></tr>
+<tr><td>1</td><td>4</td><td>100</td><td>000</td><td>100 (4)</td></tr>
+<tr><td>2</td><td>1</td><td>001</td><td>100</td><td>101 (5)</td></tr>
+<tr><td>3</td><td>2</td><td>010</td><td>101</td><td>111 (7)</td></tr>
+<tr><td>4</td><td>1</td><td>001</td><td>111</td><td>110 (6)</td></tr>
+<tr><td>5</td><td>2</td><td>010</td><td>110</td><td>100 (4)</td></tr>
+</tbody>
+</table>
+<p class="dd-result"><b>Result:</b> 4. Every value that appears twice (1 and 2) cancels itself out in pairs, so the running XOR settles on the one value without a partner.</p>
+</div>
 </div>
 
 <!-- ================= 26. NUMBER THEORY ================= -->
@@ -7609,6 +8221,31 @@ function lcm(a: number, b: number): number { return a / gcd(a, b) * b; }        
 <tr><td>9</td><td>yes</td><td>skip</td><td>3</td></tr>
 </table>
 <p>Wait — 7 is also prime: at i=7 composite is false, count→<b>4</b> (2,3,5,7). Starting the inner loop at <code>i*i</code> (not <code>2i</code>) skips redundant marking.</p>
+
+<div class="deepdive">
+<h3>🔬 Deeper dive &amp; dry run</h3>
+<div class="dd-intuition">
+  <p><b>Why it works.</b> The Sieve of Eratosthenes maintains the invariant "every composite ≤ the current limit has already been marked by the time we reach its smallest prime factor" — each prime p eliminates its own multiples the moment it's confirmed prime, and every composite's smallest prime factor is ≤ √n, so the sieve never has to "discover" a composite the hard way.</p>
+  <p><b>When to reach for it.</b> Primality is needed for <i>many</i> numbers up to n, not just one — "count primes below n," precomputing a smallest-prime-factor table for fast factorization, GCD/LCM-heavy batch problems.</p>
+  <p><b>Complexity.</b> Time O(n log log n) (sum of n/p over all primes p ≤ n). Space O(n) for the boolean array.</p>
+  <p><b>Pitfalls &amp; variations.</b> Off-by-one on inclusive vs. exclusive n; forgetting 0 and 1 aren't prime; starting the inner marking loop at <code>2p</code> instead of <code>p*p</code> is still correct, just slower (multiples below p² are already marked by smaller primes); not capping the outer loop at √n is a performance miss, not a correctness bug. Variants: segmented sieve for huge n; linear sieve to build a smallest-prime-factor table in O(n).</p>
+</div>
+<p class="dd-input"><b>Trace input:</b> <code>n = 10</code> — <i>sieve to find all primes below 10 (check indices 2..9).</i></p>
+<table class="itr">
+<thead><tr><th>Step</th><th>p</th><th>p prime?</th><th>Action</th><th>Remaining candidates after</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>2</td><td>yes</td><td>mark multiples 4, 6, 8 composite</td><td>2, 3, 5, 7, 9</td></tr>
+<tr><td>2</td><td>3</td><td>yes</td><td>mark multiples 6 (already), 9</td><td>2, 3, 5, 7</td></tr>
+<tr><td>3</td><td>4</td><td>no (composite)</td><td>skip</td><td>2, 3, 5, 7</td></tr>
+<tr><td>4</td><td>5</td><td>yes</td><td>no multiple of 5 below 10 left to mark</td><td>2, 3, 5, 7</td></tr>
+<tr><td>5</td><td>6</td><td>no (composite)</td><td>skip</td><td>2, 3, 5, 7</td></tr>
+<tr><td>6</td><td>7</td><td>yes</td><td>no multiple of 7 below 10 left to mark</td><td>2, 3, 5, 7</td></tr>
+<tr><td>7</td><td>8</td><td>no (composite)</td><td>skip</td><td>2, 3, 5, 7</td></tr>
+<tr><td>8</td><td>9</td><td>no (composite, marked at p=3)</td><td>skip</td><td>2, 3, 5, 7</td></tr>
+</tbody>
+</table>
+<p class="dd-result"><b>Result:</b> primes below 10 = {2, 3, 5, 7}, count 4. Past p=3 (⌈√10⌉) no new numbers ever get marked — the trace shows the tail of the outer loop is pure overhead once p exceeds √n.</p>
+</div>
 </div>
 
 <!-- ================= 27. FENWICK ================= -->
@@ -7755,6 +8392,30 @@ public:
 <tr><td>range(3,5)</td><td>prefix(5)−prefix(2)=5</td><td>5</td></tr>
 </table>
 <p>Each query/update walks ≤ log₂6 ≈ 3 cells via the <code>i &amp; -i</code> jumps.</p>
+
+<div class="deepdive">
+<h3>🔬 Deeper dive &amp; dry run</h3>
+<div class="dd-intuition">
+  <p><b>Why it works.</b> A Fenwick (Binary Indexed) tree stores at index <code>i</code> the sum of a power-of-two-sized block ending at <code>i</code>, where the block size is <code>i</code>'s lowest set bit. That invariant lets <code>update</code> climb via <code>i += i &amp; (-i)</code> and <code>query</code> climb via <code>i -= i &amp; (-i)</code>, each touching only O(log n) nodes instead of rewriting or scanning O(n) of them.</p>
+  <p><b>When to reach for it.</b> Point updates and prefix/range-sum queries are interleaved and need to beat O(n) recompute per query — "range sum query — mutable," inversion counting, frequency-rank queries (order statistics on a stream).</p>
+  <p><b>Complexity.</b> Time O(log n) per update or prefix-sum query; O(n log n) to build via n sequential updates. Space O(n).</p>
+  <p><b>Pitfalls &amp; variations.</b> Fenwick trees are 1-indexed — calling update/query with index 0 breaks the <code>i &amp; (-i)</code> climb; a range sum over <code>[l, r]</code> needs <code>query(r) − query(l-1)</code>, not a single call; Fenwick relies on subtraction being valid, so it's a poor fit for range-min/max (use a segment tree there instead).</p>
+</div>
+<p class="dd-input"><b>Trace input:</b> <code>a[1..6] = [3, 2, -1, 6, 5, 4]</code> — <i>build a Fenwick tree over 6 slots, then query the prefix sum(6).</i></p>
+<table class="itr">
+<thead><tr><th>Step</th><th>Operation</th><th>Indices touched</th><th>tree[1..6] after</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>update(1, +3)</td><td>1 → 2 → 4</td><td>[3, 3, 0, 3, 0, 0]</td></tr>
+<tr><td>2</td><td>update(2, +2)</td><td>2 → 4</td><td>[3, 5, 0, 5, 0, 0]</td></tr>
+<tr><td>3</td><td>update(3, -1)</td><td>3 → 4</td><td>[3, 5, -1, 4, 0, 0]</td></tr>
+<tr><td>4</td><td>update(4, +6)</td><td>4 (4+4=8&gt;6, stop)</td><td>[3, 5, -1, 10, 0, 0]</td></tr>
+<tr><td>5</td><td>update(5, +5)</td><td>5 → 6</td><td>[3, 5, -1, 10, 5, 5]</td></tr>
+<tr><td>6</td><td>update(6, +4)</td><td>6 (6+2=8&gt;6, stop)</td><td>[3, 5, -1, 10, 5, 9]</td></tr>
+<tr><td>7</td><td>query(6)</td><td>6 → 4 → 0 (stop)</td><td>sum = tree[6]+tree[4] = 9+10 = 19</td></tr>
+</tbody>
+</table>
+<p class="dd-result"><b>Result:</b> prefix sum(6) = 19, matching 3+2-1+6+5+4 = 19 directly. The trace shows update climbing by <i>adding</i> the lowest set bit and query climbing by <i>subtracting</i> it — mirror-image walks over the same tree.</p>
+</div>
 </div>
 
 <!-- ================= 28. SPECIALIZED ================= -->
@@ -7875,6 +8536,28 @@ function partition(a: number[], lo: number, hi: number): number {
 <p>Element #3 is chosen when seen (prob 1/3), then must survive #4 (kept-out prob 3/4) and #5 (4/5):</p>
 <div class="snippet"><pre class="code lang-java"><code>P(keep #3) = 1/3 × 3/4 × 4/5 = 1/5</code></pre><pre class="code lang-cpp"><code>// P(keep #3) = 1/3 × 3/4 × 4/5 = 1/5</code></pre><pre class="code lang-python"><code># P(keep #3) = 1/3 × 3/4 × 4/5 = 1/5</code></pre><pre class="code lang-ts"><code>// P(keep #3) = 1/3 × 3/4 × 4/5 = 1/5</code></pre></div>
 <p>Every element ends with probability exactly 1/5 — uniform, using a single variable and one pass. Quickselect's average O(n) comes from discarding one partition side each round (n + n/2 + n/4 + … ≈ 2n).</p>
+
+<div class="deepdive">
+<h3>🔬 Deeper dive &amp; dry run</h3>
+<div class="dd-intuition">
+  <p><b>Why it works.</b> Reservoir sampling maintains the invariant that after processing <code>i</code> elements, every element seen so far has probability exactly <code>k/i</code> of being in the reservoir. When element <code>i+1</code> arrives, it's admitted with probability <code>k/(i+1)</code>, and any existing occupant is displaced with that same probability — so the invariant renews itself inductively for every new element.</p>
+  <p><b>When to reach for it.</b> Sampling uniformly from a stream of unknown or huge length using O(k) space — "pick a random node from a linked list of unknown length," "sample k lines from a massive file/stream you can't hold in memory."</p>
+  <p><b>Complexity.</b> Time O(n): one pass, one random draw per element. Space O(k): the reservoir itself.</p>
+  <p><b>Pitfalls &amp; variations.</b> Drawing the random index over the wrong range — it must be <code>[0, i]</code> inclusive of <code>i</code>, not <code>[0, k)</code>; replacing with the wrong probability (must be <code>k/(i+1)</code>, not <code>1/(i+1)</code>); assuming later elements are less likely to survive — they aren't, that's the entire point of the invariant. Quickselect uses a related "maintain an invariant partition" idea, but for order statistics via random pivots rather than uniform sampling.</p>
+</div>
+<p class="dd-input"><b>Trace input:</b> <code>k = 1, stream = [A, B, C, D, E]</code> — <i>pick one element with uniform 1/5 probability each, using O(1) extra space.</i></p>
+<table class="itr">
+<thead><tr><th>Step</th><th>i (0-indexed)</th><th>Incoming</th><th>Draw j in [0,i]</th><th>Replace? (j&lt;k)</th><th>Reservoir after</th></tr></thead>
+<tbody>
+<tr><td>0</td><td>0</td><td>A</td><td>— (seed)</td><td>—</td><td>A</td></tr>
+<tr><td>1</td><td>1</td><td>B</td><td>j=0</td><td>yes (0&lt;1)</td><td>B</td></tr>
+<tr><td>2</td><td>2</td><td>C</td><td>j=2</td><td>no (2≥1)</td><td>B</td></tr>
+<tr><td>3</td><td>3</td><td>D</td><td>j=0</td><td>yes (0&lt;1)</td><td>D</td></tr>
+<tr><td>4</td><td>4</td><td>E</td><td>j=4</td><td>no (4≥1)</td><td>D</td></tr>
+</tbody>
+</table>
+<p class="dd-result"><b>Result:</b> the reservoir holds D. D's survival probability telescopes to exactly 1/5: it wins its own draw at i=3 with probability 1/4, then survives not being replaced at i=4 with probability 4/5 — 1/4 × 4/5 = 1/5, matching every other element's chance.</p>
+</div>
 </div>
 
 <hr>
@@ -8039,6 +8722,29 @@ public:
 <tr><td>bat</td><td>abt</td><td>abt -&gt; [bat]</td></tr>
 </table>
 <p>Final groups: <code>[eat, tea, ate]</code>, <code>[tan, nat]</code>, <code>[bat]</code>.</p>
+</div>
+
+<div class="deepdive">
+<h3>🔬 Deeper dive &amp; dry run</h3>
+<div class="dd-intuition">
+  <p><b>Why it works.</b> Anagrams share a canonical form — their letters sorted, or a fixed-length letter-count signature — so hashing every string by that canonical key groups every permutation into the same bucket. The invariant enforced is "two strings land in the same bucket iff they're anagrams," which sorting (or counting) guarantees exactly.</p>
+  <p><b>When to reach for it.</b> "Group items by a derived signature" problems — anagrams, isomorphic strings, bucketing by digit sum or frequency profile — whenever equality after some transformation defines the equivalence classes you need.</p>
+  <p><b>Complexity.</b> Time O(n·k log k) with sort-based keys (n strings, average length k), or O(n·k) with a fixed-alphabet count-tuple key. Space O(n·k) to store all strings across the map's buckets.</p>
+  <p><b>Pitfalls &amp; variations.</b> Using the raw string as the key misses anagrams entirely; sorting each string is simple but O(k log k) — a 26-length count array as the key is O(k) and faster for pure-lowercase inputs; building a string-encoded count key (e.g. "1a2b0c…") works but is easy to get delimiter bugs on vs. just using a tuple/array directly as the key.</p>
+</div>
+<p class="dd-input"><b>Trace input:</b> <code>strs = ["eat","tea","tan","ate","nat","bat"]</code> — <i>group all anagrams together (the classic LC49 example).</i></p>
+<table class="itr">
+<thead><tr><th>Step</th><th>word</th><th>sorted key</th><th>map state after insert</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>eat</td><td>aet</td><td>{aet:[eat]}</td></tr>
+<tr><td>2</td><td>tea</td><td>aet</td><td>{aet:[eat, tea]}</td></tr>
+<tr><td>3</td><td>tan</td><td>ant</td><td>{aet:[eat, tea], ant:[tan]}</td></tr>
+<tr><td>4</td><td>ate</td><td>aet</td><td>{aet:[eat, tea, ate], ant:[tan]}</td></tr>
+<tr><td>5</td><td>nat</td><td>ant</td><td>{aet:[eat, tea, ate], ant:[tan, nat]}</td></tr>
+<tr><td>6</td><td>bat</td><td>abt</td><td>{aet:[eat, tea, ate], ant:[tan, nat], abt:[bat]}</td></tr>
+</tbody>
+</table>
+<p class="dd-result"><b>Result:</b> <code>[["eat","tea","ate"], ["tan","nat"], ["bat"]]</code> — matches LeetCode's own example. The sorted key is computed once per word and is all the hashmap ever sees; the original word is just the payload riding along in the bucket.</p>
 </div>
 </div>
 
@@ -8221,6 +8927,32 @@ public:
 </table>
 <p>Result: <code>[[-1,-1,2], [-1,0,1]]</code>.</p>
 </div>
+
+<div class="deepdive">
+<h3>🔬 Deeper dive &amp; dry run</h3>
+<div class="dd-intuition">
+  <p><b>Why it works.</b> After sorting, fixing the smallest element at index <code>i</code> and sweeping <code>l</code>/<code>r</code> inward keeps the triplet sum monotonic in each pointer — moving <code>l</code> right only increases the sum, moving <code>r</code> left only decreases it. That monotonicity means no combination is ever re-checked, turning an O(n²) inner search into O(n) per fixed <code>i</code>.</p>
+  <p><b>When to reach for it.</b> "Find pairs/triples with a target sum or relationship" on a sorted (or sortable) array, especially when brute force is O(n²) or O(n³) and duplicate results must be deduped — 3Sum, 3Sum Closest, Container With Most Water, pair sum in a sorted array.</p>
+  <p><b>Complexity.</b> Time O(n²): O(n log n) sort + O(n) outer loop × O(n) inner two-pointer sweep. Space O(1) extra (or O(log n) for the sort's recursion, depending on implementation).</p>
+  <p><b>Pitfalls &amp; variations.</b> Forgetting to skip duplicate values for <code>i</code>, <code>l</code>, <i>and</i> <code>r</code> — three separate dedup checks, easy to miss one and emit duplicate triplets; not sorting first (two pointers require sortedness to guarantee monotonic sum movement); letting <code>i</code> run past <code>n-3</code>, leaving fewer than two elements for <code>l</code>/<code>r</code>.</p>
+</div>
+<p class="dd-input"><b>Trace input:</b> <code>nums = [-1, 0, 1, 2, -1, -4]</code> → sorted <code>[-4, -1, -1, 0, 1, 2]</code> — <i>find all unique triplets summing to 0 (classic LC15 example).</i></p>
+<table class="itr">
+<thead><tr><th>Step</th><th>i</th><th>l</th><th>r</th><th>sum</th><th>Action</th></tr></thead>
+<tbody>
+<tr><td>0</td><td>sort</td><td>—</td><td>—</td><td>—</td><td>sorted = [-4,-1,-1,0,1,2]</td></tr>
+<tr><td>1</td><td>0 (-4)</td><td>1</td><td>5</td><td>-4-1+2=-3</td><td>-3&lt;0 → l++</td></tr>
+<tr><td>2</td><td>0 (-4)</td><td>2</td><td>5</td><td>-4-1+2=-3</td><td>-3&lt;0 → l++</td></tr>
+<tr><td>3</td><td>0 (-4)</td><td>3</td><td>5</td><td>-4+0+2=-2</td><td>-2&lt;0 → l++</td></tr>
+<tr><td>4</td><td>0 (-4)</td><td>4</td><td>5</td><td>-4+1+2=-1</td><td>-1&lt;0 → l++ → l==r, done with i=0</td></tr>
+<tr><td>5</td><td>1 (-1)</td><td>2</td><td>5</td><td>-1-1+2=0</td><td>match [-1,-1,2] → l++, r--</td></tr>
+<tr><td>6</td><td>1 (-1)</td><td>3</td><td>4</td><td>-1+0+1=0</td><td>match [-1,0,1] → l++, r-- → l&gt;r, done with i=1</td></tr>
+<tr><td>7</td><td>2 (-1)</td><td>—</td><td>—</td><td>—</td><td>duplicate of nums[1] → skip i</td></tr>
+<tr><td>8</td><td>3 (0)</td><td>4</td><td>5</td><td>0+1+2=3</td><td>3&gt;0 → r-- → l==r, loop ends (i at n-3)</td></tr>
+</tbody>
+</table>
+<p class="dd-result"><b>Result:</b> <code>[[-1,-1,2], [-1,0,1]]</code> — matches LeetCode's own example exactly. The trace shows the dedup skip at <code>i=2</code> and the strictly monotonic pointer moves that guarantee every valid triplet is found exactly once.</p>
+</div>
 </div>
 
 <div class="sec" id="lc-s-window">
@@ -8360,6 +9092,8 @@ public:
 </table>
 <p>Answer: 3 (substring <code>"abc"</code>).</p>
 </div>
+
+<div class="deepdive"><h3>🔬 Deeper dive &amp; dry run</h3><div class="dd-intuition"><p><b>Why it works.</b> The window <code>[left, right]</code> is maintained as an invariant: it never contains a repeated character. When character at <code>right</code> was last seen at an index <code>&gt;= left</code>, that occurrence is inside the current window, so <code>left</code> jumps to one past it &mdash; a single O(1) jump rather than shrinking one step at a time. Because <code>left</code> only ever moves forward, the whole scan is O(n).</p><p><b>When to reach for it.</b> Contiguous-subarray/substring problems where the validity of a window can be checked and updated incrementally as one pointer advances (no repeats, sum &le; k, at most k distinct characters) and the answer is a min/max length or a count of valid windows.</p><p><b>Complexity.</b> O(n) time &mdash; both pointers only move rightward over n characters combined; O(min(n, &Sigma;)) space for the last-seen-index map, bounded by the alphabet size &Sigma;.</p><p><b>Pitfalls &amp; variations.</b> Forgetting the <code>lastSeen[c] &gt;= left</code> guard lets <code>left</code> jump backward on a stale index. Off-by-one when computing <code>right - left + 1</code>. The "at most k distinct characters" variant needs a frequency-count shrink loop instead of a single jump &mdash; a common source of confusion with this exact problem.</p></div><p class="dd-input"><b>Trace input:</b> <code>s = "abcabcbb"</code> &mdash; <i>find the length of the longest substring with no repeated characters.</i></p><table class="itr"><thead><tr><th>Step</th><th>i</th><th>char</th><th>lastSeen[char]</th><th>left before</th><th>action</th><th>left after</th><th>window</th><th>maxLen</th></tr></thead><tbody><tr><td>0</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>init</td><td>0</td><td><code>""</code></td><td>0</td></tr><tr><td>1</td><td>0</td><td>a</td><td>none</td><td>0</td><td>record a@0</td><td>0</td><td><code>"a"</code></td><td>1</td></tr><tr><td>2</td><td>1</td><td>b</td><td>none</td><td>0</td><td>record b@1</td><td>0</td><td><code>"ab"</code></td><td>2</td></tr><tr><td>3</td><td>2</td><td>c</td><td>none</td><td>0</td><td>record c@2</td><td>0</td><td><code>"abc"</code></td><td>3</td></tr><tr><td>4</td><td>3</td><td>a</td><td>0</td><td>0</td><td>0 &gt;= left(0) &rarr; left=1; record a@3</td><td>1</td><td><code>"bca"</code></td><td>3</td></tr><tr><td>5</td><td>4</td><td>b</td><td>1</td><td>1</td><td>1 &gt;= left(1) &rarr; left=2; record b@4</td><td>2</td><td><code>"cab"</code></td><td>3</td></tr><tr><td>6</td><td>5</td><td>c</td><td>2</td><td>2</td><td>2 &gt;= left(2) &rarr; left=3; record c@5</td><td>3</td><td><code>"abc"</code></td><td>3</td></tr><tr><td>7</td><td>6</td><td>b</td><td>4</td><td>3</td><td>4 &gt;= left(3) &rarr; left=5; record b@6</td><td>5</td><td><code>"cb"</code></td><td>3</td></tr><tr><td>8</td><td>7</td><td>b</td><td>6</td><td>5</td><td>6 &gt;= left(5) &rarr; left=7; record b@7</td><td>7</td><td><code>"b"</code></td><td>3</td></tr></tbody></table><p class="dd-result"><b>Result:</b> <code>maxLen = 3</code> (substring <code>"abc"</code>). The trace shows <code>left</code> only ever jumping forward past a stale duplicate, never re-scanning already-cleared ground.</p></div>
 </div>
 
 <div class="sec" id="lc-s-stack">
@@ -8506,6 +9240,8 @@ public:
 </table>
 <p>Result: <code>[1,1,4,2,1,1,0,0]</code>.</p>
 </div>
+
+<div class="deepdive"><h3>🔬 Deeper dive &amp; dry run</h3><div class="dd-intuition"><p><b>Why it works.</b> The stack holds indices of days whose "next warmer day" is still unknown, kept in decreasing order of temperature. When a new, warmer day arrives it resolves every cooler pending day still on the stack in one pass &mdash; each index is pushed once and popped at most once, so the total work across all pops is O(n) even though a single day can trigger many pops.</p><p><b>When to reach for it.</b> "Next greater/smaller element to the right" problems, and anything phrased as a running span or histogram comparison (stock span, largest rectangle, next warmer/colder day) &mdash; the signal is needing, for every element, the nearest qualifying element ahead of it.</p><p><b>Complexity.</b> O(n) time &mdash; each index enters and leaves the stack exactly once; O(n) space for the stack and the answer array.</p><p><b>Pitfalls &amp; variations.</b> Storing values instead of indices on the stack loses the distance needed for the answer. Using <code>if</code> instead of <code>while</code> when popping misses multiple resolutions triggered by one new day. Swapping the comparison direction turns this into "next colder day" instead.</p></div><p class="dd-input"><b>Trace input:</b> <code>temperatures = [73,74,75,71,69,72,76,73]</code> &mdash; <i>for each day, how many days until a strictly warmer day (0 if never).</i></p><table class="itr"><thead><tr><th>Step</th><th>i</th><th>temp</th><th>stack before (idx:temp)</th><th>pops &amp; ans updates</th><th>stack after</th></tr></thead><tbody><tr><td>0</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>init ans=[0,0,0,0,0,0,0,0]</td><td>[]</td></tr><tr><td>1</td><td>0</td><td>73</td><td>[]</td><td>no pops; push 0</td><td>[0:73]</td></tr><tr><td>2</td><td>1</td><td>74</td><td>[0:73]</td><td>74 &gt; 73 &rarr; pop 0, ans[0]=1-0=1; push 1</td><td>[1:74]</td></tr><tr><td>3</td><td>2</td><td>75</td><td>[1:74]</td><td>75 &gt; 74 &rarr; pop 1, ans[1]=2-1=1; push 2</td><td>[2:75]</td></tr><tr><td>4</td><td>3</td><td>71</td><td>[2:75]</td><td>71 &lt; 75, no pop; push 3</td><td>[2:75, 3:71]</td></tr><tr><td>5</td><td>4</td><td>69</td><td>[2:75, 3:71]</td><td>69 &lt; 71, no pop; push 4</td><td>[2:75, 3:71, 4:69]</td></tr><tr><td>6</td><td>5</td><td>72</td><td>[2:75, 3:71, 4:69]</td><td>72&gt;69 pop4 ans[4]=1; 72&gt;71 pop3 ans[3]=2; 72&lt;75 stop; push 5</td><td>[2:75, 5:72]</td></tr><tr><td>7</td><td>6</td><td>76</td><td>[2:75, 5:72]</td><td>76&gt;72 pop5 ans[5]=1; 76&gt;75 pop2 ans[2]=4; stack empty; push 6</td><td>[6:76]</td></tr><tr><td>8</td><td>7</td><td>73</td><td>[6:76]</td><td>73 &lt; 76, no pop; push 7</td><td>[6:76, 7:73]</td></tr></tbody></table><p class="dd-result"><b>Result:</b> <code>ans = [1,1,4,2,1,1,0,0]</code>. Indices 6 and 7 keep their default 0 &mdash; nothing warmer ever comes, so they are never popped, which is exactly what the leftover stack contents mean.</p></div>
 </div>
 
 <div class="sec" id="lc-s-binsearch">
@@ -8677,6 +9413,8 @@ public:
 </table>
 <p>Answer: index 4.</p>
 </div>
+
+<div class="deepdive"><h3>🔬 Deeper dive &amp; dry run</h3><div class="dd-intuition"><p><b>Why it works.</b> At any midpoint of a rotated sorted array, at least one half (relative to <code>mid</code>) is guaranteed to be internally sorted. Comparing <code>nums[lo]</code> to <code>nums[mid]</code> identifies which half is sorted; a plain range check then tells you whether the target could be in that sorted half. Either way you can discard one half every iteration, so the search stays O(log n) despite the rotation.</p><p><b>When to reach for it.</b> Arrays described as "sorted but rotated" or, more generally, any search space with a monotonic predicate ("too small / candidate / too big") you can evaluate at a single index without scanning &mdash; that predicate is what you're actually binary searching on.</p><p><b>Complexity.</b> O(log n) time &mdash; the search space halves every iteration; O(1) space.</p><p><b>Pitfalls &amp; variations.</b> Using strict <code>&lt;</code> instead of <code>&lt;=</code> when comparing <code>nums[lo]</code> and <code>nums[mid]</code> breaks on 2-element windows. Duplicate values (LC81) can make both halves look "equal," defeating the sortedness test and forcing a linear fallback (<code>lo++</code>/<code>hi--</code>). Miscomputing <code>mid&plusmn;1</code> causes infinite loops.</p></div><p class="dd-input"><b>Trace input:</b> <code>nums = [5,6,7,8,9,10,1,2,3]</code>, <code>target = 3</code> &mdash; <i>find the index of target in a rotated sorted array.</i></p><table class="itr"><thead><tr><th>Step</th><th>lo</th><th>hi</th><th>mid</th><th>nums[mid]</th><th>which half sorted</th><th>target in range?</th><th>action</th></tr></thead><tbody><tr><td>0</td><td>0</td><td>8</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>start</td></tr><tr><td>1</td><td>0</td><td>8</td><td>4</td><td>9</td><td>nums[0]=5 &lt;= 9 &rarr; left sorted</td><td>3 in [5,9]? no</td><td>lo = mid+1 = 5</td></tr><tr><td>2</td><td>5</td><td>8</td><td>6</td><td>1</td><td>nums[5]=10 &lt;= 1? no &rarr; right sorted</td><td>3 in [1,3]? yes</td><td>lo = mid+1 = 7</td></tr><tr><td>3</td><td>7</td><td>8</td><td>7</td><td>2</td><td>nums[7]=2 &lt;= 2 &rarr; left sorted</td><td>3 in [2,2]? no</td><td>lo = mid+1 = 8</td></tr><tr><td>4</td><td>8</td><td>8</td><td>8</td><td>3</td><td>&mdash;</td><td>nums[mid] == target</td><td>return 8</td></tr></tbody></table><p class="dd-result"><b>Result:</b> <code>return 8</code> (<code>nums[8] = 3</code>). The trace visits both branches of the algorithm &mdash; "left half sorted" (steps 1, 3) and "right half sorted" (step 2) &mdash; converging in &lceil;log&#8322;9&rceil; &asymp; 4 iterations.</p></div>
 </div>
 <div class="sec" id="lc-s-linkedlist">
 <h2>6 · Linked List</h2>
@@ -8935,6 +9673,8 @@ class Solution {
 <tr><td>Result</td><td>1 → 5 → 2 → 4 → 3</td></tr>
 </table>
 </div>
+
+<div class="deepdive"><h3>🔬 Deeper dive &amp; dry run</h3><div class="dd-intuition"><p><b>Why it works.</b> Reordering L0&rarr;Ln&rarr;L1&rarr;Ln-1&rarr;&hellip; decomposes into three well-known O(n) linked-list primitives &mdash; find the middle with slow/fast pointers, reverse the second half with iterative prev/cur rewiring, then merge the two halves by alternating one node from each &mdash; all done via pointer surgery with no auxiliary array.</p><p><b>When to reach for it.</b> Any problem manipulating a singly linked list's structure based on position or symmetry (reorder, palindrome check, k-group reversal): fast/slow pointers locate the middle, prev/cur/next reverses a segment, and a two-pointer interleave merges two lists.</p><p><b>Complexity.</b> O(n) time across the three linear passes; O(1) extra space &mdash; everything is in-place pointer rewiring, no recursion stack or array copy.</p><p><b>Pitfalls &amp; variations.</b> Forgetting to cut <code>slow.next = None</code> before reversing the second half creates a cycle. Odd vs. even length changes which node <code>slow</code> lands on and thus which half is longer. Overwriting <code>.next</code> during reversal before saving the next pointer loses the rest of the list.</p></div><p class="dd-input"><b>Trace input:</b> <code>1&rarr;2&rarr;3&rarr;4&rarr;5</code> &mdash; <i>reorder in place to L0,Ln,L1,Ln-1,&hellip;</i></p><table class="itr"><thead><tr><th>Step</th><th>Phase</th><th>Pointers / state</th><th>List snapshot</th><th>Note</th></tr></thead><tbody><tr><td>0</td><td>start</td><td>slow=1, fast=1</td><td>1-2-3-4-5</td><td>n=5 (odd)</td></tr><tr><td>1</td><td>find-middle</td><td>slow=2, fast=3</td><td>1-2-3-4-5</td><td>advance slow &times;1, fast &times;2</td></tr><tr><td>2</td><td>find-middle</td><td>slow=3, fast=5</td><td>1-2-3-4-5</td><td>fast.next.next is null &rarr; stop; middle = 3</td></tr><tr><td>3</td><td>split</td><td>first=1-2-3, second=4-5</td><td>(cut)</td><td>set slow.next = None</td></tr><tr><td>4</td><td>reverse 2nd half</td><td>prev=None&rarr;4, cur=4&rarr;5</td><td>second: 4-5 &rarr; 5,4 (partial)</td><td>reversed so far: 4</td></tr><tr><td>5</td><td>reverse 2nd half</td><td>prev=4&rarr;5, cur=5&rarr;None</td><td>second fully reversed: 5-4</td><td>reversal done</td></tr><tr><td>6</td><td>merge</td><td>p1=1, p2=5</td><td>1-5</td><td>attach 1.next=5; advance both</td></tr><tr><td>7</td><td>merge</td><td>p1=2, p2=4</td><td>1-5-2-4</td><td>attach 2.next=4; advance both</td></tr><tr><td>8</td><td>merge</td><td>p1=3, p2=None</td><td>1-5-2-4-3</td><td>p2 exhausted; 3 becomes the tail</td></tr></tbody></table><p class="dd-result"><b>Result:</b> Final list <code>1&rarr;5&rarr;2&rarr;4&rarr;3</code>. Because n is odd, the second half (4-5) is one node shorter than the first, so after merging, the leftover node 3 naturally becomes the tail with no special-casing needed.</p></div>
 </div>
 
 <div class="sec" id="lc-s-trees">
@@ -9141,6 +9881,8 @@ class Solution {
 <tr><td>Overall</td><td>—</td><td>returns false — the right subtree of 5 must contain only values &gt; 5, but 4 breaks that</td></tr>
 </table>
 </div>
+
+<div class="deepdive"><h3>🔬 Deeper dive &amp; dry run</h3><div class="dd-intuition"><p><b>Why it works.</b> A tree is a valid BST iff every node's value lies strictly inside the <code>(low, high)</code> bound inherited from all its ancestors, not just its immediate parent. A local check like <code>node.val &gt; node.left.val</code> is insufficient because a node several levels down can violate a constraint set far above it; passing tightened bounds down the recursion captures that global constraint in O(1) work per node.</p><p><b>When to reach for it.</b> Tree problems where a tempting local sibling/parent comparison is actually wrong because the real constraint spans multiple ancestor levels &mdash; BST validation is the classic example; similar bound-propagation shows up in range/coloring problems on trees.</p><p><b>Complexity.</b> O(n) time &mdash; every node is visited once; O(h) space for the recursion or explicit stack, where h is the tree height.</p><p><b>Pitfalls &amp; variations.</b> Checking only <code>node.val</code> vs. its direct children's values misses violations from grandparents. Using <code>&lt;=</code> instead of <code>&lt;</code> silently allows duplicate values a strict BST forbids. Not short-circuiting on the first violation wastes work scanning subtrees that can no longer change the answer.</p></div><p class="dd-input"><b>Trace input:</b> <code>root = 5, left = 3 (left = 1, right = 6), right = 8</code> &mdash; <i>is this tree a valid binary search tree?</i></p><table class="itr"><thead><tr><th>Step</th><th>Popped call (node, low, high)</th><th>Check</th><th>Result</th><th>Pushed children</th></tr></thead><tbody><tr><td>0</td><td>init</td><td>&mdash;</td><td>&mdash;</td><td>stack = [(5, -&infin;, +&infin;)]</td></tr><tr><td>1</td><td>(5, -&infin;, +&infin;)</td><td>-&infin; &lt; 5 &lt; +&infin;</td><td>true</td><td>push (8, 5, +&infin;), push (3, -&infin;, 5)</td></tr><tr><td>2</td><td>(3, -&infin;, 5)</td><td>-&infin; &lt; 3 &lt; 5</td><td>true</td><td>push (6, 3, 5), push (1, -&infin;, 3)</td></tr><tr><td>3</td><td>(1, -&infin;, 3)</td><td>-&infin; &lt; 1 &lt; 3</td><td>true (leaf)</td><td>nothing to push</td></tr><tr><td>4</td><td>(6, 3, 5)</td><td>3 &lt; 6 &lt; 5 &rarr; 6 &lt; 5 is false</td><td>INVALID &mdash; stop</td><td>(8, 5, +&infin;) never popped</td></tr></tbody></table><p class="dd-result"><b>Result:</b> Returns <code>false</code>. Node 6 only violates the tree once it inherits the tight upper bound 5 handed down from the root two levels above &mdash; a purely local check against its immediate parent (6 &gt; 3) would have wrongly passed it.</p></div>
 </div>
 
 <div class="sec" id="lc-s-tries">
@@ -9351,6 +10093,8 @@ private:
 <tr><td>search("app")</td><td>walks a-p-p, isEnd is now true</td><td>true</td></tr>
 </table>
 </div>
+
+<div class="deepdive"><h3>🔬 Deeper dive &amp; dry run</h3><div class="dd-intuition"><p><b>Why it works.</b> Each trie node is a map from character to child node plus an <code>isEnd</code> flag; words sharing a prefix share the same chain of nodes for that prefix. Insert/search/startsWith all just walk one character at a time from the root, so the cost depends only on the query's length, never on how many other words are stored.</p><p><b>When to reach for it.</b> Repeated prefix queries over a set of strings &mdash; autocomplete, prefix counting, word-search boards, longest common prefix at scale &mdash; anywhere you'd otherwise repeatedly rescan prefixes of many strings.</p><p><b>Complexity.</b> O(L) time per insert/search/startsWith, where L is the query length, independent of how many words are stored; O(total characters inserted) space in the worst case of no shared prefixes.</p><p><b>Pitfalls &amp; variations.</b> Conflating <code>startsWith</code> (path must exist) with <code>search</code> (path must exist AND the end node's <code>isEnd</code> must be true) is the classic bug. Forgetting to set <code>isEnd</code> makes every inserted word also satisfy prefix-only search. Using a fixed 26-slot array per node wastes memory for large or sparse alphabets versus a hashmap.</p></div><p class="dd-input"><b>Trace input:</b> <code>insert("cat"); insert("car"); search("car"); search("ca"); startsWith("ca"); search("cats")</code> &mdash; <i>build the trie and answer each query.</i></p><table class="itr"><thead><tr><th>Step</th><th>Operation</th><th>Path walked</th><th>Node changes</th><th>Return</th></tr></thead><tbody><tr><td>0</td><td>insert("cat")</td><td>root&rarr;c&rarr;a&rarr;t (all new)</td><td>create c, a, t; mark t.isEnd=true</td><td>&mdash;</td></tr><tr><td>1</td><td>insert("car")</td><td>root&rarr;c&rarr;a (reused)&rarr;r (new)</td><td>create r branching off shared "ca"; mark r.isEnd=true</td><td>&mdash;</td></tr><tr><td>2</td><td>search("car")</td><td>root&rarr;c&rarr;a&rarr;r</td><td>r exists and r.isEnd=true</td><td>true</td></tr><tr><td>3</td><td>search("ca")</td><td>root&rarr;c&rarr;a</td><td>a exists but a.isEnd=false</td><td>false</td></tr><tr><td>4</td><td>startsWith("ca")</td><td>root&rarr;c&rarr;a</td><td>a exists (isEnd irrelevant)</td><td>true</td></tr><tr><td>5</td><td>search("cats")</td><td>root&rarr;c&rarr;a&rarr;t, then need child "s"</td><td>t has no child "s"</td><td>false</td></tr></tbody></table><p class="dd-result"><b>Result:</b> "cat" and "car" share the "ca" branch. The trace shows <code>search("ca")</code> failing (<code>isEnd</code> false) while <code>startsWith("ca")</code> succeeds on the identical path &mdash; exactly the distinction that motivates a separate end-of-word flag.</p></div>
 </div>
 
 <div class="sec" id="lc-s-heap">
@@ -9497,6 +10241,8 @@ class Solution:
 <tr><td>Result</td><td>heap = [5,6], top = 5</td><td>5 is the 2nd largest element</td></tr>
 </table>
 </div>
+
+<div class="deepdive"><h3>🔬 Deeper dive &amp; dry run</h3><div class="dd-intuition"><p><b>Why it works.</b> A min-heap capped at size k always holds exactly the k largest elements seen so far, with the smallest of those k sitting at the root. Any new element only needs to be compared against that single root: if it's bigger, it displaces the current minimum of the kept set; if not, it can't possibly be in the top k and is discarded. You never re-examine the other k-1 kept elements or anything already discarded.</p><p><b>When to reach for it.</b> "Top-k" / "kth largest-or-smallest" problems, especially streaming or one-pass, where a full sort (O(n log n)) does more work than needed because you only care about k extremal elements, not a total order.</p><p><b>Complexity.</b> O(n log k) time &mdash; n pushes/pops, each O(log k) on a heap bounded to size k; O(k) space, which is far better than full sort when k &#8810; n.</p><p><b>Pitfalls &amp; variations.</b> Building a max-heap of all n elements instead of a min-heap capped at k works but costs O(n log n) time and O(n) space, missing the whole point. Popping before checking <code>size &gt; k</code> is an off-by-one that leaves k+1 elements. Confusing "kth largest" (1-indexed from the top, e.g. k=1 is the max) with "kth smallest" flips the heap type needed.</p></div><p class="dd-input"><b>Trace input:</b> <code>nums = [3,2,1,5,6,4]</code>, <code>k = 2</code> &mdash; <i>find the 2nd largest value.</i></p><table class="itr"><thead><tr><th>Step</th><th>num</th><th>heap before (min-heap)</th><th>action</th><th>heap after</th></tr></thead><tbody><tr><td>0</td><td>&mdash;</td><td>[]</td><td>init</td><td>[]</td></tr><tr><td>1</td><td>3</td><td>[]</td><td>push 3 (size 1 &le; k)</td><td>[3]</td></tr><tr><td>2</td><td>2</td><td>[3]</td><td>push 2 (size 2 = k)</td><td>[2,3]</td></tr><tr><td>3</td><td>1</td><td>[2,3]</td><td>push 1 &rarr; size 3 &gt; k, pop min 1</td><td>[2,3]</td></tr><tr><td>4</td><td>5</td><td>[2,3]</td><td>push 5 &rarr; size 3 &gt; k, pop min 2</td><td>[3,5]</td></tr><tr><td>5</td><td>6</td><td>[3,5]</td><td>push 6 &rarr; size 3 &gt; k, pop min 3</td><td>[5,6]</td></tr><tr><td>6</td><td>4</td><td>[5,6]</td><td>push 4 &rarr; size 3 &gt; k, pop min 4</td><td>[5,6]</td></tr></tbody></table><p class="dd-result"><b>Result:</b> Final heap <code>[5,6]</code>; its root (min) <code>5</code> is the 2nd largest element. Notice numbers 1 and 4 get pushed and immediately popped straight back out &mdash; they never belonged in the top-k, so the heap never grows past size k.</p></div>
 </div><div class="sec" id="lc-s-backtrack">
 <h2>10 · Backtracking</h2>
 <p class="cat-desc">Tests systematic exploration of a decision tree with pruning; reach for it when the problem asks for "all possible" subsets, permutations, combinations, or valid placements and a brute-force search with undo is feasible.</p>
@@ -9672,6 +10418,8 @@ class Solution:
 <p><b>Complexity.</b> <span class="cx">Time O(n * 2^n)</span> <span class="cx">Space O(n)</span> — 2^n subsets are produced, each costing O(n) to copy; recursion depth is n.</p>
 <p><b>Walkthrough.</b> nums = [1,2]. index=0: exclude branch recurses with index=1, current=[]; there, exclude branch reaches index=2 → record []; include branch pushes 2 → current=[2] → record [2], then pops 2. Back at index=0's include branch, push 1 → current=[1], recurse to index=1: exclude → record [1]; include 2 → current=[1,2] → record [1,2], pop 2, pop 1. Final result: [[], [2], [1], [1,2]].</p>
 </div>
+
+<div class="deepdive"><h3>🔬 Deeper dive &amp; dry run</h3><div class="dd-intuition"><p><b>Why it works.</b> Backtracking explores the "include element i or not" decision tree via DFS over a single shared, mutable path. Every call records the current path as one complete subset (all partial paths are valid here, so nothing is pruned) and popping the last-added element after the recursive call returns restores the path so the next sibling branch starts clean &mdash; guaranteeing each of the 2^n combinations is generated exactly once.</p><p><b>When to reach for it.</b> "Generate all combinations/permutations/subsets satisfying X" problems &mdash; the signal is needing every valid arrangement (not just one answer), combined with a natural choose/un-choose structure per element or index.</p><p><b>Complexity.</b> O(2^n &middot; n) time &mdash; 2^n subsets, each up to length n to build/record; O(n) auxiliary space for the recursion stack and current path (excluding the output storage itself).</p><p><b>Pitfalls &amp; variations.</b> Forgetting to pop (undo) after the recursive call corrupts every later sibling branch with leftover elements. Appending a reference to the mutable path instead of a copy makes every recorded subset alias the same, later-emptied list. Starting the inner loop at 0 instead of the current index produces permutations/duplicates instead of combinations.</p></div><p class="dd-input"><b>Trace input:</b> <code>nums = [1,2,3]</code> &mdash; <i>generate every subset.</i></p><table class="itr"><thead><tr><th>Step</th><th>Call (start, path)</th><th>Action</th><th>Result so far</th></tr></thead><tbody><tr><td>0</td><td>backtrack(0, [])</td><td>record path</td><td>[ [] ]</td></tr><tr><td>1</td><td>backtrack(1, [1])</td><td>chose i=0&rarr;1; record path</td><td>[ [], [1] ]</td></tr><tr><td>2</td><td>backtrack(2, [1,2])</td><td>chose i=1&rarr;2; record path</td><td>[ &hellip;, [1,2] ]</td></tr><tr><td>3</td><td>backtrack(3, [1,2,3])</td><td>chose i=2&rarr;3; record path; start=3=n, no choices; return; pop 3</td><td>[ &hellip;, [1,2,3] ]</td></tr><tr><td>4</td><td>back in backtrack(2,[1,2])</td><td>loop exhausted; return; pop 2 &rarr; path=[1]</td><td>unchanged</td></tr><tr><td>5</td><td>backtrack(1,[1]) &rarr; backtrack(3,[1,3])</td><td>chose i=2&rarr;3; record path</td><td>[ &hellip;, [1,3] ]</td></tr><tr><td>6</td><td>back in backtrack(1,[1])</td><td>no more choices; return; pop 1 &rarr; path=[]</td><td>unchanged</td></tr><tr><td>7</td><td>backtrack(0,[]) &rarr; backtrack(2,[2])</td><td>chose i=1&rarr;2; record path</td><td>[ &hellip;, [2] ]</td></tr><tr><td>8</td><td>backtrack(2,[2]) &rarr; backtrack(3,[2,3])</td><td>chose i=2&rarr;3; record path</td><td>[ &hellip;, [2,3] ]</td></tr><tr><td>9</td><td>back in backtrack(2,[2])</td><td>return; pop 3, pop 2 &rarr; path=[]</td><td>unchanged</td></tr><tr><td>10</td><td>backtrack(0,[]) &rarr; backtrack(3,[3])</td><td>chose i=2&rarr;3; record path; return; pop 3; outer loop exhausted, done</td><td>[ &hellip;, [3] ]</td></tr></tbody></table><p class="dd-result"><b>Result:</b> Final result: <code>[[],[1],[1,2],[1,2,3],[1,3],[2],[2,3],[3]]</code> &mdash; all 8 = 2<sup>3</sup> subsets, each recorded exactly once at the instant its call begins, before any further choices are layered on.</p></div>
 </div>
 <div class="sec" id="lc-s-graphs">
 <h2>11 · Graphs</h2>
@@ -9920,6 +10668,8 @@ class Solution:
 <p><b>Complexity.</b> <span class="cx">Time O(V + E)</span> <span class="cx">Space O(V + E)</span> — each course and each edge is visited exactly once during graph build and BFS.</p>
 <p><b>Walkthrough.</b> numCourses=4, prerequisites=[[1,0],[2,0],[3,1],[3,2]]. Graph: 0-&gt;{1,2}, 1-&gt;{3}, 2-&gt;{3}. inDegree=[0,1,1,2]. Queue starts with [0]. Pop 0 (processed=1): decrement 1&rarr;0 (enqueue), decrement 2&rarr;0 (enqueue). Pop 1 (processed=2): decrement 3&rarr;1. Pop 2 (processed=3): decrement 3&rarr;0 (enqueue). Pop 3 (processed=4). processed==4==numCourses &rarr; return true.</p>
 </div>
+
+<div class="deepdive"><h3>🔬 Deeper dive &amp; dry run</h3><div class="dd-intuition"><p><b>Why it works.</b> Kahn's algorithm repeatedly removes nodes whose in-degree has dropped to 0 &mdash; courses with no remaining unmet prerequisites. If every node can eventually be removed this way, a full topological order exists and the graph is acyclic, because any node stuck in a cycle would never have all its incoming edges consumed and would permanently sit at in-degree &ge; 1.</p><p><b>When to reach for it.</b> Prerequisite / dependency / task-ordering problems &mdash; the signal is a directed graph plus the question "can everything finish" or "give a valid order," which is exactly cycle detection plus topological sort.</p><p><b>Complexity.</b> O(V + E) time &mdash; each vertex is enqueued/dequeued once and each edge is relaxed once; O(V + E) space for the adjacency list, in-degree array, and queue.</p><p><b>Pitfalls &amp; variations.</b> DFS-based cycle detection with only a single "visited" set fails to distinguish a back edge (real cycle) from a cross edge (fine) &mdash; a 3-color unvisited/in-progress/done scheme is required instead. Disconnected components must each independently bottom out at in-degree 0. The real correctness check is comparing the total processed count to <code>numCourses</code> at the end, not just that the queue eventually emptied.</p></div><p class="dd-input"><b>Trace input:</b> <code>numCourses = 5</code>, <code>prerequisites = [[1,0],[2,0],[3,1],[3,2],[4,3]]</code> (edges 0&rarr;1, 0&rarr;2, 1&rarr;3, 2&rarr;3, 3&rarr;4) &mdash; <i>can all 5 courses be finished?</i></p><table class="itr"><thead><tr><th>Step</th><th>Popped from queue</th><th>Processed so far</th><th>In-degree updates</th><th>Queue after</th></tr></thead><tbody><tr><td>0</td><td>init</td><td>[]</td><td>indegree = [0,1,1,2,1]</td><td>[0]</td></tr><tr><td>1</td><td>0</td><td>[0]</td><td>course1: 1&rarr;0 (push); course2: 1&rarr;0 (push)</td><td>[1,2]</td></tr><tr><td>2</td><td>1</td><td>[0,1]</td><td>course3: 2&rarr;1 (not pushed)</td><td>[2]</td></tr><tr><td>3</td><td>2</td><td>[0,1,2]</td><td>course3: 1&rarr;0 (push)</td><td>[3]</td></tr><tr><td>4</td><td>3</td><td>[0,1,2,3]</td><td>course4: 1&rarr;0 (push)</td><td>[4]</td></tr><tr><td>5</td><td>4</td><td>[0,1,2,3,4]</td><td>no outgoing edges</td><td>[]</td></tr></tbody></table><p class="dd-result"><b>Result:</b> <code>processed.length == 5 == numCourses</code> &rarr; <code>true</code>. The diamond dependency (0&rarr;{1,2}&rarr;3&rarr;4) resolves cleanly because every node reaches in-degree 0; a cycle anywhere would leave the queue empty early with <code>processed.length &lt; numCourses</code>.</p></div>
 </div>
 <div class="sec" id="lc-s-advgraphs">
 <h2>12 · Advanced Graphs</h2>
@@ -10143,6 +10893,8 @@ class Solution:
 <p><b>Complexity.</b> <span class="cx">Time O(E log V)</span> <span class="cx">Space O(V + E)</span> — each edge triggers at most one heap insertion, and the heap holds up to E entries.</p>
 <p><b>Walkthrough.</b> times=[[2,1,1],[2,3,1],[3,4,1]], n=4, k=2. dist=[_,MAX,0,MAX,MAX]. Pop (0,2): relax 1&rarr;dist[1]=1, push (1,1); relax 3&rarr;dist[3]=1, push (1,3). Pop (1,1): node 1 has no outgoing edges. Pop (1,3): relax 4&rarr;dist[4]=2, push (2,4). Pop (2,4): no outgoing edges. Final dist=[_,1,0,1,2]; max = 2 &rarr; return 2.</p>
 </div>
+
+<div class="deepdive"><h3>🔬 Deeper dive &amp; dry run</h3><div class="dd-intuition"><p><b>Why it works.</b> Dijkstra's greedily finalizes the closest remaining node first: once a node is popped from the min-heap holding the smallest tentative distance, no path discovered later &mdash; through any longer, still-unprocessed route &mdash; can ever produce something smaller, because all edge weights are non-negative. That guarantee is exactly what lets each popped distance be treated as final.</p><p><b>When to reach for it.</b> Shortest path in a weighted graph with non-negative edges from a single (or few) source(s) &mdash; the signal is non-uniform weights (uniform weights &rArr; plain BFS suffices) and no negative edges (negative &rArr; need Bellman-Ford instead).</p><p><b>Complexity.</b> O(E log V) time with a binary-heap priority queue (each relaxation may push once, heap operations are O(log V)); O(V + E) space for the adjacency list, distance array, and heap.</p><p><b>Pitfalls &amp; variations.</b> Not skipping stale heap entries for already-finalized nodes wastes work (harmless if guarded, wrong if it overwrites a final distance). Using BFS when weights aren't uniform gives incorrect shortest paths. Forgetting that some node may stay at distance &infin; (unreachable) &mdash; the correct answer is then -1, not the max of a still-infinite array.</p></div><p class="dd-input"><b>Trace input:</b> <code>times = [[2,1,1],[2,3,1],[3,4,1]]</code>, <code>n = 4</code> nodes, source <code>k = 2</code> &mdash; <i>time for a signal sent from node 2 to reach every node.</i></p><table class="itr"><thead><tr><th>Step</th><th>Action</th><th>Node finalized</th><th>dist[1,2,3,4]</th><th>Heap after</th></tr></thead><tbody><tr><td>0</td><td>init</td><td>&mdash;</td><td>[&infin;, 0, &infin;, &infin;]</td><td>[(0,2)]</td></tr><tr><td>1</td><td>pop (0,2)</td><td>node 2, dist=0</td><td>[&infin;, 0, &infin;, &infin;]</td><td>[]</td></tr><tr><td>2</td><td>relax 2&rarr;1 (w=1): 0+1=1 &lt; &infin;</td><td>&mdash;</td><td>[1, 0, &infin;, &infin;]</td><td>[(1,1)]</td></tr><tr><td>3</td><td>relax 2&rarr;3 (w=1): 0+1=1 &lt; &infin;</td><td>&mdash;</td><td>[1, 0, 1, &infin;]</td><td>[(1,1),(1,3)]</td></tr><tr><td>4</td><td>pop (1,1)</td><td>node 1, dist=1 (no outgoing edges)</td><td>[1, 0, 1, &infin;]</td><td>[(1,3)]</td></tr><tr><td>5</td><td>pop (1,3)</td><td>node 3, dist=1</td><td>[1, 0, 1, &infin;]</td><td>[]</td></tr><tr><td>6</td><td>relax 3&rarr;4 (w=1): 1+1=2 &lt; &infin;</td><td>&mdash;</td><td>[1, 0, 1, 2]</td><td>[(2,4)]</td></tr><tr><td>7</td><td>pop (2,4)</td><td>node 4, dist=2 (no outgoing edges)</td><td>[1, 0, 1, 2]</td><td>[]</td></tr></tbody></table><p class="dd-result"><b>Result:</b> All 4 nodes finalized: dist = {1:1, 2:0, 3:1, 4:2}. Answer = <code>max(dist) = 2</code>, the time to reach the farthest node (4), via the chain 2&rarr;3&rarr;4.</p></div>
 </div>
 <div class="sec" id="lc-s-dp1">
 <h2>13 · 1-D Dynamic Programming</h2>
@@ -10297,6 +11049,30 @@ public:
 <tr><th>dp[a]</th><td>0</td><td>1</td><td>1</td><td>2</td><td>2</td><td>1</td><td>2</td><td>2</td><td>3</td><td>3</td><td>2</td><td>3</td></tr>
 </table>
 <p>Each cell picks the best of "add a 1", "add a 2", or "add a 5" to a smaller already-solved amount — e.g. <code>dp[10] = dp[5] + 1 = 2</code> (two 5s), and <code>dp[11] = dp[10] + 1 = 3</code> (5 + 5 + 1). Final answer <code>dp[11] = 3</code>.</p>
+</div>
+
+<div class="deepdive">
+<h3>🔬 Deeper dive &amp; dry run</h3>
+<div class="dd-intuition">
+  <p><b>Why it works.</b> <code>dp[i]</code> = fewest coins to make amount <code>i</code>. The recurrence <code>dp[i] = 1 + min(dp[i-c])</code> over every coin <code>c &le; i</code> works because an optimal solution for <code>i</code> must end by placing some last coin <code>c</code>, and whatever remains (<code>i-c</code>) must itself be solved optimally &mdash; this is the DP optimal-substructure argument. Building bottom-up from <code>dp[0]=0</code> guarantees every sub-answer is final before it's reused.</p>
+  <p><b>When to reach for it.</b> Unbounded/unlimited supply of items, you need a min/max count or count-of-ways over a single integer axis (amount, length, steps), and brute force recursion on that axis has overlapping subproblems (visible as an exponential recursion tree with repeated arguments).</p>
+  <p><b>Complexity.</b> Time <code>O(amount &times; coins)</code> &mdash; one inner loop over coins for each of the <code>amount</code> outer states. Space <code>O(amount)</code> for the 1-D dp array (coins array is O(1) extra).</p>
+  <p><b>Pitfalls &amp; variations.</b> Forgetting to initialize unreachable states to <code>infinity</code> (not 0) causes silently wrong mins; iterating amount in the outer loop and coins in the inner loop counts <i>combinations</i> correctly for min-coins, but if you instead want <i>number of ways</i> (LC 518) swapping loop order changes permutations vs combinations; off-by-one on whether <code>dp[amount]</code> stays infinite (no solution) must be checked and mapped to <code>-1</code>.</p>
+</div>
+<p class="dd-input"><b>Trace input:</b> <code>coins = [1,3,4], amount = 6</code> &mdash; <i>find the minimum number of coins that sum to 6.</i></p>
+<table class="itr">
+<thead><tr><th>i</th><th>via coin 1 &rarr; dp[i-1]+1</th><th>via coin 3 &rarr; dp[i-3]+1</th><th>via coin 4 &rarr; dp[i-4]+1</th><th>dp[i]</th><th>Note</th></tr></thead>
+<tbody>
+<tr><td>0</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>0</td><td>base case, 0 coins for amount 0</td></tr>
+<tr><td>1</td><td>dp[0]+1=1</td><td>n/a (1&lt;3)</td><td>n/a (1&lt;4)</td><td>1</td><td>only coin 1 fits</td></tr>
+<tr><td>2</td><td>dp[1]+1=2</td><td>n/a</td><td>n/a</td><td>2</td><td>two 1's</td></tr>
+<tr><td>3</td><td>dp[2]+1=3</td><td>dp[0]+1=1</td><td>n/a</td><td>1</td><td>coin 3 alone beats three 1's</td></tr>
+<tr><td>4</td><td>dp[3]+1=2</td><td>dp[1]+1=2</td><td>dp[0]+1=1</td><td>1</td><td>coin 4 alone wins</td></tr>
+<tr><td>5</td><td>dp[4]+1=2</td><td>dp[2]+1=3</td><td>dp[1]+1=2</td><td>2</td><td>1+4 or 1+1+3, tie at 2 coins</td></tr>
+<tr><td>6</td><td>dp[5]+1=3</td><td>dp[3]+1=2</td><td>dp[2]+1=3</td><td>2</td><td>coin 3 path wins: 3+3</td></tr>
+</tbody>
+</table>
+<p class="dd-result"><b>Result:</b> <code>dp[6] = 2</code> (using 3+3). The trace shows the minimum is recomputed fresh at each amount from three already-finalized smaller answers &mdash; no amount is ever revisited once computed.</p>
 </div>
 </div>
 
@@ -10459,6 +11235,29 @@ public:
 </table>
 <p>The diagonal bumps happen at matching pairs ('a','a'), ('c','c'), ('e','e'), giving <code>dp[5][3] = 3</code> for the subsequence "ace".</p>
 </div>
+
+<div class="deepdive">
+<h3>🔬 Deeper dive &amp; dry run</h3>
+<div class="dd-intuition">
+  <p><b>Why it works.</b> <code>dp[i][j]</code> = LCS length of <code>text1[0..i)</code> and <code>text2[0..j)</code>. If the last characters match, they must both belong to the LCS, so <code>dp[i][j] = dp[i-1][j-1] + 1</code>; if they don't match, the LCS either drops the last char of <code>text1</code> or of <code>text2</code>, so <code>dp[i][j] = max(dp[i-1][j], dp[i][j-1])</code>. Every cell only depends on cells above/left/diagonal, so filling row-by-row (or column-by-column) is a valid topological order.</p>
+  <p><b>When to reach for it.</b> Two sequences, you need a length/count that depends on aligning or comparing pairs of elements from each, and the "keep or skip one side" choice is visible in the problem (LCS, edit distance, distinct subsequences, interleaving strings).</p>
+  <p><b>Complexity.</b> Time <code>O(m &times; n)</code> for the full grid. Space <code>O(m &times; n)</code> naively, reducible to <code>O(min(m,n))</code> by keeping only the previous row since each cell needs just the row above and the current row so far.</p>
+  <p><b>Pitfalls &amp; variations.</b> Off-by-one indexing between the 1-indexed dp grid and 0-indexed strings is the #1 bug; confusing LCS (can skip, order preserved) with substring problems (must be contiguous, recurrence resets to 0 on mismatch) produces a completely different table shape; reconstructing the actual subsequence (not just its length) requires walking back through the grid from <code>dp[m][n]</code>.</p>
+</div>
+<p class="dd-input"><b>Trace input:</b> <code>text1 = "abcde", text2 = "ace"</code> &mdash; <i>find the length of their longest common subsequence, filling the dp grid one row of text1 at a time.</i></p>
+<table class="itr">
+<thead><tr><th>i</th><th>text1[i-1]</th><th>dp row [j=0..3] (vs "","a","c","e")</th><th>Note</th></tr></thead>
+<tbody>
+<tr><td>0</td><td>&mdash;</td><td>[0, 0, 0, 0]</td><td>base row: empty prefix of text1 matches nothing</td></tr>
+<tr><td>1</td><td>a</td><td>[0, 1, 1, 1]</td><td>'a'=='a' at j=1 &rarr; dp[0][0]+1=1; then max-carries right</td></tr>
+<tr><td>2</td><td>b</td><td>[0, 1, 1, 1]</td><td>'b' matches nothing new &rarr; row copies previous row exactly</td></tr>
+<tr><td>3</td><td>c</td><td>[0, 1, 2, 2]</td><td>'c'=='c' at j=2 &rarr; diagonal dp[2][1]+1 = 1+1 = 2</td></tr>
+<tr><td>4</td><td>d</td><td>[0, 1, 2, 2]</td><td>'d' matches nothing new &rarr; row copies previous row</td></tr>
+<tr><td>5</td><td>e</td><td>[0, 1, 2, 3]</td><td>'e'=='e' at j=3 &rarr; diagonal dp[4][2]+1 = 2+1 = 3</td></tr>
+</tbody>
+</table>
+<p class="dd-result"><b>Result:</b> <code>dp[5][3] = 3</code>, the LCS is <code>"ace"</code>. The trace shows two distinct row behaviors: a "match" jumps the value up from the diagonal, while a "no match" row is just the running max carried forward unchanged.</p>
+</div>
 </div>
 
 <div class="sec" id="lc-s-greedy">
@@ -10577,6 +11376,32 @@ public:
 <tr><th>best</th><td>-2</td><td>1</td><td>1</td><td>4</td><td>4</td><td>5</td><td>6</td><td>6</td><td>6</td></tr>
 </table>
 <p>The running sum resets at index 2 (dropping the -2 prefix) and peaks at 6 by index 6, covering the subarray <code>[4, -1, 2, 1]</code>. Answer: 6.</p>
+</div>
+
+<div class="deepdive">
+<h3>🔬 Deeper dive &amp; dry run</h3>
+<div class="dd-intuition">
+  <p><b>Why it works.</b> Kadane's greedily tracks <code>cur</code>, the best sum of a subarray <i>ending at the current index</i>. The greedy claim is: if extending the running sum with the next element ever drops below just starting fresh at that element (<code>cur + x &lt; x</code>, i.e. <code>cur &lt; 0</code>), a negative prefix can never help any future subarray, so it's always safe to discard it and restart. A running <code>best</code> then just remembers the max <code>cur</code> seen across all positions.</p>
+  <p><b>When to reach for it.</b> "Best/worst contiguous run" over an array of signed numbers where you want a single pass, O(1) extra state, and the answer only depends on a local running aggregate (sum, product, or a similar reducible quantity) rather than global structure.</p>
+  <p><b>Complexity.</b> Time <code>O(n)</code>, one pass, one comparison and one addition per element. Space <code>O(1)</code>, just two scalars.</p>
+  <p><b>Pitfalls &amp; variations.</b> Forgetting to initialize <code>best</code> to the first element (not 0) breaks all-negative arrays; the "reset to 0" version (<code>cur = max(0, cur+x)</code>) silently produces the wrong answer when every number is negative because it allows an empty subarray; the circular-array variant (LC 918) and the "return indices, not just sum" variant require tracking extra state beyond plain Kadane's.</p>
+</div>
+<p class="dd-input"><b>Trace input:</b> <code>nums = [-2,1,-3,4,-1,2,1,-5,4]</code> &mdash; <i>find the maximum sum of any contiguous subarray.</i></p>
+<table class="itr">
+<thead><tr><th>i</th><th>nums[i]</th><th>cur + nums[i]</th><th>cur = max(nums[i], cur+nums[i])</th><th>best</th><th>Note</th></tr></thead>
+<tbody>
+<tr><td>0</td><td>-2</td><td>&mdash;</td><td>-2</td><td>-2</td><td>seed both with first element</td></tr>
+<tr><td>1</td><td>1</td><td>-2+1=-1</td><td>1</td><td>1</td><td>restart beats extending negative run</td></tr>
+<tr><td>2</td><td>-3</td><td>1-3=-2</td><td>-2</td><td>1</td><td>extending still beats starting fresh (-2&gt;-3)</td></tr>
+<tr><td>3</td><td>4</td><td>-2+4=2</td><td>4</td><td>4</td><td>restart at 4, best updates</td></tr>
+<tr><td>4</td><td>-1</td><td>4-1=3</td><td>3</td><td>4</td><td>keep extending, best unchanged</td></tr>
+<tr><td>5</td><td>2</td><td>3+2=5</td><td>5</td><td>5</td><td>new best</td></tr>
+<tr><td>6</td><td>1</td><td>5+1=6</td><td>6</td><td>6</td><td>new best</td></tr>
+<tr><td>7</td><td>-5</td><td>6-5=1</td><td>1</td><td>6</td><td>run absorbs the dip but drops below best</td></tr>
+<tr><td>8</td><td>4</td><td>1+4=5</td><td>5</td><td>6</td><td>best stays 6</td></tr>
+</tbody>
+</table>
+<p class="dd-result"><b>Result:</b> <code>best = 6</code>, from subarray <code>[4,-1,2,1]</code>. The trace shows <code>cur</code> silently absorbing a small dip (index 4, -1) because staying attached still beat restarting, while <code>best</code> only updates when a new record is actually hit.</p>
 </div>
 </div>
 
@@ -10697,6 +11522,27 @@ public:
 <tr><td>4</td><td>[15,18]</td><td>15 &gt; 10 &rarr; add new group</td><td>[[1,6],[8,10],[15,18]]</td></tr>
 </table>
 <p>Result: <code>[[1,6],[8,10],[15,18]]</code>.</p>
+</div>
+
+<div class="deepdive">
+<h3>🔬 Deeper dive &amp; dry run</h3>
+<div class="dd-intuition">
+  <p><b>Why it works.</b> Sorting by start turns "do any two intervals overlap" into a purely local question: once sorted, interval <code>k</code> can only possibly overlap the <i>last merged</i> interval, never an earlier one, because every interval before it already has a smaller-or-equal start. That collapses an all-pairs overlap check into one linear left-to-right sweep that only ever needs to compare against the single most recent merged interval.</p>
+  <p><b>When to reach for it.</b> Problems about ranges/intervals on a line (meeting rooms, insert interval, merge, calendar booking) where the question depends on overlap or ordering, not on the intervals' original positions &mdash; a strong signal is that sorting is "free" to do first without losing information the problem needs.</p>
+  <p><b>Complexity.</b> Time <code>O(n log n)</code> dominated by the sort; the merge sweep itself is <code>O(n)</code>. Space <code>O(n)</code> for the output (or <code>O(log n)</code>&ndash;<code>O(n)</code> extra for the sort depending on implementation).</p>
+  <p><b>Pitfalls &amp; variations.</b> Using strict <code>&lt;</code> instead of <code>&le;</code> when checking overlap mishandles touching intervals like <code>[1,3]</code> and <code>[3,5]</code> (are they "overlapping" or just adjacent? read the problem); forgetting to sort first (or sorting by end instead of start) breaks the local-comparison invariant; "insert interval" (LC 57) is the same idea but avoids a full re-sort by exploiting that the list is already sorted.</p>
+</div>
+<p class="dd-input"><b>Trace input:</b> <code>intervals = [[1,3],[2,6],[8,10],[15,18]]</code> (already sorted by start) &mdash; <i>merge all overlapping intervals.</i></p>
+<table class="itr">
+<thead><tr><th>Step</th><th>Current interval</th><th>Last merged</th><th>Overlap? (cur.start &le; last.end)</th><th>Action</th><th>merged</th></tr></thead>
+<tbody>
+<tr><td>0</td><td>[1,3]</td><td>none</td><td>&mdash;</td><td>push as first merged interval</td><td>[[1,3]]</td></tr>
+<tr><td>1</td><td>[2,6]</td><td>[1,3]</td><td>2 &le; 3 &rarr; yes</td><td>merge: extend end to max(3,6)=6</td><td>[[1,6]]</td></tr>
+<tr><td>2</td><td>[8,10]</td><td>[1,6]</td><td>8 &le; 6 &rarr; no</td><td>no overlap, push new interval</td><td>[[1,6],[8,10]]</td></tr>
+<tr><td>3</td><td>[15,18]</td><td>[8,10]</td><td>15 &le; 10 &rarr; no</td><td>no overlap, push new interval</td><td>[[1,6],[8,10],[15,18]]</td></tr>
+</tbody>
+</table>
+<p class="dd-result"><b>Result:</b> <code>[[1,6],[8,10],[15,18]]</code>. The trace shows the algorithm only ever needs one comparison per step (current vs. last-merged) &mdash; [2,6] silently absorbs into [1,3] while [8,10] and [15,18] each start a fresh group.</p>
 </div>
 </div>
 
@@ -10865,6 +11711,28 @@ public:
 </table>
 <p>Result: <code>[1, 2, 3, 6, 9, 8, 7, 4, 5]</code>.</p>
 </div>
+
+<div class="deepdive">
+<h3>🔬 Deeper dive &amp; dry run</h3>
+<div class="dd-intuition">
+  <p><b>Why it works.</b> Maintaining four shrinking boundaries (<code>top, bottom, left, right</code>) turns "walk in a spiral" into four straight-line walks repeated in a fixed order (right along top, down along right, left along bottom, up along left), each followed by shrinking the boundary just traversed. Guard checks (<code>top &le; bottom</code>, <code>left &le; right</code>) before each leg prevent re-visiting or double-counting cells once a row or column has been fully consumed &mdash; this is what correctly handles non-square and odd-sized leftover slivers.</p>
+  <p><b>When to reach for it.</b> Any "walk the matrix in a specific geometric order" problem (spiral, diagonal, boustrophedon/snake) where the pattern is really just several straight passes glued together, and you can simulate it directly rather than searching for a closed-form index formula.</p>
+  <p><b>Complexity.</b> Time <code>O(m &times; n)</code> &mdash; every cell is visited exactly once. Space <code>O(1)</code> extra beyond the output array (four integer boundaries).</p>
+  <p><b>Pitfalls &amp; variations.</b> Missing the boundary re-check between the 3rd and 4th legs of each loop iteration causes cells to be added twice (or a row/column to leak into the count) once the spiral runs out of room, most visibly on a single row, single column, or non-square input; generating a spiral (the inverse problem, LC 59) uses the exact same four-boundary skeleton but writes instead of reads.</p>
+</div>
+<p class="dd-input"><b>Trace input:</b> <code>matrix = [[1,2,3],[4,5,6],[7,8,9]]</code> &mdash; <i>return all elements in spiral (clockwise, inward) order.</i></p>
+<table class="itr">
+<thead><tr><th>Step</th><th>top,bottom,left,right (before)</th><th>Leg</th><th>Cells visited</th><th>result so far</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>0,2,0,2</td><td>top row, left&rarr;right</td><td>1,2,3</td><td>[1,2,3]</td></tr>
+<tr><td>2</td><td>1,2,0,2</td><td>right col, top&rarr;bottom</td><td>6,9</td><td>[1,2,3,6,9]</td></tr>
+<tr><td>3</td><td>1,2,0,1</td><td>bottom row, right&rarr;left</td><td>8,7</td><td>[1,2,3,6,9,8,7]</td></tr>
+<tr><td>4</td><td>1,1,0,1</td><td>left col, bottom&rarr;top</td><td>4</td><td>[1,2,3,6,9,8,7,4]</td></tr>
+<tr><td>5</td><td>1,1,1,1</td><td>top row, left&rarr;right (loop re-check top&le;bottom &amp; left&le;right passes)</td><td>5</td><td>[1,2,3,6,9,8,7,4,5]</td></tr>
+</tbody>
+</table>
+<p class="dd-result"><b>Result:</b> <code>[1,2,3,6,9,8,7,4,5]</code>. After step 4, <code>top</code> becomes 2 which is <code>&gt; bottom(1)</code>, so the outer loop exits right after the lone leftover cell 5 &mdash; the boundary checks are what stop the spiral from re-reading already-visited cells.</p>
+</div>
 </div>
 
 <div class="sec" id="lc-s-bit">
@@ -10969,6 +11837,29 @@ public:
 </table>
 <p>E.g. <code>dp[3] = dp[1] + 1 = 1 + 1 = 2</code> (binary <code>11</code>), and <code>dp[5] = dp[2] + 1 = 1 + 1 = 2</code> (binary <code>101</code>). Result: <code>[0, 1, 1, 2, 1, 2]</code>.</p>
 </div>
+
+<div class="deepdive">
+<h3>🔬 Deeper dive &amp; dry run</h3>
+<div class="dd-intuition">
+  <p><b>Why it works.</b> Every integer <code>i</code> is either even (its last bit is 0, so its popcount equals the popcount of <code>i&gt;&gt;1</code>, i.e. dropping that trailing 0 changes nothing) or odd (its last bit is 1, so its popcount is one more than <code>i&gt;&gt;1</code>'s). That gives the recurrence <code>dp[i] = dp[i &gt;&gt; 1] + (i &amp; 1)</code>, which only ever looks at an already-computed smaller index, so a single forward pass fills the whole table.</p>
+  <p><b>When to reach for it.</b> You need popcounts (or a bit-derived property) for every integer in a range and want to avoid recomputing each one from scratch with <code>O(log n)</code> bit-counting; the tell is "for every number from 0 to n" combined with something expressible via a smaller/related integer (<code>i&gt;&gt;1</code>, <code>i &amp; (i-1)</code>, etc).</p>
+  <p><b>Complexity.</b> Time <code>O(n)</code> total &mdash; O(1) work per index instead of the naive <code>O(n log n)</code> from counting bits of each number independently. Space <code>O(n)</code> for the output array.</p>
+  <p><b>Pitfalls &amp; variations.</b> Confusing <code>i&gt;&gt;1</code> (correct: strips the last bit's position, keeps popcount minus that bit) with <code>i&gt;&gt;&gt;1</code> or integer division edge cases in languages without a dedicated unsigned shift; an equally valid alternate recurrence uses <code>i &amp; (i-1)</code> which clears the lowest set bit, giving <code>dp[i] = dp[i &amp; (i-1)] + 1</code>; both are O(1)-per-step DP, just relating <code>i</code> to a different, smaller prior index.</p>
+</div>
+<p class="dd-input"><b>Trace input:</b> <code>n = 5</code> &mdash; <i>for every integer 0..5, count the number of 1 bits in its binary representation.</i></p>
+<table class="itr">
+<thead><tr><th>i</th><th>binary</th><th>i&gt;&gt;1</th><th>dp[i&gt;&gt;1]</th><th>i &amp; 1</th><th>dp[i] = dp[i&gt;&gt;1] + (i&amp;1)</th></tr></thead>
+<tbody>
+<tr><td>0</td><td>0</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>0 (base case)</td></tr>
+<tr><td>1</td><td>1</td><td>0</td><td>0</td><td>1</td><td>0+1=1</td></tr>
+<tr><td>2</td><td>10</td><td>1</td><td>1</td><td>0</td><td>1+0=1</td></tr>
+<tr><td>3</td><td>11</td><td>1</td><td>1</td><td>1</td><td>1+1=2</td></tr>
+<tr><td>4</td><td>100</td><td>2</td><td>1</td><td>0</td><td>1+0=1</td></tr>
+<tr><td>5</td><td>101</td><td>2</td><td>1</td><td>1</td><td>1+1=2</td></tr>
+</tbody>
+</table>
+<p class="dd-result"><b>Result:</b> <code>[0,1,1,2,1,2]</code>. The trace shows each answer reusing a strictly smaller, already-finalized index (<code>i&gt;&gt;1 &lt; i</code> for all <code>i&gt;0</code>) rather than re-scanning bits, which is why the whole table fills in linear time.</p>
+</div>
 </div>
 <hr style="margin:40px 0 20px; border:none; border-top:1px solid #e4e7ec;">
 <p class="subtitle">18 NeetCode categories · core problem sets with company tags · one fully-worked Java solution each. Print to PDF: File ▸ Print ▸ Save as PDF (each category starts on a new page).</p>
@@ -10976,6 +11867,31 @@ public:
 
 
 </main>
+
+<div class="deepdive">
+<h3>🔬 Deeper dive &amp; dry run</h3>
+<div class="dd-intuition">
+  <p><b>Why it works.</b> BFS explores the graph in strict layers: the FIFO queue guarantees that every node at distance <i>d</i> is dequeued before any node at distance <i>d+1</i> is even enqueued. That is the invariant it maintains — "the queue never holds nodes from more than two consecutive distance layers." Because of this, the very first time you dequeue the target, the distance you popped it at is provably the shortest possible: no cheaper path could exist without having surfaced in an earlier layer.</p>
+  <p><b>When to reach for it.</b> Any prompt with "fewest steps", "minimum moves", "shortest path" on an <i>unweighted</i> graph or an implicit state graph — grid mazes, word ladders, sliding puzzles, knight moves, multi-source rot/infection problems. If every transition costs exactly one unit, BFS's layer property gives you optimality for free.</p>
+  <p><b>Complexity.</b> <code>O(V + E)</code> time (for a grid, <code>O(rows &times; cols)</code>) — each vertex is enqueued once and each edge examined once. <code>O(V)</code> space for the queue and the visited/distance array.</p>
+  <p><b>Pitfalls &amp; variations.</b> Marking a cell visited at <i>dequeue</i> time instead of at <i>enqueue</i> time lets the same cell be pushed multiple times, blowing up runtime. Forgetting bounds/wall checks before enqueueing crashes or corrupts the frontier. Multi-source BFS (seed the queue with several starts at once) and 0-1 BFS (deque instead of queue, for edge weights of 0 or 1) are the two most common variants interviewers escalate to.</p>
+</div>
+<p class="dd-input"><b>Trace input:</b> <code>grid = [[0,0,1,0],[0,1,0,0],[0,0,0,0]]</code> (0 = open, 1 = wall), <code>start = (0,0)</code>, <code>target = (2,3)</code> — <i>find the fewest 4-directional moves from start to target.</i></p>
+<table class="itr">
+<thead><tr><th>Step</th><th>Popped</th><th>dist</th><th>Newly enqueued</th><th>Queue after</th><th>Note</th></tr></thead>
+<tbody>
+<tr><td>0</td><td>&mdash;</td><td>&mdash;</td><td>(0,0) d=0</td><td>[(0,0)]</td><td>seed queue with start, dist[0][0]=0</td></tr>
+<tr><td>1</td><td>(0,0)</td><td>0</td><td>(0,1) d=1, (1,0) d=1</td><td>[(0,1),(1,0)]</td><td>up/left out of bounds</td></tr>
+<tr><td>2</td><td>(0,1)</td><td>1</td><td>&mdash;</td><td>[(1,0)]</td><td>(0,2) &amp; (1,1) are walls</td></tr>
+<tr><td>3</td><td>(1,0)</td><td>1</td><td>(2,0) d=2</td><td>[(2,0)]</td><td>(1,1) is a wall</td></tr>
+<tr><td>4</td><td>(2,0)</td><td>2</td><td>(2,1) d=3</td><td>[(2,1)]</td><td>bottom row now, row/col bounds hit</td></tr>
+<tr><td>5</td><td>(2,1)</td><td>3</td><td>(2,2) d=4</td><td>[(2,2)]</td><td>(1,1) wall blocks going up</td></tr>
+<tr><td>6</td><td>(2,2)</td><td>4</td><td>(2,3) d=5, (1,2) d=5</td><td>[(2,3),(1,2)]</td><td>(2,3) is the target — but not yet popped</td></tr>
+<tr><td>7</td><td>(2,3)</td><td>5</td><td>&mdash;</td><td>[(1,2)]</td><td>target dequeued &rarr; stop, distance is final</td></tr>
+</tbody>
+</table>
+<p class="dd-result"><b>Result:</b> shortest distance = <code>5</code>, via <code>(0,0)&rarr;(1,0)&rarr;(2,0)&rarr;(2,1)&rarr;(2,2)&rarr;(2,3)</code>. The trace shows the queue's distances are always non-decreasing — that ordering is exactly why the first pop of the target is optimal.</p>
+</div>
 </div>
 <button id="totop" aria-label="Back to top">&#8593;</button>
 <script>

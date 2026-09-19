@@ -9,8 +9,8 @@ A single, self-contained HTML app for data-structures & algorithms interview pre
 Three linked parts, with a sticky sidebar, live search, and scroll-spy:
 
 1. **Pattern Flowchart** — a decision graph (Mermaid) that walks you from a problem's clues to the right pattern, plus 44 quick Java reference cards.
-2. **In-Depth Patterns Guide** — 28 patterns explained *brute force → optimal*, with reusable templates, step-by-step dry-runs, and common pitfalls.
-3. **LeetCode by Pattern** — the NeetCode 150/250 problem sets grouped by category, tagged with difficulty and companies, each with one fully-worked solution.
+2. **In-Depth Patterns Guide** — 28 patterns explained *brute force → optimal*, with reusable templates and, for every pattern, a **🔬 deep-dive block**: why-it-works intuition, when-to-reach-for-it signals, complexity, pitfalls, and an **iteration-by-iteration dry-run table** tracing a concrete input step by step.
+3. **LeetCode by Pattern** — the NeetCode 150/250 problem sets grouped by category, tagged with difficulty and companies, each with one fully-worked solution plus a deep-dive dry-run of the category's flagship problem.
 
 ## Features
 
