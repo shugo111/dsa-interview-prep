@@ -14,6 +14,7 @@ Three linked parts, with a sticky sidebar, live search, and scroll-spy:
 
 ## Features
 
+- 🧰 **Data-structure API cheat-sheets** — every DS-centric section lists the structure's available methods (one line each, with complexity) in all four languages, wired to the switcher.
 - 🔤 **4 languages** — every code example in **Java, C++, Python, TypeScript** with a one-click switcher (remembers your choice).
 - 🎨 **Syntax highlighting** (inline, offline-safe).
 - 🌙 **Dark mode**.
