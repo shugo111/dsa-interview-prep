@@ -3971,6 +3971,66 @@ class ListNode {
 <li>Repeat until the queue empties. Track distance either per-node or by draining one whole level at a time.</li>
 </ol>
 
+<div class="dsapi">
+<h3>🧰 API — Queue (FIFO) methods</h3>
+<p class="dsapi-note">Use the language switcher (top bar) to see the equivalent methods in Java, C++, Python &amp; TypeScript.</p>
+<div class="snippet">
+<pre class="code lang-java"><code>Queue&lt;Integer&gt; q = new ArrayDeque&lt;&gt;();
+
+q.offer(x);      // add to back, O(1)
+q.add(x);        // add to back, throws if capacity fails (rare), O(1)
+q.poll();        // remove &amp; return front, null if empty, O(1)
+q.remove();      // remove &amp; return front, throws if empty, O(1)
+q.peek();        // look at front without removing, null if empty, O(1)
+q.element();     // look at front, throws if empty, O(1)
+q.isEmpty();     // check empty, O(1)
+q.size();        // number of elements, O(1)
+for (int v : q) {} // iterate front-to-back, O(n)</code></pre>
+<pre class="code lang-cpp"><code>#include &lt;queue&gt;
+std::queue&lt;int&gt; q;
+
+q.push(x);       // add to back, O(1)
+q.pop();         // remove front (no return value), O(1)
+q.front();       // reference to front element, O(1)
+q.back();        // reference to back element, O(1)
+q.empty();       // check empty, O(1)
+q.size();        // number of elements, O(1)
+// std::queue is a container adapter — not directly iterable,
+// use std::deque instead if you need to traverse it.</code></pre>
+<pre class="code lang-python"><code>from collections import deque
+q = deque()
+
+q.append(x)        # add to right (back), O(1)
+q.popleft()         # remove &amp; return left (front), O(1)
+q.appendleft(x)      # add to left (front) — rare for a pure FIFO, O(1)
+q.pop()              # remove &amp; return right (back) — rare for FIFO, O(1)
+q[0]                 # peek front, O(1)
+len(q)               # size, O(1)
+not q                # check empty (True if empty)
+for v in q: ...      # iterate front-to-back, O(n)</code></pre>
+<pre class="code lang-ts"><code>const q: number[] = [];
+
+q.push(x);          // add to back, O(1)
+q.shift();          // remove &amp; return front — O(n)! NOT O(1), avoid at scale
+q[0];               // peek front, O(1)
+q.length === 0;     // check empty, O(1)
+q.length;           // size, O(1)
+for (const v of q) {} // iterate front-to-back, O(n)
+
+// True O(1) FIFO workaround: index-pointer queue (avoids Array.shift's O(n) cost)
+class Queue&lt;T&gt; {
+  private data: T[] = [];
+  private head = 0;
+  push(x: T): void { this.data.push(x); }        // O(1)
+  pop(): T | undefined {                          // O(1) amortized
+    if (this.head &gt;= this.data.length) return undefined;
+    return this.data[this.head++];
+  }
+  peek(): T | undefined { return this.data[this.head]; } // O(1)
+  get isEmpty(): boolean { return this.head &gt;= this.data.length; } // O(1)
+}</code></pre>
+</div>
+</div>
 <div class="bruteBox">
 <h4>Brute force — repeated relaxation <span class="cx bad">O(V·E)</span></h4>
 <p>Without a queue you could recompute "shortest so far" for every node by scanning all edges repeatedly until nothing improves (Bellman-Ford style). Correct, but wasteful on unweighted graphs where a single ordered sweep suffices.</p>
@@ -4398,68 +4458,6 @@ while (stack.length &gt; 0) {
 </ol>
 <p>Answer <b>2</b> islands. Sinking in place is the trick that turns an O(V²) idea into one linear pass.</p>
 <div class="pit"><b>Pitfalls:</b> recursion depth on a 10⁶-node path graph will overflow the stack — go iterative. On graphs, forgetting <code>visited</code> gives infinite loops on cycles.</div>
-
-
-<div class="dsapi">
-<h3>🧰 API — Queue (FIFO) methods</h3>
-<p class="dsapi-note">Use the language switcher (top bar) to see the equivalent methods in Java, C++, Python &amp; TypeScript.</p>
-<div class="snippet">
-<pre class="code lang-java"><code>Queue&lt;Integer&gt; q = new ArrayDeque&lt;&gt;();
-
-q.offer(x);      // add to back, O(1)
-q.add(x);        // add to back, throws if capacity fails (rare), O(1)
-q.poll();        // remove &amp; return front, null if empty, O(1)
-q.remove();      // remove &amp; return front, throws if empty, O(1)
-q.peek();        // look at front without removing, null if empty, O(1)
-q.element();     // look at front, throws if empty, O(1)
-q.isEmpty();     // check empty, O(1)
-q.size();        // number of elements, O(1)
-for (int v : q) {} // iterate front-to-back, O(n)</code></pre>
-<pre class="code lang-cpp"><code>#include &lt;queue&gt;
-std::queue&lt;int&gt; q;
-
-q.push(x);       // add to back, O(1)
-q.pop();         // remove front (no return value), O(1)
-q.front();       // reference to front element, O(1)
-q.back();        // reference to back element, O(1)
-q.empty();       // check empty, O(1)
-q.size();        // number of elements, O(1)
-// std::queue is a container adapter — not directly iterable,
-// use std::deque instead if you need to traverse it.</code></pre>
-<pre class="code lang-python"><code>from collections import deque
-q = deque()
-
-q.append(x)        # add to right (back), O(1)
-q.popleft()         # remove &amp; return left (front), O(1)
-q.appendleft(x)      # add to left (front) — rare for a pure FIFO, O(1)
-q.pop()              # remove &amp; return right (back) — rare for FIFO, O(1)
-q[0]                 # peek front, O(1)
-len(q)               # size, O(1)
-not q                # check empty (True if empty)
-for v in q: ...      # iterate front-to-back, O(n)</code></pre>
-<pre class="code lang-ts"><code>const q: number[] = [];
-
-q.push(x);          // add to back, O(1)
-q.shift();          // remove &amp; return front — O(n)! NOT O(1), avoid at scale
-q[0];               // peek front, O(1)
-q.length === 0;     // check empty, O(1)
-q.length;           // size, O(1)
-for (const v of q) {} // iterate front-to-back, O(n)
-
-// True O(1) FIFO workaround: index-pointer queue (avoids Array.shift's O(n) cost)
-class Queue&lt;T&gt; {
-  private data: T[] = [];
-  private head = 0;
-  push(x: T): void { this.data.push(x); }        // O(1)
-  pop(): T | undefined {                          // O(1) amortized
-    if (this.head &gt;= this.data.length) return undefined;
-    return this.data[this.head++];
-  }
-  peek(): T | undefined { return this.data[this.head]; } // O(1)
-  get isEmpty(): boolean { return this.head &gt;= this.data.length; } // O(1)
-}</code></pre>
-</div>
-</div>
 <div class="deepdive">
 <h3>🔬 Deeper dive &amp; dry run</h3>
 <div class="dd-intuition">
@@ -5116,6 +5114,52 @@ function build(lo: number, hi: number): (TreeNode | null)[] {
 <h3>The idea</h3>
 <p>Maintain a partition of <code>n</code> elements into disjoint sets with two near-O(1) operations: <code>find(x)</code> (which set?) and <code>union(a,b)</code> (merge two sets). Perfect for "are these connected", "count components", Kruskal's MST, and detecting cycles as you add edges. Two optimizations make it almost constant: <b>path compression</b> (flatten the tree during find) and <b>union by rank/size</b> (attach the smaller tree under the larger).</p>
 
+<div class="dsapi">
+<h3>🧰 API — Union-Find / Disjoint Set Union methods</h3>
+<p class="dsapi-note">Use the language switcher (top bar) to see the equivalent methods in Java, C++, Python &amp; TypeScript.</p>
+<div class="snippet">
+<pre class="code lang-java"><code>// Create
+int[] parent = new int[n];
+int[] rank = new int[n];
+for (int i = 0; i &lt; n; i++) parent[i] = i;   // n singleton sets: {0}, {1}, ..., {n-1}
+
+int find(int x);                  // return the representative (root) of x's set, O(log n) amortized, ~O(1) with path compression
+void union(int a, int b);         // merge the sets containing a and b (by rank/size), O(log n) amortized
+boolean connected(int a, int b);  // true iff a and b are in the same set: find(a) == find(b), O(log n) amortized
+int count();                      // number of remaining disjoint sets, O(1) if tracked with a counter</code></pre>
+<pre class="code lang-cpp"><code>// Create
+vector&lt;int&gt; parent(n), rnk(n, 0);
+for (int i = 0; i &lt; n; i++) parent[i] = i;   // n singleton sets
+
+int find(int x);                  // path-compressed root lookup, O(log n) amortized, ~O(1)
+void unite(int a, int b);         // union by rank/size, O(log n) amortized
+bool connected(int a, int b);     // find(a) == find(b), O(log n) amortized
+int count();                      // number of disjoint sets, O(1) if tracked</code></pre>
+<pre class="code lang-python"><code># Create
+parent = list(range(n))     # parent[i] = i -&gt; n singleton sets
+rank = [0] * n               # for union by rank (optional)
+
+find(x: int) -&gt; int                    # path-compressed root lookup, O(log n) amortized, ~O(1)
+union(a: int, b: int) -&gt; None          # union by rank/size, O(log n) amortized
+connected(a: int, b: int) -&gt; bool      # find(a) == find(b), O(log n) amortized
+count() -&gt; int                          # number of disjoint sets, O(1) if tracked</code></pre>
+<pre class="code lang-ts"><code>// Create
+class DSU {
+  parent: number[];
+  rankArr: number[];
+  count_: number;
+  constructor(n: number) {
+    this.parent = Array.from({ length: n }, (_, i) =&gt; i);  // n singleton sets
+    this.rankArr = new Array(n).fill(0);
+    this.count_ = n;
+  }
+  find(x: number): number { return x; }               // path-compressed root lookup, O(log n) amortized, ~O(1)
+  union(a: number, b: number): void {}                 // union by rank/size, O(log n) amortized
+  connected(a: number, b: number): boolean { return false; } // find(a) === find(b), O(log n) amortized
+  count(): number { return this.count_; }              // number of disjoint sets, O(1)
+}</code></pre>
+</div>
+</div>
 <div class="bruteBox">
 <h4>Brute force — BFS/DFS per query <span class="cx bad">O(query · (V+E))</span></h4>
 <p>Answering each "connected?" by a fresh graph search is fine for a few queries but collapses under many interleaved unions and queries — exactly where DSU shines with near-constant amortized cost.</p>
@@ -5226,54 +5270,6 @@ public:
 </table>
 <p><code>find(0)==find(2)</code> → true (both root 0). Components = <b>2</b>: {0,1,2} and {3,4}. Trying <code>union(0,2)</code> returns false (same set) — that "false" is how Kruskal skips cycle-forming edges.</p>
 <div class="tip"><b>α(n)</b> is the inverse Ackermann function — ≤ 4 for any n you'll ever see, so treat DSU ops as effectively constant.</div>
-
-
-<div class="dsapi">
-<h3>🧰 API — Union-Find / Disjoint Set Union methods</h3>
-<p class="dsapi-note">Use the language switcher (top bar) to see the equivalent methods in Java, C++, Python &amp; TypeScript.</p>
-<div class="snippet">
-<pre class="code lang-java"><code>// Create
-int[] parent = new int[n];
-int[] rank = new int[n];
-for (int i = 0; i &lt; n; i++) parent[i] = i;   // n singleton sets: {0}, {1}, ..., {n-1}
-
-int find(int x);                  // return the representative (root) of x's set, O(log n) amortized, ~O(1) with path compression
-void union(int a, int b);         // merge the sets containing a and b (by rank/size), O(log n) amortized
-boolean connected(int a, int b);  // true iff a and b are in the same set: find(a) == find(b), O(log n) amortized
-int count();                      // number of remaining disjoint sets, O(1) if tracked with a counter</code></pre>
-<pre class="code lang-cpp"><code>// Create
-vector&lt;int&gt; parent(n), rnk(n, 0);
-for (int i = 0; i &lt; n; i++) parent[i] = i;   // n singleton sets
-
-int find(int x);                  // path-compressed root lookup, O(log n) amortized, ~O(1)
-void unite(int a, int b);         // union by rank/size, O(log n) amortized
-bool connected(int a, int b);     // find(a) == find(b), O(log n) amortized
-int count();                      // number of disjoint sets, O(1) if tracked</code></pre>
-<pre class="code lang-python"><code># Create
-parent = list(range(n))     # parent[i] = i -&gt; n singleton sets
-rank = [0] * n               # for union by rank (optional)
-
-find(x: int) -&gt; int                    # path-compressed root lookup, O(log n) amortized, ~O(1)
-union(a: int, b: int) -&gt; None          # union by rank/size, O(log n) amortized
-connected(a: int, b: int) -&gt; bool      # find(a) == find(b), O(log n) amortized
-count() -&gt; int                          # number of disjoint sets, O(1) if tracked</code></pre>
-<pre class="code lang-ts"><code>// Create
-class DSU {
-  parent: number[];
-  rankArr: number[];
-  count_: number;
-  constructor(n: number) {
-    this.parent = Array.from({ length: n }, (_, i) =&gt; i);  // n singleton sets
-    this.rankArr = new Array(n).fill(0);
-    this.count_ = n;
-  }
-  find(x: number): number { return x; }               // path-compressed root lookup, O(log n) amortized, ~O(1)
-  union(a: number, b: number): void {}                 // union by rank/size, O(log n) amortized
-  connected(a: number, b: number): boolean { return false; } // find(a) === find(b), O(log n) amortized
-  count(): number { return this.count_; }              // number of disjoint sets, O(1)
-}</code></pre>
-</div>
-</div>
 <div class="deepdive">
 <h3>🔬 Deeper dive &amp; dry run</h3>
 <div class="dd-intuition">
@@ -5459,6 +5455,73 @@ function feasible(piles: number[], speed: number, h: number): boolean {
 <h3>The idea</h3>
 <p>A binary heap gives O(log n) insert and O(log n) extract-min/max with O(1) peek. Reach for it whenever you repeatedly need "the current best/worst among a changing set": top-k, kth element, streaming medians, merging sorted sequences, or always expanding the cheapest option (Dijkstra, Prim).</p>
 
+<div class="dsapi">
+<h3>🧰 API — Priority Queue / Binary Heap methods</h3>
+<p class="dsapi-note">Use the language switcher (top bar) to see the equivalent methods in Java, C++, Python &amp; TypeScript.</p>
+<div class="snippet">
+<pre class="code lang-java"><code>// Create
+PriorityQueue&lt;Integer&gt; pq = new PriorityQueue&lt;&gt;();                          // natural ordering -&gt; MIN-heap
+PriorityQueue&lt;Integer&gt; maxPq = new PriorityQueue&lt;&gt;(Collections.reverseOrder()); // max-heap via comparator
+PriorityQueue&lt;int[]&gt; byKey = new PriorityQueue&lt;&gt;((a, b) -&gt; a[0] - b[0]);     // custom comparator (order by a field)
+
+pq.offer(x);       // insert x, O(log n)
+pq.add(x);         // same as offer(), throws instead of returning false on failure, O(log n)
+pq.poll();         // remove &amp; return the head (smallest, or per comparator), O(log n); null if empty
+pq.remove();       // same as poll() but throws NoSuchElementException if empty, O(log n)
+pq.peek();         // view the head without removing, O(1); null if empty
+pq.element();       // same as peek() but throws if empty, O(1)
+pq.size();         // number of elements, O(1)
+pq.isEmpty();      // true if no elements, O(1)
+pq.remove(x);      // remove a specific element (linear scan), O(n)
+pq.contains(x);    // membership check, O(n)</code></pre>
+<pre class="code lang-cpp"><code>#include &lt;queue&gt;
+priority_queue&lt;int&gt; pq;                                     // MAX-heap by default
+priority_queue&lt;int, vector&lt;int&gt;, greater&lt;int&gt;&gt; minPq;        // MIN-heap via greater&lt;&gt; comparator
+priority_queue&lt;pair&lt;int,int&gt;&gt; pairPq;                        // orders by first element, then second
+
+pq.push(x);          // insert x, O(log n)
+pq.emplace(args...); // construct element in place and insert, O(log n)
+pq.pop();            // remove the top element, O(log n)
+pq.top();            // access the top element without removing, O(1)
+pq.size();           // number of elements, O(1)
+pq.empty();          // true if no elements, O(1)</code></pre>
+<pre class="code lang-python"><code>import heapq
+heap = []                       # heapq operates on a plain list; it is ALWAYS a MIN-heap
+
+heapq.heappush(heap, x)            # push x, O(log n)
+heapq.heappop(heap)                # pop &amp; return the smallest item, O(log n)
+heapq.heapify(heap)                # turn an existing list into a heap in-place, O(n)
+heapq.heappushpop(heap, x)         # push x, then pop &amp; return the smallest (1 pass, faster than push+pop), O(log n)
+heapq.heapreplace(heap, x)         # pop the smallest, then push x (result may be &gt; x), O(log n)
+heap[0]                            # peek at the smallest item without popping, O(1)
+heapq.nlargest(k, heap)            # k largest elements as a sorted list, O(n log k)
+heapq.nsmallest(k, heap)           # k smallest elements as a sorted list, O(n log k)
+
+# Max-heap trick: negate values going in/out (or push (-priority, item) tuples)
+heapq.heappush(heap, -x)           # push -x
+-heapq.heappop(heap)               # pop &amp; negate back to get the true max</code></pre>
+<pre class="code lang-ts"><code>// No built-in heap / priority queue in the JS/TS standard library. Two common approaches:
+
+// 1) Hand-rolled binary heap backed by an array
+class MinHeap&lt;T&gt; {
+  private data: T[] = [];
+  constructor(private cmp: (a: T, b: T) =&gt; number) {}
+  push(x: T): void { /* append, then sift up */ }      // O(log n)
+  pop(): T | undefined { /* swap root/last, sift down */ } // O(log n)
+  peek(): T | undefined { return this.data[0]; }        // O(1)
+  get size(): number { return this.data.length; }       // O(1)
+}
+
+// 2) A library, e.g. `heap-js` or `@datastructures-js/priority-queue`
+import { MinPriorityQueue } from '@datastructures-js/priority-queue';
+const pq = new MinPriorityQueue&lt;number&gt;();
+pq.enqueue(x);        // insert x, O(log n)
+pq.dequeue();         // remove &amp; return the smallest, O(log n)
+pq.front();           // peek at the smallest, O(1)
+pq.size();            // number of elements, O(1)
+pq.isEmpty();         // true if empty, O(1)</code></pre>
+</div>
+</div>
 <div class="bruteBox">
 <h4>Brute force — sort everything <span class="cx bad">O(n log n)</span></h4>
 <p>Sort the whole array and index the kth element. Fine once, but wasteful for streams or when k ≪ n; a size-k heap does it in O(n log k) and handles data that doesn't fit in memory.</p>
@@ -5601,75 +5664,6 @@ function median(): number {
 <tr><td>4</td><td>[5,6]</td><td>add 4 → poll 4</td></tr>
 </table>
 <p>Heap holds the two largest {5,6}; its min (top) = <b>5</b> is the 2nd largest.</p>
-
-
-<div class="dsapi">
-<h3>🧰 API — Priority Queue / Binary Heap methods</h3>
-<p class="dsapi-note">Use the language switcher (top bar) to see the equivalent methods in Java, C++, Python &amp; TypeScript.</p>
-<div class="snippet">
-<pre class="code lang-java"><code>// Create
-PriorityQueue&lt;Integer&gt; pq = new PriorityQueue&lt;&gt;();                          // natural ordering -&gt; MIN-heap
-PriorityQueue&lt;Integer&gt; maxPq = new PriorityQueue&lt;&gt;(Collections.reverseOrder()); // max-heap via comparator
-PriorityQueue&lt;int[]&gt; byKey = new PriorityQueue&lt;&gt;((a, b) -&gt; a[0] - b[0]);     // custom comparator (order by a field)
-
-pq.offer(x);       // insert x, O(log n)
-pq.add(x);         // same as offer(), throws instead of returning false on failure, O(log n)
-pq.poll();         // remove &amp; return the head (smallest, or per comparator), O(log n); null if empty
-pq.remove();       // same as poll() but throws NoSuchElementException if empty, O(log n)
-pq.peek();         // view the head without removing, O(1); null if empty
-pq.element();       // same as peek() but throws if empty, O(1)
-pq.size();         // number of elements, O(1)
-pq.isEmpty();      // true if no elements, O(1)
-pq.remove(x);      // remove a specific element (linear scan), O(n)
-pq.contains(x);    // membership check, O(n)</code></pre>
-<pre class="code lang-cpp"><code>#include &lt;queue&gt;
-priority_queue&lt;int&gt; pq;                                     // MAX-heap by default
-priority_queue&lt;int, vector&lt;int&gt;, greater&lt;int&gt;&gt; minPq;        // MIN-heap via greater&lt;&gt; comparator
-priority_queue&lt;pair&lt;int,int&gt;&gt; pairPq;                        // orders by first element, then second
-
-pq.push(x);          // insert x, O(log n)
-pq.emplace(args...); // construct element in place and insert, O(log n)
-pq.pop();            // remove the top element, O(log n)
-pq.top();            // access the top element without removing, O(1)
-pq.size();           // number of elements, O(1)
-pq.empty();          // true if no elements, O(1)</code></pre>
-<pre class="code lang-python"><code>import heapq
-heap = []                       # heapq operates on a plain list; it is ALWAYS a MIN-heap
-
-heapq.heappush(heap, x)            # push x, O(log n)
-heapq.heappop(heap)                # pop &amp; return the smallest item, O(log n)
-heapq.heapify(heap)                # turn an existing list into a heap in-place, O(n)
-heapq.heappushpop(heap, x)         # push x, then pop &amp; return the smallest (1 pass, faster than push+pop), O(log n)
-heapq.heapreplace(heap, x)         # pop the smallest, then push x (result may be &gt; x), O(log n)
-heap[0]                            # peek at the smallest item without popping, O(1)
-heapq.nlargest(k, heap)            # k largest elements as a sorted list, O(n log k)
-heapq.nsmallest(k, heap)           # k smallest elements as a sorted list, O(n log k)
-
-# Max-heap trick: negate values going in/out (or push (-priority, item) tuples)
-heapq.heappush(heap, -x)           # push -x
--heapq.heappop(heap)               # pop &amp; negate back to get the true max</code></pre>
-<pre class="code lang-ts"><code>// No built-in heap / priority queue in the JS/TS standard library. Two common approaches:
-
-// 1) Hand-rolled binary heap backed by an array
-class MinHeap&lt;T&gt; {
-  private data: T[] = [];
-  constructor(private cmp: (a: T, b: T) =&gt; number) {}
-  push(x: T): void { /* append, then sift up */ }      // O(log n)
-  pop(): T | undefined { /* swap root/last, sift down */ } // O(log n)
-  peek(): T | undefined { return this.data[0]; }        // O(1)
-  get size(): number { return this.data.length; }       // O(1)
-}
-
-// 2) A library, e.g. `heap-js` or `@datastructures-js/priority-queue`
-import { MinPriorityQueue } from '@datastructures-js/priority-queue';
-const pq = new MinPriorityQueue&lt;number&gt;();
-pq.enqueue(x);        // insert x, O(log n)
-pq.dequeue();         // remove &amp; return the smallest, O(log n)
-pq.front();           // peek at the smallest, O(1)
-pq.size();            // number of elements, O(1)
-pq.isEmpty();         // true if empty, O(1)</code></pre>
-</div>
-</div>
 <div class="deepdive">
 <h3>🔬 Deeper dive &amp; dry run</h3>
 <div class="dd-intuition">
@@ -6101,6 +6095,64 @@ function atMost(a: number[], k: number): number {
 <h3>The idea</h3>
 <p>To find, for each element, its <b>nearest greater (or smaller) neighbour</b>, keep a stack whose values stay sorted. When a new element breaks the order, pop the violators — the new element is precisely their "next greater/smaller". Each index is pushed and popped once → O(n). Powers next-greater-element, daily temperatures, largest rectangle, trapping rain water, and stock spans.</p>
 
+<div class="dsapi">
+<h3>🧰 API — Deque (Double-Ended Queue) methods</h3>
+<p class="dsapi-note">Use the language switcher (top bar) to see the equivalent methods in Java, C++, Python &amp; TypeScript.</p>
+<div class="snippet">
+<pre class="code lang-java"><code>Deque&lt;Integer&gt; dq = new ArrayDeque&lt;&gt;();
+
+dq.offerFirst(x); // add to front, O(1)
+dq.offerLast(x);  // add to back, O(1)
+dq.addFirst(x);   // add to front, throws on capacity failure, O(1)
+dq.addLast(x);    // add to back, throws on capacity failure, O(1)
+dq.pollFirst();   // remove &amp; return front, null if empty, O(1)
+dq.pollLast();    // remove &amp; return back, null if empty, O(1)
+dq.peekFirst();   // look at front, null if empty, O(1)
+dq.peekLast();    // look at back, null if empty, O(1)
+dq.isEmpty();     // check empty, O(1)
+dq.size();        // number of elements, O(1)
+for (int v : dq) {} // iterate front-to-back, O(n)</code></pre>
+<pre class="code lang-cpp"><code>#include &lt;deque&gt;
+std::deque&lt;int&gt; dq;
+
+dq.push_front(x); // add to front, O(1)
+dq.push_back(x);  // add to back, O(1)
+dq.pop_front();    // remove front (no return value), O(1)
+dq.pop_back();     // remove back (no return value), O(1)
+dq.front();        // reference to front element, O(1)
+dq.back();         // reference to back element, O(1)
+dq.empty();        // check empty, O(1)
+dq.size();         // number of elements, O(1)
+dq[i];             // random access by index, O(1)
+for (int v : dq) {} // iterate, O(n)</code></pre>
+<pre class="code lang-python"><code>from collections import deque
+dq = deque()
+
+dq.appendleft(x)  # add to front, O(1)
+dq.append(x)       # add to back, O(1)
+dq.popleft()        # remove &amp; return front, O(1)
+dq.pop()             # remove &amp; return back, O(1)
+dq[0]                # peek front, O(1)
+dq[-1]               # peek back, O(1)
+len(dq)              # size, O(1)
+not dq               # check empty (True if empty)
+for v in dq: ...     # iterate front-to-back, O(n)</code></pre>
+<pre class="code lang-ts"><code>const dq: number[] = [];
+
+dq.unshift(x);     // add to front — O(n)! NOT O(1)
+dq.push(x);         // add to back, O(1)
+dq.shift();         // remove &amp; return front — O(n)! NOT O(1)
+dq.pop();            // remove &amp; return back, O(1)
+dq[0];               // peek front, O(1)
+dq[dq.length - 1];   // peek back, O(1)
+dq.length;           // size, O(1)
+for (const v of dq) {} // iterate, O(n)
+
+// JS/TS arrays have no O(1) front operations. For a real O(1)-both-ends
+// deque, use a doubly linked list, a circular buffer, or a library
+// such as "denque" — plain arrays only give you O(1) at the back.</code></pre>
+</div>
+</div>
 <div class="bruteBox">
 <h4>Brute force — scan forward for each element <span class="cx bad">O(n²)</span></h4>
 <p>For every <code>i</code>, walk right until you find a larger value. The stack remembers unresolved candidates so each is settled in O(1) amortized instead of re-scanned.</p>
@@ -6219,66 +6271,6 @@ function atMost(a: number[], k: number): number {
 <tr><td>6 (76)</td><td>pop 5 → res[5]=1; pop 2 → res[2]=4</td><td>[6]</td></tr>
 </table>
 <p>Result <b>[1,1,4,2,1,1,0]</b>. Index 2 (75°) waited 4 days for 76°; index 6 never warms so stays 0.</p>
-
-
-<div class="dsapi">
-<h3>🧰 API — Deque (Double-Ended Queue) methods</h3>
-<p class="dsapi-note">Use the language switcher (top bar) to see the equivalent methods in Java, C++, Python &amp; TypeScript.</p>
-<div class="snippet">
-<pre class="code lang-java"><code>Deque&lt;Integer&gt; dq = new ArrayDeque&lt;&gt;();
-
-dq.offerFirst(x); // add to front, O(1)
-dq.offerLast(x);  // add to back, O(1)
-dq.addFirst(x);   // add to front, throws on capacity failure, O(1)
-dq.addLast(x);    // add to back, throws on capacity failure, O(1)
-dq.pollFirst();   // remove &amp; return front, null if empty, O(1)
-dq.pollLast();    // remove &amp; return back, null if empty, O(1)
-dq.peekFirst();   // look at front, null if empty, O(1)
-dq.peekLast();    // look at back, null if empty, O(1)
-dq.isEmpty();     // check empty, O(1)
-dq.size();        // number of elements, O(1)
-for (int v : dq) {} // iterate front-to-back, O(n)</code></pre>
-<pre class="code lang-cpp"><code>#include &lt;deque&gt;
-std::deque&lt;int&gt; dq;
-
-dq.push_front(x); // add to front, O(1)
-dq.push_back(x);  // add to back, O(1)
-dq.pop_front();    // remove front (no return value), O(1)
-dq.pop_back();     // remove back (no return value), O(1)
-dq.front();        // reference to front element, O(1)
-dq.back();         // reference to back element, O(1)
-dq.empty();        // check empty, O(1)
-dq.size();         // number of elements, O(1)
-dq[i];             // random access by index, O(1)
-for (int v : dq) {} // iterate, O(n)</code></pre>
-<pre class="code lang-python"><code>from collections import deque
-dq = deque()
-
-dq.appendleft(x)  # add to front, O(1)
-dq.append(x)       # add to back, O(1)
-dq.popleft()        # remove &amp; return front, O(1)
-dq.pop()             # remove &amp; return back, O(1)
-dq[0]                # peek front, O(1)
-dq[-1]               # peek back, O(1)
-len(dq)              # size, O(1)
-not dq               # check empty (True if empty)
-for v in dq: ...     # iterate front-to-back, O(n)</code></pre>
-<pre class="code lang-ts"><code>const dq: number[] = [];
-
-dq.unshift(x);     // add to front — O(n)! NOT O(1)
-dq.push(x);         // add to back, O(1)
-dq.shift();         // remove &amp; return front — O(n)! NOT O(1)
-dq.pop();            // remove &amp; return back, O(1)
-dq[0];               // peek front, O(1)
-dq[dq.length - 1];   // peek back, O(1)
-dq.length;           // size, O(1)
-for (const v of dq) {} // iterate, O(n)
-
-// JS/TS arrays have no O(1) front operations. For a real O(1)-both-ends
-// deque, use a doubly linked list, a circular buffer, or a library
-// such as "denque" — plain arrays only give you O(1) at the back.</code></pre>
-</div>
-</div>
 <div class="deepdive">
 <h3>🔬 Deeper dive &amp; dry run</h3>
 <div class="dd-intuition">
@@ -7240,6 +7232,59 @@ mask &amp; -mask                                       // lowest set bit</code><
 <h3>The idea</h3>
 <p>A <b>trie</b> (prefix tree) stores strings by shared prefixes: each node is one character, each root-to-node path is a prefix. Insert/search/startsWith are O(word length), independent of how many words are stored — ideal for autocomplete, prefix queries, and matching many patterns at once. For single-pattern search inside text, <b>KMP</b> (O(n+m)) and <b>rolling hash</b> (Rabin-Karp) avoid re-scanning.</p>
 
+<div class="dsapi">
+<h3>🧰 API — Trie (Prefix Tree) methods</h3>
+<p class="dsapi-note">Use the language switcher (top bar) to see the equivalent methods in Java, C++, Python &amp; TypeScript.</p>
+<div class="snippet">
+<pre class="code lang-java"><code>// Create
+class TrieNode {
+    TrieNode[] children = new TrieNode[26];   // or Map&lt;Character, TrieNode&gt; for larger alphabets
+    boolean isEnd;
+}
+Trie trie = new Trie();                        // root node, no words yet
+
+trie.insert(String word);        // add word to the trie, O(L), L = word length
+trie.search(String word);        // true iff the exact word was inserted, O(L)
+trie.startsWith(String prefix);  // true iff some inserted word has this prefix, O(L)
+trie.delete(String word);        // (optional) remove word, unlink now-unused nodes, O(L)</code></pre>
+<pre class="code lang-cpp"><code>// Create
+struct TrieNode {
+    TrieNode* children[26] = {};   // or unordered_map&lt;char, TrieNode*&gt;
+    bool isEnd = false;
+};
+Trie trie;                          // root node, no words yet
+
+trie.insert(const string&amp; word);       // add word, O(L), L = word length
+trie.search(const string&amp; word);       // exact word exists?, O(L)
+trie.startsWith(const string&amp; prefix); // some word has this prefix?, O(L)
+trie.erase(const string&amp; word);        // (optional) remove word, O(L)</code></pre>
+<pre class="code lang-python"><code># Create
+class TrieNode:
+    def __init__(self):
+        self.children = {}       # char -&gt; TrieNode
+        self.is_end = False
+
+trie = Trie()                     # root node, no words yet
+
+trie.insert(word: str) -&gt; None            # add word, O(L), L = len(word)
+trie.search(word: str) -&gt; bool            # exact word exists?, O(L)
+trie.starts_with(prefix: str) -&gt; bool     # some word has this prefix?, O(L)
+trie.delete(word: str) -&gt; None            # (optional) remove word, O(L)</code></pre>
+<pre class="code lang-ts"><code>// Create
+class TrieNode {
+  children: Map&lt;string, TrieNode&gt; = new Map();   // or a fixed-size array for a-z only
+  isEnd = false;
+}
+class Trie {
+  private root = new TrieNode();                 // root node, no words yet
+
+  insert(word: string): void {}                              // add word, O(L)
+  search(word: string): boolean { return false; }             // exact word exists?, O(L)
+  startsWith(prefix: string): boolean { return false; }       // some word has this prefix?, O(L)
+  delete(word: string): void {}                                // (optional) remove word, O(L)
+}</code></pre>
+</div>
+</div>
 <div class="bruteBox">
 <h4>Brute force — compare against every stored word <span class="cx bad">O(words · len)</span></h4>
 <p>Checking a prefix by looping over all stored strings. The trie shares common prefixes so a lookup only walks the query's own characters.</p>
@@ -7424,61 +7469,6 @@ public:
 <tr><td>search("apples")</td><td>no child 's' after e</td><td>false</td></tr>
 </table>
 <p>"app" and "apple" share the "app" path — stored once, so 5 nodes hold both words.</p>
-
-
-<div class="dsapi">
-<h3>🧰 API — Trie (Prefix Tree) methods</h3>
-<p class="dsapi-note">Use the language switcher (top bar) to see the equivalent methods in Java, C++, Python &amp; TypeScript.</p>
-<div class="snippet">
-<pre class="code lang-java"><code>// Create
-class TrieNode {
-    TrieNode[] children = new TrieNode[26];   // or Map&lt;Character, TrieNode&gt; for larger alphabets
-    boolean isEnd;
-}
-Trie trie = new Trie();                        // root node, no words yet
-
-trie.insert(String word);        // add word to the trie, O(L), L = word length
-trie.search(String word);        // true iff the exact word was inserted, O(L)
-trie.startsWith(String prefix);  // true iff some inserted word has this prefix, O(L)
-trie.delete(String word);        // (optional) remove word, unlink now-unused nodes, O(L)</code></pre>
-<pre class="code lang-cpp"><code>// Create
-struct TrieNode {
-    TrieNode* children[26] = {};   // or unordered_map&lt;char, TrieNode*&gt;
-    bool isEnd = false;
-};
-Trie trie;                          // root node, no words yet
-
-trie.insert(const string&amp; word);       // add word, O(L), L = word length
-trie.search(const string&amp; word);       // exact word exists?, O(L)
-trie.startsWith(const string&amp; prefix); // some word has this prefix?, O(L)
-trie.erase(const string&amp; word);        // (optional) remove word, O(L)</code></pre>
-<pre class="code lang-python"><code># Create
-class TrieNode:
-    def __init__(self):
-        self.children = {}       # char -&gt; TrieNode
-        self.is_end = False
-
-trie = Trie()                     # root node, no words yet
-
-trie.insert(word: str) -&gt; None            # add word, O(L), L = len(word)
-trie.search(word: str) -&gt; bool            # exact word exists?, O(L)
-trie.starts_with(prefix: str) -&gt; bool     # some word has this prefix?, O(L)
-trie.delete(word: str) -&gt; None            # (optional) remove word, O(L)</code></pre>
-<pre class="code lang-ts"><code>// Create
-class TrieNode {
-  children: Map&lt;string, TrieNode&gt; = new Map();   // or a fixed-size array for a-z only
-  isEnd = false;
-}
-class Trie {
-  private root = new TrieNode();                 // root node, no words yet
-
-  insert(word: string): void {}                              // add word, O(L)
-  search(word: string): boolean { return false; }             // exact word exists?, O(L)
-  startsWith(prefix: string): boolean { return false; }       // some word has this prefix?, O(L)
-  delete(word: string): void {}                                // (optional) remove word, O(L)
-}</code></pre>
-</div>
-</div>
 <div class="deepdive">
 <h3>🔬 Deeper dive &amp; dry run</h3>
 <div class="dd-intuition">
@@ -7655,125 +7645,6 @@ class Trie {
 <h3>The idea</h3>
 <p>Pointer surgery: reverse, reorder, merge, remove. Three habits prevent 90% of bugs — save <code>next</code> before you overwrite a link, use a <b>dummy head</b> when the head might change, and draw the pointers before coding. Fast/slow pointers (see §10) find the middle and detect cycles.</p>
 
-<div class="bruteBox">
-<h4>Brute force — copy to an array <span class="cx bad">O(n) extra space</span></h4>
-<p>Dumping nodes into a list, manipulating, and rebuilding works but wastes O(n) memory; in-place pointer rewiring is O(1) space and is what interviewers want.</p>
-</div>
-
-<div class="optBox">
-<h4>Template A · reverse a list <span class="cx good">O(n), O(1) space</span></h4>
-<div class="snippet"><pre class="code lang-java"><code>ListNode reverse(ListNode head){
-    ListNode prev = null, cur = head;
-    while (cur != null){
-        ListNode next = cur.next;   // save
-        cur.next = prev;            // flip
-        prev = cur; cur = next;     // advance
-    }
-    return prev;
-}</code></pre><pre class="code lang-cpp"><code>ListNode* reverse(ListNode* head){
-    ListNode* prev = nullptr, *cur = head;
-    while (cur != nullptr){
-        ListNode* next = cur-&gt;next;   // save
-        cur-&gt;next = prev;             // flip
-        prev = cur; cur = next;       // advance
-    }
-    return prev;
-}</code></pre><pre class="code lang-python"><code>def reverse(head):
-    prev, cur = None, head
-    while cur is not None:
-        nxt = cur.next   # save
-        cur.next = prev  # flip
-        prev, cur = cur, nxt   # advance
-    return prev</code></pre><pre class="code lang-ts"><code>function reverse(head: ListNode | null): ListNode | null {
-    let prev: ListNode | null = null, cur = head;
-    while (cur !== null) {
-        const next = cur.next;   // save
-        cur.next = prev;         // flip
-        prev = cur; cur = next;  // advance
-    }
-    return prev;
-}</code></pre></div>
-<h4>Template B · reverse first k nodes (building block for reverse-in-groups)</h4>
-<div class="snippet"><pre class="code lang-java"><code>ListNode reverseK(ListNode head, int k){
-    ListNode prev = null, cur = head;
-    while (k-- &gt; 0 &amp;&amp; cur != null){
-        ListNode next = cur.next;
-        cur.next = prev; prev = cur; cur = next;
-    }
-    head.next = cur;      // old head now points to the remainder
-    return prev;          // new head of this segment
-}</code></pre><pre class="code lang-cpp"><code>ListNode* reverseK(ListNode* head, int k){
-    ListNode* prev = nullptr, *cur = head;
-    while (k-- &gt; 0 &amp;&amp; cur != nullptr){
-        ListNode* next = cur-&gt;next;
-        cur-&gt;next = prev; prev = cur; cur = next;
-    }
-    head-&gt;next = cur;      // old head now points to the remainder
-    return prev;           // new head of this segment
-}</code></pre><pre class="code lang-python"><code>def reverse_k(head, k):
-    prev, cur = None, head
-    while k &gt; 0 and cur is not None:
-        nxt = cur.next
-        cur.next = prev
-        prev = cur
-        cur = nxt
-        k -= 1
-    head.next = cur      # old head now points to the remainder
-    return prev           # new head of this segment</code></pre><pre class="code lang-ts"><code>function reverseK(head: ListNode, k: number): ListNode | null {
-    let prev: ListNode | null = null, cur: ListNode | null = head;
-    while (k-- &gt; 0 &amp;&amp; cur !== null) {
-        const next = cur.next;
-        cur.next = prev; prev = cur; cur = next;
-    }
-    head.next = cur;      // old head now points to the remainder
-    return prev;          // new head of this segment
-}</code></pre></div>
-<h4>Template C · remove nth from end (dummy + gap pointers)</h4>
-<div class="snippet"><pre class="code lang-java"><code>ListNode removeNthFromEnd(ListNode head, int n){
-    ListNode dummy = new ListNode(0); dummy.next = head;
-    ListNode fast = dummy, slow = dummy;
-    for (int i = 0; i &lt;= n; i++) fast = fast.next;   // open a gap of n+1
-    while (fast != null){ fast = fast.next; slow = slow.next; }
-    slow.next = slow.next.next;                       // skip target
-    return dummy.next;
-}</code></pre><pre class="code lang-cpp"><code>ListNode* removeNthFromEnd(ListNode* head, int n){
-    ListNode* dummy = new ListNode(0); dummy-&gt;next = head;
-    ListNode* fast = dummy, *slow = dummy;
-    for (int i = 0; i &lt;= n; i++) fast = fast-&gt;next;   // open a gap of n+1
-    while (fast != nullptr){ fast = fast-&gt;next; slow = slow-&gt;next; }
-    slow-&gt;next = slow-&gt;next-&gt;next;                     // skip target
-    return dummy-&gt;next;
-}</code></pre><pre class="code lang-python"><code>def remove_nth_from_end(head, n):
-    dummy = ListNode(0)
-    dummy.next = head
-    fast = slow = dummy
-    for i in range(n + 1):
-        fast = fast.next   # open a gap of n+1
-    while fast is not None:
-        fast = fast.next
-        slow = slow.next
-    slow.next = slow.next.next    # skip target
-    return dummy.next</code></pre><pre class="code lang-ts"><code>function removeNthFromEnd(head: ListNode | null, n: number): ListNode | null {
-    const dummy = new ListNode(0); dummy.next = head;
-    let fast: ListNode | null = dummy, slow: ListNode | null = dummy;
-    for (let i = 0; i &lt;= n; i++) fast = fast!.next;   // open a gap of n+1
-    while (fast !== null) { fast = fast.next; slow = slow!.next; }
-    slow!.next = slow!.next!.next;                     // skip target
-    return dummy.next;
-}</code></pre></div>
-</div>
-
-<h3>Worked example — reverse <code>1→2→3</code></h3>
-<table class="trace">
-<tr><th>step</th><th>prev</th><th>cur</th><th>list so far</th></tr>
-<tr><td>init</td><td>null</td><td>1</td><td>1→2→3</td></tr>
-<tr><td>1</td><td>1</td><td>2</td><td>1→null</td></tr>
-<tr><td>2</td><td>2</td><td>3</td><td>2→1→null</td></tr>
-<tr><td>3</td><td>3</td><td>null</td><td>3→2→1→null</td></tr>
-</table>
-<p>Return <code>prev = 3</code>. Saving <code>next</code> first is what keeps the tail reachable after each flip.</p>
-
-
 <div class="dsapi">
 <h3>🧰 API — Linked List methods</h3>
 <p class="dsapi-note">Use the language switcher (top bar) to see the equivalent methods in Java, C++, Python &amp; TypeScript.</p>
@@ -7932,6 +7803,123 @@ head = prev;
 // insert/delete at an arbitrary already-known node.</code></pre>
 </div>
 </div>
+<div class="bruteBox">
+<h4>Brute force — copy to an array <span class="cx bad">O(n) extra space</span></h4>
+<p>Dumping nodes into a list, manipulating, and rebuilding works but wastes O(n) memory; in-place pointer rewiring is O(1) space and is what interviewers want.</p>
+</div>
+
+<div class="optBox">
+<h4>Template A · reverse a list <span class="cx good">O(n), O(1) space</span></h4>
+<div class="snippet"><pre class="code lang-java"><code>ListNode reverse(ListNode head){
+    ListNode prev = null, cur = head;
+    while (cur != null){
+        ListNode next = cur.next;   // save
+        cur.next = prev;            // flip
+        prev = cur; cur = next;     // advance
+    }
+    return prev;
+}</code></pre><pre class="code lang-cpp"><code>ListNode* reverse(ListNode* head){
+    ListNode* prev = nullptr, *cur = head;
+    while (cur != nullptr){
+        ListNode* next = cur-&gt;next;   // save
+        cur-&gt;next = prev;             // flip
+        prev = cur; cur = next;       // advance
+    }
+    return prev;
+}</code></pre><pre class="code lang-python"><code>def reverse(head):
+    prev, cur = None, head
+    while cur is not None:
+        nxt = cur.next   # save
+        cur.next = prev  # flip
+        prev, cur = cur, nxt   # advance
+    return prev</code></pre><pre class="code lang-ts"><code>function reverse(head: ListNode | null): ListNode | null {
+    let prev: ListNode | null = null, cur = head;
+    while (cur !== null) {
+        const next = cur.next;   // save
+        cur.next = prev;         // flip
+        prev = cur; cur = next;  // advance
+    }
+    return prev;
+}</code></pre></div>
+<h4>Template B · reverse first k nodes (building block for reverse-in-groups)</h4>
+<div class="snippet"><pre class="code lang-java"><code>ListNode reverseK(ListNode head, int k){
+    ListNode prev = null, cur = head;
+    while (k-- &gt; 0 &amp;&amp; cur != null){
+        ListNode next = cur.next;
+        cur.next = prev; prev = cur; cur = next;
+    }
+    head.next = cur;      // old head now points to the remainder
+    return prev;          // new head of this segment
+}</code></pre><pre class="code lang-cpp"><code>ListNode* reverseK(ListNode* head, int k){
+    ListNode* prev = nullptr, *cur = head;
+    while (k-- &gt; 0 &amp;&amp; cur != nullptr){
+        ListNode* next = cur-&gt;next;
+        cur-&gt;next = prev; prev = cur; cur = next;
+    }
+    head-&gt;next = cur;      // old head now points to the remainder
+    return prev;           // new head of this segment
+}</code></pre><pre class="code lang-python"><code>def reverse_k(head, k):
+    prev, cur = None, head
+    while k &gt; 0 and cur is not None:
+        nxt = cur.next
+        cur.next = prev
+        prev = cur
+        cur = nxt
+        k -= 1
+    head.next = cur      # old head now points to the remainder
+    return prev           # new head of this segment</code></pre><pre class="code lang-ts"><code>function reverseK(head: ListNode, k: number): ListNode | null {
+    let prev: ListNode | null = null, cur: ListNode | null = head;
+    while (k-- &gt; 0 &amp;&amp; cur !== null) {
+        const next = cur.next;
+        cur.next = prev; prev = cur; cur = next;
+    }
+    head.next = cur;      // old head now points to the remainder
+    return prev;          // new head of this segment
+}</code></pre></div>
+<h4>Template C · remove nth from end (dummy + gap pointers)</h4>
+<div class="snippet"><pre class="code lang-java"><code>ListNode removeNthFromEnd(ListNode head, int n){
+    ListNode dummy = new ListNode(0); dummy.next = head;
+    ListNode fast = dummy, slow = dummy;
+    for (int i = 0; i &lt;= n; i++) fast = fast.next;   // open a gap of n+1
+    while (fast != null){ fast = fast.next; slow = slow.next; }
+    slow.next = slow.next.next;                       // skip target
+    return dummy.next;
+}</code></pre><pre class="code lang-cpp"><code>ListNode* removeNthFromEnd(ListNode* head, int n){
+    ListNode* dummy = new ListNode(0); dummy-&gt;next = head;
+    ListNode* fast = dummy, *slow = dummy;
+    for (int i = 0; i &lt;= n; i++) fast = fast-&gt;next;   // open a gap of n+1
+    while (fast != nullptr){ fast = fast-&gt;next; slow = slow-&gt;next; }
+    slow-&gt;next = slow-&gt;next-&gt;next;                     // skip target
+    return dummy-&gt;next;
+}</code></pre><pre class="code lang-python"><code>def remove_nth_from_end(head, n):
+    dummy = ListNode(0)
+    dummy.next = head
+    fast = slow = dummy
+    for i in range(n + 1):
+        fast = fast.next   # open a gap of n+1
+    while fast is not None:
+        fast = fast.next
+        slow = slow.next
+    slow.next = slow.next.next    # skip target
+    return dummy.next</code></pre><pre class="code lang-ts"><code>function removeNthFromEnd(head: ListNode | null, n: number): ListNode | null {
+    const dummy = new ListNode(0); dummy.next = head;
+    let fast: ListNode | null = dummy, slow: ListNode | null = dummy;
+    for (let i = 0; i &lt;= n; i++) fast = fast!.next;   // open a gap of n+1
+    while (fast !== null) { fast = fast.next; slow = slow!.next; }
+    slow!.next = slow!.next!.next;                     // skip target
+    return dummy.next;
+}</code></pre></div>
+</div>
+
+<h3>Worked example — reverse <code>1→2→3</code></h3>
+<table class="trace">
+<tr><th>step</th><th>prev</th><th>cur</th><th>list so far</th></tr>
+<tr><td>init</td><td>null</td><td>1</td><td>1→2→3</td></tr>
+<tr><td>1</td><td>1</td><td>2</td><td>1→null</td></tr>
+<tr><td>2</td><td>2</td><td>3</td><td>2→1→null</td></tr>
+<tr><td>3</td><td>3</td><td>null</td><td>3→2→1→null</td></tr>
+</table>
+<p>Return <code>prev = 3</code>. Saving <code>next</code> first is what keeps the tail reachable after each flip.</p>
 <div class="deepdive">
 <h3>🔬 Deeper dive &amp; dry run</h3>
 <div class="dd-intuition">
@@ -7964,94 +7952,6 @@ head = prev;
 
 <h3>The idea</h3>
 <p>A hash map gives O(1) average membership, frequency, and "have I seen the complement?" — turning many O(n²) scans into O(n). Reach for it for two-sum-style complements, frequency counts, grouping (anagrams), and de-duplication.</p>
-
-<div class="bruteBox">
-<h4>Brute force — nested search <span class="cx bad">O(n²)</span></h4>
-<p>For each element, scan the rest to find a match. The map remembers what you've seen so the match is an O(1) lookup.</p>
-</div>
-
-<div class="optBox">
-<h4>Template A · complement lookup — two sum <span class="cx good">O(n)</span></h4>
-<div class="snippet"><pre class="code lang-java"><code>int[] twoSum(int[] a, int target){
-    Map&lt;Integer,Integer&gt; seen = new HashMap&lt;&gt;();
-    for (int i = 0; i &lt; a.length; i++){
-        int need = target - a[i];
-        if (seen.containsKey(need)) return new int[]{seen.get(need), i};
-        seen.put(a[i], i);
-    }
-    return new int[0];
-}</code></pre><pre class="code lang-cpp"><code>std::vector&lt;int&gt; twoSum(std::vector&lt;int&gt;&amp; a, int target){
-    std::unordered_map&lt;int,int&gt; seen;
-    for (int i = 0; i &lt; (int)a.size(); i++){
-        int need = target - a[i];
-        auto it = seen.find(need);
-        if (it != seen.end()) return {it-&gt;second, i};
-        seen[a[i]] = i;
-    }
-    return {};
-}</code></pre><pre class="code lang-python"><code>def two_sum(a, target):
-    seen = {}
-    for i, x in enumerate(a):
-        need = target - x
-        if need in seen:
-            return [seen[need], i]
-        seen[x] = i
-    return []</code></pre><pre class="code lang-ts"><code>function twoSum(a: number[], target: number): number[] {
-    const seen = new Map&lt;number, number&gt;();
-    for (let i = 0; i &lt; a.length; i++) {
-        const need = target - a[i];
-        if (seen.has(need)) return [seen.get(need)!, i];
-        seen.set(a[i], i);
-    }
-    return [];
-}</code></pre></div>
-<h4>Template B · grouping — anagrams by sorted-key</h4>
-<div class="snippet"><pre class="code lang-java"><code>List&lt;List&lt;String&gt;&gt; groupAnagrams(String[] strs){
-    Map&lt;String,List&lt;String&gt;&gt; groups = new HashMap&lt;&gt;();
-    for (String s : strs){
-        char[] c = s.toCharArray(); Arrays.sort(c);
-        groups.computeIfAbsent(new String(c), k -&gt; new ArrayList&lt;&gt;()).add(s);
-    }
-    return new ArrayList&lt;&gt;(groups.values());
-}</code></pre><pre class="code lang-cpp"><code>std::vector&lt;std::vector&lt;std::string&gt;&gt; groupAnagrams(std::vector&lt;std::string&gt;&amp; strs){
-    std::unordered_map&lt;std::string, std::vector&lt;std::string&gt;&gt; groups;
-    for (const std::string&amp; s : strs){
-        std::string c = s;
-        std::sort(c.begin(), c.end());
-        groups[c].push_back(s);
-    }
-    std::vector&lt;std::vector&lt;std::string&gt;&gt; res;
-    for (auto&amp; [k, v] : groups) res.push_back(v);
-    return res;
-}</code></pre><pre class="code lang-python"><code>def group_anagrams(strs):
-    groups = {}
-    for s in strs:
-        c = "".join(sorted(s))
-        groups.setdefault(c, []).append(s)
-    return list(groups.values())</code></pre><pre class="code lang-ts"><code>function groupAnagrams(strs: string[]): string[][] {
-    const groups = new Map&lt;string, string[]&gt;();
-    for (const s of strs) {
-        const c = s.split("").sort().join("");
-        if (!groups.has(c)) groups.set(c, []);
-        groups.get(c)!.push(s);
-    }
-    return Array.from(groups.values());
-}</code></pre></div>
-<h4>Template C · frequency count</h4>
-<div class="snippet"><pre class="code lang-java"><code>Map&lt;Integer,Integer&gt; freq = new HashMap&lt;&gt;();
-for (int x : a) freq.merge(x, 1, Integer::sum);   // idiomatic counter</code></pre><pre class="code lang-cpp"><code>std::unordered_map&lt;int,int&gt; freq;
-for (int x : a) freq[x]++;   // idiomatic counter</code></pre><pre class="code lang-python"><code>freq = Counter(a)   # idiomatic counter</code></pre><pre class="code lang-ts"><code>const freq = new Map&lt;number, number&gt;();
-for (const x of a) freq.set(x, (freq.get(x) ?? 0) + 1);   // idiomatic counter</code></pre></div>
-</div>
-
-<h3>Worked example — two sum, target 9, <code>[2,7,11,15]</code></h3>
-<table class="trace">
-<tr><th>i</th><th>a[i]</th><th>need</th><th>need in map?</th><th>map after</th></tr>
-<tr><td>0</td><td>2</td><td>7</td><td>no</td><td>{2:0}</td></tr>
-<tr><td>1</td><td>7</td><td>2</td><td>yes → [0,1]</td><td>—</td></tr>
-</table>
-<p>Answer <b>[0,1]</b> in one pass; the map converts "does a partner exist earlier?" into an O(1) check.</p>
-
 
 <div class="dsapi">
 <h3>🧰 API — Hash map &amp; hash set methods</h3>
@@ -8169,6 +8069,92 @@ s.delete(x);                                     // remove x, returns boolean, O
 s.size;                                          // number of elements, O(1)</code></pre>
 </div>
 </div>
+<div class="bruteBox">
+<h4>Brute force — nested search <span class="cx bad">O(n²)</span></h4>
+<p>For each element, scan the rest to find a match. The map remembers what you've seen so the match is an O(1) lookup.</p>
+</div>
+
+<div class="optBox">
+<h4>Template A · complement lookup — two sum <span class="cx good">O(n)</span></h4>
+<div class="snippet"><pre class="code lang-java"><code>int[] twoSum(int[] a, int target){
+    Map&lt;Integer,Integer&gt; seen = new HashMap&lt;&gt;();
+    for (int i = 0; i &lt; a.length; i++){
+        int need = target - a[i];
+        if (seen.containsKey(need)) return new int[]{seen.get(need), i};
+        seen.put(a[i], i);
+    }
+    return new int[0];
+}</code></pre><pre class="code lang-cpp"><code>std::vector&lt;int&gt; twoSum(std::vector&lt;int&gt;&amp; a, int target){
+    std::unordered_map&lt;int,int&gt; seen;
+    for (int i = 0; i &lt; (int)a.size(); i++){
+        int need = target - a[i];
+        auto it = seen.find(need);
+        if (it != seen.end()) return {it-&gt;second, i};
+        seen[a[i]] = i;
+    }
+    return {};
+}</code></pre><pre class="code lang-python"><code>def two_sum(a, target):
+    seen = {}
+    for i, x in enumerate(a):
+        need = target - x
+        if need in seen:
+            return [seen[need], i]
+        seen[x] = i
+    return []</code></pre><pre class="code lang-ts"><code>function twoSum(a: number[], target: number): number[] {
+    const seen = new Map&lt;number, number&gt;();
+    for (let i = 0; i &lt; a.length; i++) {
+        const need = target - a[i];
+        if (seen.has(need)) return [seen.get(need)!, i];
+        seen.set(a[i], i);
+    }
+    return [];
+}</code></pre></div>
+<h4>Template B · grouping — anagrams by sorted-key</h4>
+<div class="snippet"><pre class="code lang-java"><code>List&lt;List&lt;String&gt;&gt; groupAnagrams(String[] strs){
+    Map&lt;String,List&lt;String&gt;&gt; groups = new HashMap&lt;&gt;();
+    for (String s : strs){
+        char[] c = s.toCharArray(); Arrays.sort(c);
+        groups.computeIfAbsent(new String(c), k -&gt; new ArrayList&lt;&gt;()).add(s);
+    }
+    return new ArrayList&lt;&gt;(groups.values());
+}</code></pre><pre class="code lang-cpp"><code>std::vector&lt;std::vector&lt;std::string&gt;&gt; groupAnagrams(std::vector&lt;std::string&gt;&amp; strs){
+    std::unordered_map&lt;std::string, std::vector&lt;std::string&gt;&gt; groups;
+    for (const std::string&amp; s : strs){
+        std::string c = s;
+        std::sort(c.begin(), c.end());
+        groups[c].push_back(s);
+    }
+    std::vector&lt;std::vector&lt;std::string&gt;&gt; res;
+    for (auto&amp; [k, v] : groups) res.push_back(v);
+    return res;
+}</code></pre><pre class="code lang-python"><code>def group_anagrams(strs):
+    groups = {}
+    for s in strs:
+        c = "".join(sorted(s))
+        groups.setdefault(c, []).append(s)
+    return list(groups.values())</code></pre><pre class="code lang-ts"><code>function groupAnagrams(strs: string[]): string[][] {
+    const groups = new Map&lt;string, string[]&gt;();
+    for (const s of strs) {
+        const c = s.split("").sort().join("");
+        if (!groups.has(c)) groups.set(c, []);
+        groups.get(c)!.push(s);
+    }
+    return Array.from(groups.values());
+}</code></pre></div>
+<h4>Template C · frequency count</h4>
+<div class="snippet"><pre class="code lang-java"><code>Map&lt;Integer,Integer&gt; freq = new HashMap&lt;&gt;();
+for (int x : a) freq.merge(x, 1, Integer::sum);   // idiomatic counter</code></pre><pre class="code lang-cpp"><code>std::unordered_map&lt;int,int&gt; freq;
+for (int x : a) freq[x]++;   // idiomatic counter</code></pre><pre class="code lang-python"><code>freq = Counter(a)   # idiomatic counter</code></pre><pre class="code lang-ts"><code>const freq = new Map&lt;number, number&gt;();
+for (const x of a) freq.set(x, (freq.get(x) ?? 0) + 1);   // idiomatic counter</code></pre></div>
+</div>
+
+<h3>Worked example — two sum, target 9, <code>[2,7,11,15]</code></h3>
+<table class="trace">
+<tr><th>i</th><th>a[i]</th><th>need</th><th>need in map?</th><th>map after</th></tr>
+<tr><td>0</td><td>2</td><td>7</td><td>no</td><td>{2:0}</td></tr>
+<tr><td>1</td><td>7</td><td>2</td><td>yes → [0,1]</td><td>—</td></tr>
+</table>
+<p>Answer <b>[0,1]</b> in one pass; the map converts "does a partner exist earlier?" into an O(1) check.</p>
 <div class="deepdive">
 <h3>🔬 Deeper dive &amp; dry run</h3>
 <div class="dd-intuition">
@@ -8200,6 +8186,45 @@ s.size;                                          // number of elements, O(1)</co
 <h3>The idea</h3>
 <p>A stack mirrors <b>nesting</b>: push on an opener, pop on the matching closer. It handles balanced brackets, expression evaluation (RPN / shunting-yard), and any "most recent unmatched thing" logic. Postfix (RPN) evaluation is a stack of operands; each operator pops two and pushes the result.</p>
 
+<div class="dsapi">
+<h3>🧰 API — Stack (LIFO) methods</h3>
+<p class="dsapi-note">Use the language switcher (top bar) to see the equivalent methods in Java, C++, Python &amp; TypeScript.</p>
+<div class="snippet">
+<pre class="code lang-java"><code>Deque&lt;Integer&gt; st = new ArrayDeque&lt;&gt;();
+
+st.push(x);      // add on top, O(1)
+st.pop();        // remove &amp; return top, throws if empty, O(1)
+st.peek();       // look at top without removing, null if empty, O(1)
+st.isEmpty();    // check empty, O(1)
+st.size();       // number of elements, O(1)
+for (int v : st) {} // iterate top-to-bottom, O(n)</code></pre>
+<pre class="code lang-cpp"><code>#include &lt;stack&gt;
+std::stack&lt;int&gt; st;
+
+st.push(x);      // add on top, O(1)
+st.pop();        // remove top (no return value), O(1)
+st.top();        // reference to top element, O(1)
+st.empty();      // check empty, O(1)
+st.size();       // number of elements, O(1)
+// std::stack is a container adapter — not directly iterable.</code></pre>
+<pre class="code lang-python"><code>st = []
+
+st.append(x)      # push on top, O(1) amortized
+st.pop()           # remove &amp; return top, O(1)
+st[-1]             # peek top, O(1)
+len(st)            # size, O(1)
+not st             # check empty (True if empty)
+for v in reversed(st): ...  # iterate top-to-bottom, O(n)</code></pre>
+<pre class="code lang-ts"><code>const st: number[] = [];
+
+st.push(x);        // add on top, O(1) amortized
+st.pop();           // remove &amp; return top, O(1)
+st[st.length - 1];  // peek top, O(1)
+st.length === 0;    // check empty, O(1)
+st.length;          // size, O(1)
+for (const v of [...st].reverse()) {} // iterate top-to-bottom, O(n)</code></pre>
+</div>
+</div>
 <div class="bruteBox">
 <h4>Brute force — repeatedly remove matched pairs <span class="cx bad">O(n²)</span></h4>
 <p>Scanning the string over and over deleting "()" pairs until stable. The stack resolves each closer in O(1) against the top, one pass.</p>
@@ -8307,47 +8332,6 @@ s.size;                                          // number of elements, O(1)</co
 <tr><td>)</td><td>pop ( == match</td><td>(empty)</td></tr>
 </table>
 <p>Ends empty → <b>valid</b>. <code>"([)]"</code> would pop <code>(</code> to match <code>]</code> — mismatch → invalid.</p>
-
-
-<div class="dsapi">
-<h3>🧰 API — Stack (LIFO) methods</h3>
-<p class="dsapi-note">Use the language switcher (top bar) to see the equivalent methods in Java, C++, Python &amp; TypeScript.</p>
-<div class="snippet">
-<pre class="code lang-java"><code>Deque&lt;Integer&gt; st = new ArrayDeque&lt;&gt;();
-
-st.push(x);      // add on top, O(1)
-st.pop();        // remove &amp; return top, throws if empty, O(1)
-st.peek();       // look at top without removing, null if empty, O(1)
-st.isEmpty();    // check empty, O(1)
-st.size();       // number of elements, O(1)
-for (int v : st) {} // iterate top-to-bottom, O(n)</code></pre>
-<pre class="code lang-cpp"><code>#include &lt;stack&gt;
-std::stack&lt;int&gt; st;
-
-st.push(x);      // add on top, O(1)
-st.pop();        // remove top (no return value), O(1)
-st.top();        // reference to top element, O(1)
-st.empty();      // check empty, O(1)
-st.size();       // number of elements, O(1)
-// std::stack is a container adapter — not directly iterable.</code></pre>
-<pre class="code lang-python"><code>st = []
-
-st.append(x)      # push on top, O(1) amortized
-st.pop()           # remove &amp; return top, O(1)
-st[-1]             # peek top, O(1)
-len(st)            # size, O(1)
-not st             # check empty (True if empty)
-for v in reversed(st): ...  # iterate top-to-bottom, O(n)</code></pre>
-<pre class="code lang-ts"><code>const st: number[] = [];
-
-st.push(x);        // add on top, O(1) amortized
-st.pop();           // remove &amp; return top, O(1)
-st[st.length - 1];  // peek top, O(1)
-st.length === 0;    // check empty, O(1)
-st.length;          // size, O(1)
-for (const v of [...st].reverse()) {} // iterate top-to-bottom, O(n)</code></pre>
-</div>
-</div>
 <div class="deepdive">
 <h3>🔬 Deeper dive &amp; dry run</h3>
 <div class="dd-intuition">
@@ -8381,6 +8365,120 @@ for (const v of [...st].reverse()) {} // iterate top-to-bottom, O(n)</code></pre
 <h3>The idea</h3>
 <p>"Design a structure where every operation is O(1)/O(log n)." The trick is <b>composing primitives</b>: a hash map for lookup plus a doubly linked list for order (LRU), an array plus a map for insert-delete-getRandom, a heap plus lazy deletion for a max-stream. Pick the data structure whose strengths match each required operation.</p>
 
+<div class="dsapi">
+<h3>🧰 API — Ordered (sorted) map &amp; set methods</h3>
+<p class="dsapi-note">Use the language switcher (top bar) to see the equivalent methods in Java, C++, Python &amp; TypeScript.</p>
+<div class="snippet">
+<pre class="code lang-java"><code>TreeMap&lt;Integer, String&gt; m = new TreeMap&lt;&gt;();  // declare/create ordered map (red-black tree)
+TreeSet&lt;Integer&gt; s = new TreeSet&lt;&gt;();          // declare/create ordered set
+
+// ----- insert / update -----
+m.put(k, v);                       // insert/overwrite key k -&gt; value v, O(log n)
+s.add(x);                          // insert x, O(log n)
+
+// ----- access -----
+m.get(k);                          // value for k, or null if absent, O(log n)
+m.containsKey(k);                  // true if key present, O(log n)
+m.size();                          // number of entries, O(1)
+
+// ----- ordered queries -----
+m.firstKey(); m.lastKey();          // smallest / largest key, O(log n)
+m.floorKey(k); m.ceilingKey(k);     // largest key &lt;= k / smallest key &gt;= k, O(log n)
+m.lowerKey(k); m.higherKey(k);      // largest key &lt; k / smallest key &gt; k, O(log n)
+s.floor(x); s.ceiling(x);           // largest elem &lt;= x / smallest elem &gt;= x, O(log n)
+s.lower(x); s.higher(x);            // largest elem &lt; x / smallest elem &gt; x, O(log n)
+
+// ----- remove -----
+m.remove(k);                        // delete key k, O(log n)
+s.remove(x);                        // delete x, O(log n)
+m.pollFirstEntry(); m.pollLastEntry(); // remove &amp; return smallest/largest entry, O(log n)
+
+// ----- iterate (sorted order) -----
+for (var e : m.entrySet()) { }       // iterate entries in ascending key order, O(n)
+for (int x : s) { }                  // iterate elements in ascending order, O(n)</code></pre>
+<pre class="code lang-cpp"><code>map&lt;int,string&gt; m;                  // declare/create ordered map (red-black tree)
+set&lt;int&gt; s;                         // declare/create ordered set
+
+// ----- insert / update -----
+m[k] = v;                            // insert/overwrite key k -&gt; value v, O(log n)
+m.insert({k, v});                    // insert only if key absent, O(log n)
+s.insert(x);                         // insert x, O(log n)
+
+// ----- access -----
+m.at(k);                             // value for k, throws if absent, O(log n)
+m.count(k);                          // membership test (0/1), O(log n)
+m.size();                            // number of entries, O(1)
+
+// ----- ordered queries -----
+m.begin()-&gt;first; m.rbegin()-&gt;first;  // smallest / largest key (via iterator), O(1)
+m.lower_bound(k);                     // iterator to first key &gt;= k, O(log n)
+m.upper_bound(k);                     // iterator to first key &gt; k, O(log n)
+s.lower_bound(x); s.upper_bound(x);    // analogous floor/ceiling-style queries for set, O(log n)
+
+// ----- remove -----
+m.erase(k);                           // delete key k, O(log n)
+s.erase(x);                           // delete x, O(log n)
+
+// ----- iterate (sorted order) -----
+for (auto&amp; [key, val] : m) { }         // iterate entries in ascending key order, O(n)
+for (int x : s) { }                    // iterate elements in ascending order, O(n)</code></pre>
+<pre class="code lang-python"><code># Python's built-in dict/set are NOT sorted-by-key structures (dict keeps
+# insertion order, not sort order, and set has no order at all).
+# For real ordered-map/set behavior use the third-party 'sortedcontainers'
+# package, or roll your own with the stdlib 'bisect' module on a list.
+
+from sortedcontainers import SortedList, SortedDict   # pip install sortedcontainers
+
+sl = SortedList()                    # declare/create sorted list (acts like an ordered multiset)
+sd = SortedDict()                    # declare/create sorted dict (ordered map)
+
+# ----- insert -----
+sl.add(x)                             # insert x, keeps sort order, O(log n)
+sd[k] = v                             # insert/overwrite key k -&gt; value v, O(log n)
+
+# ----- access -----
+sl[0]; sl[-1]                          # smallest / largest element, O(1)
+sd.peekitem(0); sd.peekitem(-1)        # smallest / largest (key, value) pair, O(log n)
+x in sl                                 # membership test, O(log n)
+
+# ----- ordered queries -----
+sl.bisect_left(x); sl.bisect_right(x)   # insertion point for x, O(log n)
+sd.irange(lo, hi)                        # iterate keys in [lo, hi], O(log n) to start iteration
+
+# ----- remove -----
+sl.remove(x)                             # remove x, O(log n)
+del sd[k]                                # remove key k, O(log n)
+
+# ----- stdlib-only fallback: bisect on a plain sorted list -----
+import bisect
+arr = []
+bisect.insort(arr, x)                     # insert x keeping arr sorted, O(n) due to shifting
+i = bisect.bisect_left(arr, x)            # index where x would go (floor/ceiling query), O(log n) search</code></pre>
+<pre class="code lang-ts"><code>// TypeScript/JavaScript has NO built-in ordered (sorted) map or set.
+// Map/Set preserve insertion order only, not sort order.
+// Common workarounds:
+//   1) Keep a plain sorted array + binary-search insert (shown below).
+//   2) Use a library such as 'js-sorted-set', 'functional-red-black-tree',
+//      or 'sorted-btree' for O(log n) inserts/deletes.
+
+const arr: number[] = [];             // declare/create backing sorted array
+
+function lowerBound(arr: number[], x: number): number {
+  // first index with arr[i] &gt;= x, O(log n)
+  let lo = 0, hi = arr.length;
+  while (lo &lt; hi) {
+    const mid = (lo + hi) &gt;&gt; 1;
+    if (arr[mid] &lt; x) lo = mid + 1; else hi = mid;
+  }
+  return lo;
+}
+
+arr.splice(lowerBound(arr, x), 0, x);    // insert x keeping arr sorted, O(n) due to shifting
+arr[0]; arr[arr.length - 1];              // smallest / largest element, O(1)
+const idx = lowerBound(arr, x);           // insertion point (floor/ceiling-style query), O(log n)
+arr.splice(lowerBound(arr, x), 1);         // remove x, O(n)</code></pre>
+</div>
+</div>
 <div class="bruteBox">
 <h4>Brute force — single structure <span class="cx bad">O(n) somewhere</span></h4>
 <p>An LRU built on just an array or just a map makes one operation O(n) (finding the least-recent, or reordering). Combining two structures gives O(1) on <i>all</i> operations.</p>
@@ -8521,122 +8619,6 @@ public:
 <tr><td>get(2)</td><td>1,3</td><td>−1 (gone)</td></tr>
 </table>
 <p>Every op is O(1) because the map finds entries and the ordering list tracks recency simultaneously.</p>
-
-
-<div class="dsapi">
-<h3>🧰 API — Ordered (sorted) map &amp; set methods</h3>
-<p class="dsapi-note">Use the language switcher (top bar) to see the equivalent methods in Java, C++, Python &amp; TypeScript.</p>
-<div class="snippet">
-<pre class="code lang-java"><code>TreeMap&lt;Integer, String&gt; m = new TreeMap&lt;&gt;();  // declare/create ordered map (red-black tree)
-TreeSet&lt;Integer&gt; s = new TreeSet&lt;&gt;();          // declare/create ordered set
-
-// ----- insert / update -----
-m.put(k, v);                       // insert/overwrite key k -&gt; value v, O(log n)
-s.add(x);                          // insert x, O(log n)
-
-// ----- access -----
-m.get(k);                          // value for k, or null if absent, O(log n)
-m.containsKey(k);                  // true if key present, O(log n)
-m.size();                          // number of entries, O(1)
-
-// ----- ordered queries -----
-m.firstKey(); m.lastKey();          // smallest / largest key, O(log n)
-m.floorKey(k); m.ceilingKey(k);     // largest key &lt;= k / smallest key &gt;= k, O(log n)
-m.lowerKey(k); m.higherKey(k);      // largest key &lt; k / smallest key &gt; k, O(log n)
-s.floor(x); s.ceiling(x);           // largest elem &lt;= x / smallest elem &gt;= x, O(log n)
-s.lower(x); s.higher(x);            // largest elem &lt; x / smallest elem &gt; x, O(log n)
-
-// ----- remove -----
-m.remove(k);                        // delete key k, O(log n)
-s.remove(x);                        // delete x, O(log n)
-m.pollFirstEntry(); m.pollLastEntry(); // remove &amp; return smallest/largest entry, O(log n)
-
-// ----- iterate (sorted order) -----
-for (var e : m.entrySet()) { }       // iterate entries in ascending key order, O(n)
-for (int x : s) { }                  // iterate elements in ascending order, O(n)</code></pre>
-<pre class="code lang-cpp"><code>map&lt;int,string&gt; m;                  // declare/create ordered map (red-black tree)
-set&lt;int&gt; s;                         // declare/create ordered set
-
-// ----- insert / update -----
-m[k] = v;                            // insert/overwrite key k -&gt; value v, O(log n)
-m.insert({k, v});                    // insert only if key absent, O(log n)
-s.insert(x);                         // insert x, O(log n)
-
-// ----- access -----
-m.at(k);                             // value for k, throws if absent, O(log n)
-m.count(k);                          // membership test (0/1), O(log n)
-m.size();                            // number of entries, O(1)
-
-// ----- ordered queries -----
-m.begin()-&gt;first; m.rbegin()-&gt;first;  // smallest / largest key (via iterator), O(1)
-m.lower_bound(k);                     // iterator to first key &gt;= k, O(log n)
-m.upper_bound(k);                     // iterator to first key &gt; k, O(log n)
-s.lower_bound(x); s.upper_bound(x);    // analogous floor/ceiling-style queries for set, O(log n)
-
-// ----- remove -----
-m.erase(k);                           // delete key k, O(log n)
-s.erase(x);                           // delete x, O(log n)
-
-// ----- iterate (sorted order) -----
-for (auto&amp; [key, val] : m) { }         // iterate entries in ascending key order, O(n)
-for (int x : s) { }                    // iterate elements in ascending order, O(n)</code></pre>
-<pre class="code lang-python"><code># Python's built-in dict/set are NOT sorted-by-key structures (dict keeps
-# insertion order, not sort order, and set has no order at all).
-# For real ordered-map/set behavior use the third-party 'sortedcontainers'
-# package, or roll your own with the stdlib 'bisect' module on a list.
-
-from sortedcontainers import SortedList, SortedDict   # pip install sortedcontainers
-
-sl = SortedList()                    # declare/create sorted list (acts like an ordered multiset)
-sd = SortedDict()                    # declare/create sorted dict (ordered map)
-
-# ----- insert -----
-sl.add(x)                             # insert x, keeps sort order, O(log n)
-sd[k] = v                             # insert/overwrite key k -&gt; value v, O(log n)
-
-# ----- access -----
-sl[0]; sl[-1]                          # smallest / largest element, O(1)
-sd.peekitem(0); sd.peekitem(-1)        # smallest / largest (key, value) pair, O(log n)
-x in sl                                 # membership test, O(log n)
-
-# ----- ordered queries -----
-sl.bisect_left(x); sl.bisect_right(x)   # insertion point for x, O(log n)
-sd.irange(lo, hi)                        # iterate keys in [lo, hi], O(log n) to start iteration
-
-# ----- remove -----
-sl.remove(x)                             # remove x, O(log n)
-del sd[k]                                # remove key k, O(log n)
-
-# ----- stdlib-only fallback: bisect on a plain sorted list -----
-import bisect
-arr = []
-bisect.insort(arr, x)                     # insert x keeping arr sorted, O(n) due to shifting
-i = bisect.bisect_left(arr, x)            # index where x would go (floor/ceiling query), O(log n) search</code></pre>
-<pre class="code lang-ts"><code>// TypeScript/JavaScript has NO built-in ordered (sorted) map or set.
-// Map/Set preserve insertion order only, not sort order.
-// Common workarounds:
-//   1) Keep a plain sorted array + binary-search insert (shown below).
-//   2) Use a library such as 'js-sorted-set', 'functional-red-black-tree',
-//      or 'sorted-btree' for O(log n) inserts/deletes.
-
-const arr: number[] = [];             // declare/create backing sorted array
-
-function lowerBound(arr: number[], x: number): number {
-  // first index with arr[i] &gt;= x, O(log n)
-  let lo = 0, hi = arr.length;
-  while (lo &lt; hi) {
-    const mid = (lo + hi) &gt;&gt; 1;
-    if (arr[mid] &lt; x) lo = mid + 1; else hi = mid;
-  }
-  return lo;
-}
-
-arr.splice(lowerBound(arr, x), 0, x);    // insert x keeping arr sorted, O(n) due to shifting
-arr[0]; arr[arr.length - 1];              // smallest / largest element, O(1)
-const idx = lowerBound(arr, x);           // insertion point (floor/ceiling-style query), O(log n)
-arr.splice(lowerBound(arr, x), 1);         // remove x, O(n)</code></pre>
-</div>
-</div>
 <div class="deepdive">
 <h3>🔬 Deeper dive &amp; dry run</h3>
 <div class="dd-intuition">
@@ -8992,6 +8974,64 @@ function lcm(a: number, b: number): number { return a / gcd(a, b) * b; }        
 <h3>The idea</h3>
 <p>When values <b>change</b> and you keep asking range aggregates (sum / min / kth), a plain prefix-sum array can't keep up (O(n) per update). A <b>Fenwick tree (BIT)</b> gives O(log n) point-update + prefix-query using the lowest-set-bit trick; a <b>segment tree</b> generalizes to any associative aggregate and range updates.</p>
 
+<div class="dsapi">
+<h3>🧰 API — Fenwick (Binary Indexed) Tree methods</h3>
+<p class="dsapi-note">Use the language switcher (top bar) to see the equivalent methods in Java, C++, Python &amp; TypeScript.</p>
+<div class="snippet">
+<pre class="code lang-java"><code>// Create
+int[] tree = new int[n + 1];    // 1-indexed BIT array, all zeros initially
+
+void update(int i, int delta);        // add delta at index i (1-indexed), O(log n)
+                                       //   for (; i &lt;= n; i += i &amp; -i) tree[i] += delta;
+int prefixQuery(int i);               // sum of [1..i], O(log n)
+                                       //   for (; i &gt; 0; i -= i &amp; -i) sum += tree[i];
+int rangeQuery(int l, int r);         // sum of [l..r] = prefixQuery(r) - prefixQuery(l - 1), O(log n)
+// Note: a Segment Tree solves the same problem for non-invertible ops (min/max/gcd) that this subtraction trick can't handle.</code></pre>
+<pre class="code lang-cpp"><code>// Create
+vector&lt;int&gt; tree(n + 1, 0);      // 1-indexed BIT array
+
+void update(int i, int delta);        // add delta at index i, O(log n)
+                                       //   for (; i &lt;= n; i += i &amp; -i) tree[i] += delta;
+int prefixQuery(int i);               // sum of [1..i], O(log n)
+                                       //   for (; i &gt; 0; i -= i &amp; -i) sum += tree[i];
+int rangeQuery(int l, int r);         // sum of [l..r] = prefixQuery(r) - prefixQuery(l - 1), O(log n)
+// Note: a Segment Tree solves the same problem for non-invertible ops (min/max/gcd) that this subtraction trick can't handle.</code></pre>
+<pre class="code lang-python"><code># Create
+tree = [0] * (n + 1)      # 1-indexed BIT array
+
+def update(i: int, delta: int) -&gt; None:       # add delta at index i, O(log n)
+    while i &lt;= n:
+        tree[i] += delta
+        i += i &amp; -i
+
+def prefix_query(i: int) -&gt; int:               # sum of [1..i], O(log n)
+    s = 0
+    while i &gt; 0:
+        s += tree[i]
+        i -= i &amp; -i
+    return s
+
+def range_query(l: int, r: int) -&gt; int:        # sum of [l..r], O(log n)
+    return prefix_query(r) - prefix_query(l - 1)
+
+# Note: a Segment Tree solves the same problem for non-invertible ops (min/max/gcd) that this subtraction trick can't handle.</code></pre>
+<pre class="code lang-ts"><code>// Create
+const tree: number[] = new Array(n + 1).fill(0);   // 1-indexed BIT array
+
+function update(i: number, delta: number): void {    // add delta at index i, O(log n)
+  for (; i &lt;= n; i += i &amp; -i) tree[i] += delta;
+}
+function prefixQuery(i: number): number {             // sum of [1..i], O(log n)
+  let sum = 0;
+  for (; i &gt; 0; i -= i &amp; -i) sum += tree[i];
+  return sum;
+}
+function rangeQuery(l: number, r: number): number {   // sum of [l..r] = prefixQuery(r) - prefixQuery(l - 1), O(log n)
+  return prefixQuery(r) - prefixQuery(l - 1);
+}
+// Note: a Segment Tree solves the same problem for non-invertible ops (min/max/gcd) that this subtraction trick can't handle.</code></pre>
+</div>
+</div>
 <div class="bruteBox">
 <h4>Brute force — prefix array rebuild <span class="cx bad">O(n) per update</span></h4>
 <p>Recomputing prefix sums after every change. The BIT localizes each update to O(log n) cells.</p>
@@ -9128,66 +9168,6 @@ public:
 <tr><td>range(3,5)</td><td>prefix(5)−prefix(2)=5</td><td>5</td></tr>
 </table>
 <p>Each query/update walks ≤ log₂6 ≈ 3 cells via the <code>i &amp; -i</code> jumps.</p>
-
-
-<div class="dsapi">
-<h3>🧰 API — Fenwick (Binary Indexed) Tree methods</h3>
-<p class="dsapi-note">Use the language switcher (top bar) to see the equivalent methods in Java, C++, Python &amp; TypeScript.</p>
-<div class="snippet">
-<pre class="code lang-java"><code>// Create
-int[] tree = new int[n + 1];    // 1-indexed BIT array, all zeros initially
-
-void update(int i, int delta);        // add delta at index i (1-indexed), O(log n)
-                                       //   for (; i &lt;= n; i += i &amp; -i) tree[i] += delta;
-int prefixQuery(int i);               // sum of [1..i], O(log n)
-                                       //   for (; i &gt; 0; i -= i &amp; -i) sum += tree[i];
-int rangeQuery(int l, int r);         // sum of [l..r] = prefixQuery(r) - prefixQuery(l - 1), O(log n)
-// Note: a Segment Tree solves the same problem for non-invertible ops (min/max/gcd) that this subtraction trick can't handle.</code></pre>
-<pre class="code lang-cpp"><code>// Create
-vector&lt;int&gt; tree(n + 1, 0);      // 1-indexed BIT array
-
-void update(int i, int delta);        // add delta at index i, O(log n)
-                                       //   for (; i &lt;= n; i += i &amp; -i) tree[i] += delta;
-int prefixQuery(int i);               // sum of [1..i], O(log n)
-                                       //   for (; i &gt; 0; i -= i &amp; -i) sum += tree[i];
-int rangeQuery(int l, int r);         // sum of [l..r] = prefixQuery(r) - prefixQuery(l - 1), O(log n)
-// Note: a Segment Tree solves the same problem for non-invertible ops (min/max/gcd) that this subtraction trick can't handle.</code></pre>
-<pre class="code lang-python"><code># Create
-tree = [0] * (n + 1)      # 1-indexed BIT array
-
-def update(i: int, delta: int) -&gt; None:       # add delta at index i, O(log n)
-    while i &lt;= n:
-        tree[i] += delta
-        i += i &amp; -i
-
-def prefix_query(i: int) -&gt; int:               # sum of [1..i], O(log n)
-    s = 0
-    while i &gt; 0:
-        s += tree[i]
-        i -= i &amp; -i
-    return s
-
-def range_query(l: int, r: int) -&gt; int:        # sum of [l..r], O(log n)
-    return prefix_query(r) - prefix_query(l - 1)
-
-# Note: a Segment Tree solves the same problem for non-invertible ops (min/max/gcd) that this subtraction trick can't handle.</code></pre>
-<pre class="code lang-ts"><code>// Create
-const tree: number[] = new Array(n + 1).fill(0);   // 1-indexed BIT array
-
-function update(i: number, delta: number): void {    // add delta at index i, O(log n)
-  for (; i &lt;= n; i += i &amp; -i) tree[i] += delta;
-}
-function prefixQuery(i: number): number {             // sum of [1..i], O(log n)
-  let sum = 0;
-  for (; i &gt; 0; i -= i &amp; -i) sum += tree[i];
-  return sum;
-}
-function rangeQuery(l: number, r: number): number {   // sum of [l..r] = prefixQuery(r) - prefixQuery(l - 1), O(log n)
-  return prefixQuery(r) - prefixQuery(l - 1);
-}
-// Note: a Segment Tree solves the same problem for non-invertible ops (min/max/gcd) that this subtraction trick can't handle.</code></pre>
-</div>
-</div>
 <div class="deepdive">
 <h3>🔬 Deeper dive &amp; dry run</h3>
 <div class="dd-intuition">
@@ -9462,64 +9442,6 @@ function partition(a: number[], lo: number, hi: number): number {
 <p class="asked">Frequently asked at: Amazon, Meta, Uber, Bloomberg</p>
 <p><b>Problem.</b> Given an array of strings, group the strings that are anagrams of one another, returning the groups in any order.</p>
 <p><b>Idea.</b> Two strings are anagrams iff they share the same multiset of characters, so sorting each string's characters yields a canonical key. Bucket every string into a hash map under that key; the map's values are the answer groups.</p>
-<div class="snippet"><pre class="code lang-java"><code>class Solution {
-    public List&lt;List&lt;String&gt;&gt; groupAnagrams(String[] strs) {
-        Map&lt;String, List&lt;String&gt;&gt; groups = new HashMap&lt;&gt;();
-        for (String s : strs) {
-            char[] chars = s.toCharArray();
-            Arrays.sort(chars);
-            String key = new String(chars);
-            groups.computeIfAbsent(key, k -&gt; new ArrayList&lt;&gt;()).add(s);
-        }
-        return new ArrayList&lt;&gt;(groups.values());
-    }
-}</code></pre><pre class="code lang-cpp"><code>class Solution {
-public:
-    vector&lt;vector&lt;string&gt;&gt; groupAnagrams(vector&lt;string&gt;&amp; strs) {
-        unordered_map&lt;string, vector&lt;string&gt;&gt; groups;
-        for (const string&amp; s : strs) {
-            string key = s;
-            sort(key.begin(), key.end());
-            groups[key].push_back(s);
-        }
-        vector&lt;vector&lt;string&gt;&gt; result;
-        for (auto&amp; [key, group] : groups) {
-            result.push_back(group);
-        }
-        return result;
-    }
-};</code></pre><pre class="code lang-python"><code>class Solution:
-    def groupAnagrams(self, strs: List[str]) -&gt; List[List[str]]:
-        groups = {}
-        for s in strs:
-            key = "".join(sorted(s))
-            groups.setdefault(key, []).append(s)
-        return list(groups.values())</code></pre><pre class="code lang-ts"><code>class Solution {
-    groupAnagrams(strs: string[]): string[][] {
-        const groups = new Map&lt;string, string[]&gt;();
-        for (const s of strs) {
-            const key = s.split("").sort().join("");
-            if (!groups.has(key)) groups.set(key, []);
-            groups.get(key)!.push(s);
-        }
-        return Array.from(groups.values());
-    }
-}</code></pre></div>
-<p><b>Complexity.</b> <span class="cx">Time O(n * k log k)</span> <span class="cx">Space O(n * k)</span> — n strings each sorted in O(k log k) for length k, plus map storage for every character.</p>
-<p><b>Walkthrough.</b> Input <code>["eat","tea","tan","ate","nat","bat"]</code>:</p>
-<table class="trace">
-<tr><th>string</th><th>sorted key</th><th>bucket after insert</th></tr>
-<tr><td>eat</td><td>aet</td><td>aet -&gt; [eat]</td></tr>
-<tr><td>tea</td><td>aet</td><td>aet -&gt; [eat, tea]</td></tr>
-<tr><td>tan</td><td>ant</td><td>ant -&gt; [tan]</td></tr>
-<tr><td>ate</td><td>aet</td><td>aet -&gt; [eat, tea, ate]</td></tr>
-<tr><td>nat</td><td>ant</td><td>ant -&gt; [tan, nat]</td></tr>
-<tr><td>bat</td><td>abt</td><td>abt -&gt; [bat]</td></tr>
-</table>
-<p>Final groups: <code>[eat, tea, ate]</code>, <code>[tan, nat]</code>, <code>[bat]</code>.</p>
-</div>
-
-
 <div class="dsapi">
 <h3>🧰 API — Dynamic array / list methods</h3>
 <p class="dsapi-note">Use the language switcher (top bar) to see the equivalent methods in Java, C++, Python &amp; TypeScript.</p>
@@ -9626,6 +9548,62 @@ for (const v of arr) { }             // forward iteration, O(n)
 arr.sort((a, b) =&gt; a - b);           // sort ascending in place, O(n log n)
 arr.sort((a, b) =&gt; b - a);           // sort descending in place, O(n log n)</code></pre>
 </div>
+</div>
+<div class="snippet"><pre class="code lang-java"><code>class Solution {
+    public List&lt;List&lt;String&gt;&gt; groupAnagrams(String[] strs) {
+        Map&lt;String, List&lt;String&gt;&gt; groups = new HashMap&lt;&gt;();
+        for (String s : strs) {
+            char[] chars = s.toCharArray();
+            Arrays.sort(chars);
+            String key = new String(chars);
+            groups.computeIfAbsent(key, k -&gt; new ArrayList&lt;&gt;()).add(s);
+        }
+        return new ArrayList&lt;&gt;(groups.values());
+    }
+}</code></pre><pre class="code lang-cpp"><code>class Solution {
+public:
+    vector&lt;vector&lt;string&gt;&gt; groupAnagrams(vector&lt;string&gt;&amp; strs) {
+        unordered_map&lt;string, vector&lt;string&gt;&gt; groups;
+        for (const string&amp; s : strs) {
+            string key = s;
+            sort(key.begin(), key.end());
+            groups[key].push_back(s);
+        }
+        vector&lt;vector&lt;string&gt;&gt; result;
+        for (auto&amp; [key, group] : groups) {
+            result.push_back(group);
+        }
+        return result;
+    }
+};</code></pre><pre class="code lang-python"><code>class Solution:
+    def groupAnagrams(self, strs: List[str]) -&gt; List[List[str]]:
+        groups = {}
+        for s in strs:
+            key = "".join(sorted(s))
+            groups.setdefault(key, []).append(s)
+        return list(groups.values())</code></pre><pre class="code lang-ts"><code>class Solution {
+    groupAnagrams(strs: string[]): string[][] {
+        const groups = new Map&lt;string, string[]&gt;();
+        for (const s of strs) {
+            const key = s.split("").sort().join("");
+            if (!groups.has(key)) groups.set(key, []);
+            groups.get(key)!.push(s);
+        }
+        return Array.from(groups.values());
+    }
+}</code></pre></div>
+<p><b>Complexity.</b> <span class="cx">Time O(n * k log k)</span> <span class="cx">Space O(n * k)</span> — n strings each sorted in O(k log k) for length k, plus map storage for every character.</p>
+<p><b>Walkthrough.</b> Input <code>["eat","tea","tan","ate","nat","bat"]</code>:</p>
+<table class="trace">
+<tr><th>string</th><th>sorted key</th><th>bucket after insert</th></tr>
+<tr><td>eat</td><td>aet</td><td>aet -&gt; [eat]</td></tr>
+<tr><td>tea</td><td>aet</td><td>aet -&gt; [eat, tea]</td></tr>
+<tr><td>tan</td><td>ant</td><td>ant -&gt; [tan]</td></tr>
+<tr><td>ate</td><td>aet</td><td>aet -&gt; [eat, tea, ate]</td></tr>
+<tr><td>nat</td><td>ant</td><td>ant -&gt; [tan, nat]</td></tr>
+<tr><td>bat</td><td>abt</td><td>abt -&gt; [bat]</td></tr>
+</table>
+<p>Final groups: <code>[eat, tea, ate]</code>, <code>[tan, nat]</code>, <code>[bat]</code>.</p>
 </div>
 <div class="deepdive">
 <h3>🔬 Deeper dive &amp; dry run</h3>
