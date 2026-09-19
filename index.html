@@ -4,6 +4,17 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>DSA Interview Prep — Flowchart + Guide + LeetCode (all-in-one)</title>
+<meta name="description" content="Interactive data-structures & algorithms interview prep: a pattern-selection flowchart, an in-depth patterns guide (brute force → optimal), and NeetCode 150/250 problem sets — every code example in Java, C++, Python & TypeScript, with iteration-by-iteration walkthroughs.">
+<meta name="author" content="shugo111">
+<meta name="theme-color" content="#4f46e5">
+<meta property="og:type" content="website">
+<meta property="og:title" content="DSA Interview Prep — Interactive Guide">
+<meta property="og:description" content="Pattern flowchart + in-depth guide + NeetCode problem sets. Java / C++ / Python / TypeScript, dark mode, progress tracking, step-by-step dry-runs.">
+<meta property="og:url" content="https://shugo111.github.io/dsa-interview-prep/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="DSA Interview Prep — Interactive Guide">
+<meta name="twitter:description" content="Pattern flowchart + in-depth guide + NeetCode problem sets in 4 languages.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%234f46e5'/%3E%3Ctext x='50' y='70' font-size='58' font-family='monospace' font-weight='bold' text-anchor='middle' fill='white'%3E%7B%7D%3C/text%3E%3C/svg%3E">
 <style>
 /* ===== Part 1: flowchart styles ===== */
 
@@ -345,12 +356,69 @@ tr.solved-row td:not(.ck){opacity:.55; text-decoration:line-through;}
   #totop{right:14px; bottom:14px; width:40px; height:40px;}
 }
 @media print{
-  #topbar,#sidebar,#totop,#scrim,.copybtn{display:none!important;}
+  #topbar,#sidebar,#totop,#scrim,.copybtn,#lc-filters,.side-tools{display:none!important;}
   #layout{display:block; padding-top:0;}
   #main{max-width:none;}
   #main .sec{box-shadow:none; border:none; break-inside:avoid;}
   .sec.collapsed > *{display:revert!important;}
 }
+
+/* ===== syntax highlighting (code bg is always dark) ===== */
+.tok-com{color:#8b98a5; font-style:italic;}
+.tok-str{color:#7ee787;}
+.tok-num{color:#f8c76a;}
+.tok-kw{color:#79c0ff; font-weight:600;}
+.tok-typ{color:#d2a8ff;}
+.tok-fn{color:#e3b341;}
+
+/* language label tab on each code block */
+.snippet pre.code{position:relative; padding-top:30px;}
+.snippet pre.code::before{content:attr(data-lang-label); position:absolute; top:8px; left:14px;
+  font-size:10px; letter-spacing:.09em; text-transform:uppercase; font-weight:700; color:#64748b;}
+
+/* ===== dark-mode audit: recolor the light callout boxes ===== */
+body.dark{--brute:#f59e0b; --opt:#34d399; --bruteBg:#33260f; --optBg:#0f2a1c;}
+body.dark .bruteBox, body.dark .optBox{color:#e7ebf3; border-color:#3a3f52;}
+body.dark .note{background:#2a2412; border-color:#5c4a1e; color:#f3e7c9;}
+body.dark .tip{background:#241f0f; border-color:#5c4a1e; color:#efe6c8;}
+body.dark .pit{background:#2a1717; border-color:#6b2f2b; color:#f3d5d2;}
+body.dark .solved{background:#0f241a; border-color:#1f6f43;}
+body.dark .solved h3{color:#6ee7a8;}
+body.dark table.qtable tr:hover td{background:#1b2338;}
+body.dark .note code{background:#26304a;}
+body.dark p code{background:#26304a; color:#e7ebf3;}
+body.dark .toc{background:#141a2c;}
+body.dark .co{background:#26305a; color:#c7d2fe; border-color:#33407a;}
+
+/* ===== LeetCode problem filter bar ===== */
+#lc-filters{position:sticky; top:var(--top-h); z-index:40; background:var(--card);
+  border:1px solid var(--line2); border-radius:12px; padding:11px 14px; margin:0 0 18px;
+  display:flex; flex-wrap:wrap; gap:9px 16px; align-items:center; box-shadow:0 2px 10px rgba(2,6,23,.06);}
+#lc-filters .fgroup{display:flex; align-items:center; gap:6px; font-size:12.5px; color:var(--muted2);}
+#lc-filters .flabel{font-weight:700; text-transform:uppercase; letter-spacing:.04em; font-size:11px;}
+.fbtn{font:inherit; font-size:12.5px; font-weight:700; border:1px solid var(--line2); background:var(--page);
+  color:var(--ink2); padding:4px 11px; border-radius:20px; cursor:pointer; transition:.12s;}
+.fbtn.easy.on{background:#dcfce7; color:#166534; border-color:#86efac;}
+.fbtn.med.on{background:#fef3c7; color:#92400e; border-color:#fcd34d;}
+.fbtn.hard.on{background:#fee2e2; color:#991b1b; border-color:#fca5a5;}
+.fbtn:not(.on){opacity:.45;}
+#lc-filters select{font:inherit; font-size:13px; padding:5px 9px; border-radius:8px;
+  border:1px solid var(--line2); background:var(--page); color:var(--ink2);}
+#lc-filters label.chk{display:flex; align-items:center; gap:6px; font-size:13px; color:var(--ink2); cursor:pointer;}
+#lc-filters .fcount{font-size:12px; color:var(--muted2); margin-left:auto;}
+.qhidden{display:none!important;}
+
+/* heading anchor links */
+h2 .anchorlink, .part-divider h1 .anchorlink{opacity:0; margin-left:9px; font-size:.7em; color:var(--brand);
+  text-decoration:none; cursor:pointer; vertical-align:middle;}
+h2:hover .anchorlink, .part-divider h1:hover .anchorlink{opacity:.65;}
+.anchorlink:hover{opacity:1!important;}
+
+/* sidebar progress export/import tools */
+.side-tools{display:flex; gap:8px; padding:12px 10px 4px; margin-top:10px; border-top:1px solid var(--line2);}
+.side-tools button{flex:1; font:inherit; font-size:12px; font-weight:600; padding:7px 6px; cursor:pointer;
+  border:1px solid var(--line2); background:var(--page); color:var(--ink2); border-radius:8px;}
+.side-tools button:hover{border-color:var(--brand); color:var(--brand);}
 
 </style>
 </head>
@@ -11094,6 +11162,175 @@ public:
     set(saved);
   }
   if(document.readyState!=='loading') init(); else document.addEventListener('DOMContentLoaded', init);
+})();
+</script>
+<script>
+(function(){
+  var main = document.getElementById('main'); if(!main) return;
+  function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+  /* ===== 1. syntax highlighting ===== */
+  var KW={
+    java:'abstract assert boolean break byte case catch char class const continue default do double else enum extends final finally float for goto if implements import instanceof int interface long native new package private protected public return short static super switch synchronized this throw throws transient try void volatile while var true false null'.split(' '),
+    cpp:'auto bool break case catch char class const constexpr continue default delete do double else enum extern false float for friend goto if inline int long namespace new nullptr operator private protected public return short signed sizeof static struct switch template this throw true try typedef typename union unsigned using virtual void volatile while std vector unordered_map unordered_set map set pair queue deque stack priority_queue string size_t'.split(' '),
+    python:'and as assert break class continue def del elif else except False finally for from global if import in is lambda None nonlocal not or pass raise return True try while with yield async await'.split(' '),
+    ts:'abstract any as async await boolean break case catch class const continue declare default delete do else enum export extends false finally for from function get if implements import in instanceof interface let namespace new null number of private protected public readonly return set static string super switch this throw true try type typeof undefined void while yield'.split(' ')
+  };
+  function highlight(code, lang){
+    var kw=KW[lang]||KW.java, kwset={}; kw.forEach(function(k){kwset[k]=1;});
+    var pats=[];
+    if(lang!=='python') pats.push(['com', '\\/\\*[\\s\\S]*?\\*\\/']);
+    pats.push(['com', lang==='python' ? '#[^\\n]*' : '\\/\\/[^\\n]*']);
+    if(lang==='python') pats.push(['str', '"""[\\s\\S]*?"""|\'\'\'[\\s\\S]*?\'\'\'']);
+    pats.push(['str', '"(?:\\\\.|[^"\\\\])*"|\'(?:\\\\.|[^\'\\\\])*\'']);
+    if(lang==='ts') pats.push(['str', '`(?:\\\\.|[^`\\\\])*`']);
+    pats.push(['num', '\\b0x[0-9a-fA-F]+\\b|\\b\\d[\\d_]*(?:\\.\\d+)?(?:[eE][+-]?\\d+)?[fFlLdD]?\\b']);
+    pats.push(['word', '[A-Za-z_$][A-Za-z0-9_$]*']);
+    var re=new RegExp(pats.map(function(p){return '('+p[1]+')';}).join('|'),'g');
+    var out='', last=0, m;
+    while((m=re.exec(code))){
+      out+=esc(code.slice(last, m.index));
+      var t=null, val=m[0];
+      for(var gi=1; gi<m.length; gi++){ if(m[gi]!==undefined){ t=pats[gi-1][0]; break; } }
+      if(t==='word'){
+        if(kwset[val]) out+='<span class="tok-kw">'+esc(val)+'</span>';
+        else if(/^[A-Z]/.test(val)) out+='<span class="tok-typ">'+esc(val)+'</span>';
+        else if(code.charAt(m.index+val.length)==='(') out+='<span class="tok-fn">'+esc(val)+'</span>';
+        else out+=esc(val);
+      } else out+='<span class="tok-'+t+'">'+esc(val)+'</span>';
+      last=m.index+val.length;
+    }
+    out+=esc(code.slice(last));
+    return out;
+  }
+  var LABELS={java:'Java', cpp:'C++', python:'Python', ts:'TypeScript'};
+  main.querySelectorAll('.snippet pre.code').forEach(function(pre){
+    var lang=(pre.className.match(/lang-(\w+)/)||[])[1]||'java';
+    pre.setAttribute('data-lang-label', LABELS[lang]||lang);
+    var code=pre.querySelector('code'); if(!code || code.dataset.hl) return;
+    code.innerHTML=highlight(code.textContent, lang); code.dataset.hl='1';
+  });
+
+  /* ===== 2. heading anchor links ===== */
+  main.querySelectorAll('.sec > h2, .part-divider > h1').forEach(function(h){
+    var box=h.closest('[id]'); if(!box || !box.id) return;
+    var a=document.createElement('a'); a.className='anchorlink'; a.href='#'+box.id; a.textContent='🔗';
+    a.title='Copy link to this section';
+    a.addEventListener('click', function(e){
+      e.preventDefault();
+      var url=location.href.split('#')[0]+'#'+box.id;
+      if(navigator.clipboard) navigator.clipboard.writeText(url);
+      location.hash=box.id;
+    });
+    h.appendChild(a);
+  });
+
+  /* ===== 3. LeetCode problem filters ===== */
+  var lcDiv=document.getElementById('part-leetcode');
+  var qtables=Array.prototype.slice.call(main.querySelectorAll('table.qtable'));
+  if(lcDiv && qtables.length){
+    var companies={};
+    qtables.forEach(function(t){ t.querySelectorAll('.co').forEach(function(c){ companies[c.textContent.trim()]=1; }); });
+    var compList=Object.keys(companies).sort();
+    var bar=document.createElement('div'); bar.id='lc-filters';
+    bar.innerHTML =
+      '<div class="fgroup"><span class="flabel">Difficulty</span>'+
+        '<button class="fbtn easy on" data-d="easy">Easy</button>'+
+        '<button class="fbtn med on" data-d="med">Medium</button>'+
+        '<button class="fbtn hard on" data-d="hard">Hard</button></div>'+
+      '<div class="fgroup"><span class="flabel">Company</span>'+
+        '<select id="f-company"><option value="__all">All companies</option>'+
+        compList.map(function(c){return '<option>'+c+'</option>';}).join('')+'</select></div>'+
+      '<label class="chk"><input type="checkbox" id="f-unsolved"> Hide solved</label>'+
+      '<span class="fcount" id="f-count"></span>';
+    lcDiv.parentNode.insertBefore(bar, lcDiv.nextSibling);
+    var dstate={easy:true,med:true,hard:true};
+    function apply(){
+      var comp=document.getElementById('f-company').value;
+      var hide=document.getElementById('f-unsolved').checked;
+      var shown=0, total=0;
+      qtables.forEach(function(t){
+        Array.prototype.slice.call(t.rows).forEach(function(r){
+          var badge=r.querySelector('.diff'); if(!badge) return; // skip header
+          total++;
+          var dcls=(badge.className.match(/\b(easy|med|hard)\b/)||[])[1];
+          var okD=dstate[dcls];
+          var okC=comp==='__all';
+          if(!okC) r.querySelectorAll('.co').forEach(function(c){ if(c.textContent.trim()===comp) okC=true; });
+          var okS=!hide || !r.classList.contains('solved-row');
+          var vis=okD&&okC&&okS; r.classList.toggle('qhidden', !vis); if(vis) shown++;
+        });
+      });
+      document.getElementById('f-count').textContent=shown+' of '+total+' shown';
+    }
+    bar.querySelectorAll('.fbtn').forEach(function(b){
+      b.addEventListener('click', function(){ b.classList.toggle('on'); dstate[b.dataset.d]=b.classList.contains('on'); apply(); });
+    });
+    document.getElementById('f-company').addEventListener('change', apply);
+    document.getElementById('f-unsolved').addEventListener('change', apply);
+    main.addEventListener('change', function(e){ if(e.target.matches('td.ck input')) setTimeout(apply,0); });
+    apply();
+  }
+
+  /* ===== 4. upgrade sidebar search to full-content search ===== */
+  var oldSearch=document.getElementById('nav-search');
+  if(oldSearch){
+    var search=oldSearch.cloneNode(true); oldSearch.parentNode.replaceChild(search, oldSearch);
+    var navList=document.getElementById('nav-list');
+    var cache={};
+    navList.querySelectorAll('.nav-item').forEach(function(a){
+      var s=document.getElementById(a.dataset.target); cache[a.dataset.target]=(s?s.textContent:a.textContent).toLowerCase();
+    });
+    search.placeholder='Search sections & problems…';
+    search.addEventListener('input', function(){
+      var q=search.value.toLowerCase().trim();
+      navList.querySelectorAll('.nav-group').forEach(function(g){
+        var any=false;
+        g.querySelectorAll('.nav-item').forEach(function(a){
+          var hit=!q || (cache[a.dataset.target]||'').indexOf(q)>=0 || a.textContent.toLowerCase().indexOf(q)>=0;
+          a.classList.toggle('hidden', !hit); if(hit) any=true;
+        });
+        g.style.display=(any||!q)?'':'none';
+      });
+    });
+  }
+
+  /* ===== 5. keyboard navigation ===== */
+  document.addEventListener('keydown', function(e){
+    if(/^(input|textarea|select)$/i.test(e.target.tagName)) { if(e.key==='Escape') e.target.blur(); return; }
+    if(e.key==='/'){ e.preventDefault(); var s=document.getElementById('nav-search'); if(s) s.focus(); return; }
+    if(e.key==='j' || e.key==='k'){
+      var secs=Array.prototype.slice.call(main.querySelectorAll('.sec, .part-divider'));
+      var y=window.scrollY+90, idx=-1;
+      for(var i=0;i<secs.length;i++){ if(secs[i].offsetTop<=y+5) idx=i; }
+      var next=e.key==='j'?Math.min(secs.length-1, idx+1):Math.max(0, idx-1);
+      if(secs[next]) window.scrollTo({top:secs[next].offsetTop-75, behavior:'smooth'});
+    }
+  });
+
+  /* ===== 6. progress export / import ===== */
+  var sidebar=document.getElementById('sidebar');
+  if(sidebar){
+    var tools=document.createElement('div'); tools.className='side-tools';
+    tools.innerHTML='<button id="exp-btn" title="Download your solved-progress">⬇ Export</button>'+
+                    '<button id="imp-btn" title="Load solved-progress from a file">⬆ Import</button>'+
+                    '<input type="file" id="imp-file" accept="application/json" style="display:none">';
+    sidebar.appendChild(tools);
+    document.getElementById('exp-btn').addEventListener('click', function(){
+      var data=localStorage.getItem('dsa-solved')||'{}';
+      var b=new Blob([data],{type:'application/json'}); var u=URL.createObjectURL(b);
+      var a=document.createElement('a'); a.href=u; a.download='dsa-progress.json'; a.click(); URL.revokeObjectURL(u);
+    });
+    var impFile=document.getElementById('imp-file');
+    document.getElementById('imp-btn').addEventListener('click', function(){ impFile.click(); });
+    impFile.addEventListener('change', function(){
+      var f=impFile.files[0]; if(!f) return; var rd=new FileReader();
+      rd.onload=function(){ try{ var inc=JSON.parse(rd.result); var cur=JSON.parse(localStorage.getItem('dsa-solved')||'{}');
+        Object.keys(inc).forEach(function(k){ cur[k]=inc[k]; }); localStorage.setItem('dsa-solved', JSON.stringify(cur));
+        location.reload(); }catch(e){ alert('Could not read that file.'); } };
+      rd.readAsText(f);
+    });
+  }
 })();
 </script>
 </body>
