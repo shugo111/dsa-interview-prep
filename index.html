@@ -300,6 +300,10 @@ tr.solved-row td:not(.ck){opacity:.55; text-decoration:line-through;}
 
 /* Mobile */
 #hamburger{display:none;}
+/* wide problem tables + code scroll horizontally instead of overflowing the page */
+.tablewrap{overflow-x:auto; -webkit-overflow-scrolling:touch;}
+#main{overflow-x:hidden;}
+
 @media (max-width:900px){
   #layout{grid-template-columns:1fr;}
   #sidebar{position:fixed; top:var(--top-h); left:0; bottom:0; width:82%; max-width:320px; z-index:95;
@@ -311,7 +315,34 @@ tr.solved-row td:not(.ck){opacity:.55; text-decoration:line-through;}
   #hamburger{display:grid;}
   #main{padding:20px 16px 80px;}
   .tb-progress .bar{width:70px;}
+  #topbar{gap:10px; padding:0 12px;}
   #topbar .brand span.long{display:none;}
+  #printbtn{display:none;}
+  .langbtn{padding:5px 9px; font-size:12px;}
+  #main .sec{padding:18px 16px; border-radius:14px;}
+  #main .part-divider{padding:16px 18px;}
+  #main .part-divider h1{font-size:21px;}
+  h2{font-size:20px;}
+  table.qtable{font-size:13px;}
+  table.qtable td, table.qtable th{padding:7px 8px;}
+  .co{font-size:10.5px;}
+  .snippet pre code, #main pre code{font-size:12px;}
+}
+
+/* phones: top bar becomes two rows so the language switcher gets its own full-width strip */
+@media (max-width:620px){
+  :root{--top-h:98px;}
+  #topbar{flex-wrap:wrap; height:var(--top-h); align-content:center; row-gap:7px; padding:7px 12px;}
+  #topbar .spacer{display:none;}
+  #hamburger{order:0;}
+  .brand{order:1; font-size:15px;}
+  .tb-progress{order:2; margin-left:auto;}
+  #darkbtn{order:3;}
+  .langbar{order:4; flex:1 1 100%; justify-content:space-between; padding:3px;}
+  .langbar .langbtn{flex:1; text-align:center;}
+  #main{padding:16px 13px 80px;}
+  body{font-size:15px;}
+  #totop{right:14px; bottom:14px; width:40px; height:40px;}
 }
 @media print{
   #topbar,#sidebar,#totop,#scrim,.copybtn{display:none!important;}
@@ -10882,6 +10913,13 @@ public:
 <script>
 (function(){
   var main = document.getElementById('main');
+
+  /* ---- make wide tables horizontally scrollable on small screens ---- */
+  main.querySelectorAll('table.qtable').forEach(function(t){
+    if(t.parentElement && t.parentElement.classList.contains('tablewrap')) return;
+    var w=document.createElement('div'); w.className='tablewrap';
+    t.parentNode.insertBefore(w, t); w.appendChild(t);
+  });
 
   /* ---- build sidebar from part dividers + .sec headings ---- */
   var navList = document.getElementById('nav-list');
