@@ -1417,6 +1417,7 @@ while (changed) {                 // up to V-1 passes
     return -1;
 }</code></pre></div>
 <h4>Template C · multi-source BFS (seed the queue with all sources)</h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>grid</code> — the input matrix; cells matching the &quot;source&quot; value (e.g. rotten oranges) seed the search.</li><li><code>q</code> — the BFS queue, pre-loaded with every source cell so they all expand outward at the same time.</li><li><code>seen</code> — marks cells already enqueued so a source (or reached cell) isn&#39;t added twice.</li><li><b>Returns</b> — nothing itself — it just primes the queue before the standard ring-expansion BFS loop runs, which then returns the distance/steps.</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>// e.g. "rotting oranges" — every rotten cell starts at distance 0
 for (int i = 0; i &lt; m; i++)
     for (int j = 0; j &lt; n; j++)
@@ -1437,6 +1438,7 @@ for (let i = 0; i &lt; m; i++)
         if (grid[i][j] === 2) { q.push([i, j]); seen[i][j] = true; }
 // then run the exact same ring-expansion loop</code></pre></div>
 <h4>Template D · state-space BFS (states are strings/ints, edges are moves)</h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>start</code> — the initial state to search from.</li><li><code>target</code> — the state you&#39;re trying to reach.</li><li><code>q</code> — queue of states still to expand, processed one BFS &quot;layer&quot; at a time.</li><li><code>seen</code> — states already discovered, so the same state isn&#39;t re-queued.</li><li><code>steps</code> — how many moves have been taken so far; equals the layer/depth counter.</li><li><code>cur</code> — the state currently being expanded.</li><li><code>nx</code> — a neighboring state reachable from <code>cur</code> via one legal move.</li><li><b>Returns</b> — the minimum number of moves from <code>start</code> to <code>target</code>, or -1 if <code>target</code> is unreachable.</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>int bfsStates(String start, String target) {
     Queue&lt;String&gt; q = new ArrayDeque&lt;&gt;();
     Set&lt;String&gt; seen = new HashSet&lt;&gt;();
@@ -2062,6 +2064,7 @@ class Solution:
 <div class="optBox">
 <h4>Optimal — single traversal <span class="cx good">O(V + E)</span></h4>
 <h4>Template A · tree post-order aggregation (depth / diameter)</h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>node</code> — the current tree node being visited.</li><li><code>l, r</code> — the heights of the left and right subtrees, returned by the recursive calls.</li><li><code>diameter</code> — a running best-so-far value (kept outside the function) for the longest path seen between any two nodes.</li><li><b>Returns</b> — the height of the subtree rooted at <code>node</code>, reported up to the parent; the real answer, <code>diameter</code>, is accumulated as a side effect while recursing.</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>int diameter = 0;
 int height(TreeNode node) {
     if (node == null) return 0;
@@ -2089,6 +2092,7 @@ function height(node: TreeNode | null): number {
     return 1 + Math.max(l, r);              // height reported to parent
 }</code></pre></div>
 <h4>Template B · grid flood fill (count islands)</h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>g</code> — the grid of cells, where <code>&#39;1&#39;</code> = land and <code>&#39;0&#39;</code> = water.</li><li><code>count</code> — the number of islands found so far.</li><li><code>sink(g, i, j)</code> — recursively &quot;drowns&quot; every land cell connected to <code>(i, j)</code> by flipping it to <code>&#39;0&#39;</code>, so the outer scan never recounts it.</li><li><b>Returns</b> — <code>numIslands</code> returns the total island count; <code>sink</code> returns nothing — it just mutates the grid in place.</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>int numIslands(char[][] g) {
     int m = g.length, n = g[0].length, count = 0;
     for (int i = 0; i &lt; m; i++)
@@ -2137,6 +2141,7 @@ function sink(g: string[][], i: number, j: number): void {
     sink(g,i+1,j); sink(g,i-1,j); sink(g,i,j+1); sink(g,i,j-1);
 }</code></pre></div>
 <h4>Template C · iterative DFS (avoid stack overflow on deep graphs)</h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>src</code> — the node to start the traversal from.</li><li><code>adj</code> — the adjacency list; <code>adj[u]</code> lists the neighbors of node <code>u</code>.</li><li><code>stack</code> — an explicit stack standing in for the recursion call stack, so deep graphs can&#39;t overflow it.</li><li><code>seen</code> — marks nodes already visited so they aren&#39;t pushed twice.</li><li><code>u</code> — the node just popped off the stack (currently being processed).</li><li><code>v</code> — a neighbor of <code>u</code> being considered for visiting.</li><li><b>Returns</b> — nothing here; the snippet just walks every reachable node, marking <code>seen</code> (swap in your own logic to collect results).</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>Deque&lt;Integer&gt; stack = new ArrayDeque&lt;&gt;();
 stack.push(src); seen[src] = true;
 while (!stack.isEmpty()) {
@@ -2550,6 +2555,7 @@ class Solution {
 <p>When <code>n</code> is small (roughly ≤ 12–20) and you must <b>enumerate or count all valid configurations</b>, build a candidate one choice at a time. At each step: <b>choose</b>, <b>recurse</b>, <b>un-choose</b> (undo). Prune branches that can't lead to a solution as early as possible — pruning is what separates a usable backtracker from a timeout.</p>
 
 <h4>The universal shape</h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>s</code> — the state (partial candidate) being built up one choice at a time.</li><li><code>c</code> — one candidate choice, drawn from <code>choicesFrom(s)</code>, being tried at this step.</li><li><code>isComplete(s)</code> — tells whether <code>s</code> is a full, valid answer worth recording.</li><li><code>valid(c, s)</code> — the pruning check — is choice <code>c</code> even legal given the state built so far.</li><li><b>Returns</b> — nothing directly; complete candidates are captured via <code>record(s)</code>, and every applied choice is undone so <code>s</code> is clean for the next branch.</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>void backtrack(State s) {
     if (isComplete(s)) { record(s); return; }
     for (Choice c : choicesFrom(s)) {
@@ -2593,6 +2599,7 @@ class Solution {
 <div class="optBox">
 <h4>Templates</h4>
 <h4>A · subsets (each element in / out) <span class="cx">O(2ⁿ · n)</span></h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>nums</code> — the input array whose elements are each either included or excluded.</li><li><code>i</code> — the index of the element currently being decided (skip vs. take).</li><li><code>cur</code> — the subset built so far along this branch.</li><li><code>out</code> — the accumulator collecting every complete subset once <code>i</code> reaches the end.</li><li><b>Returns</b> — nothing directly; every subset is appended into <code>out</code> as a side effect.</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>void subsets(int[] nums, int i, List&lt;Integer&gt; cur, List&lt;List&lt;Integer&gt;&gt; out) {
     if (i == nums.length) { out.add(new ArrayList&lt;&gt;(cur)); return; }
     subsets(nums, i+1, cur, out);                 // skip nums[i]
@@ -2620,6 +2627,7 @@ class Solution {
     cur.pop();
 }</code></pre></div>
 <h4>B · permutations <span class="cx">O(n! · n)</span></h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>nums</code> — the input array being permuted.</li><li><code>cur</code> — the permutation built so far along this branch.</li><li><code>used</code> — marks which elements of <code>nums</code> are already placed in <code>cur</code>, so they aren&#39;t reused.</li><li><code>out</code> — the accumulator collecting every complete permutation.</li><li><b>Returns</b> — nothing directly; complete permutations are appended into <code>out</code>.</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>void permute(int[] nums, List&lt;Integer&gt; cur, boolean[] used, List&lt;List&lt;Integer&gt;&gt; out){
     if (cur.size()==nums.length){ out.add(new ArrayList&lt;&gt;(cur)); return; }
     for (int i=0;i&lt;nums.length;i++){
@@ -2657,6 +2665,7 @@ class Solution {
     }
 }</code></pre></div>
 <h4>C · combinations / N-Queens counting with bitmask pruning</h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>n</code> — the board size (also the number of queens to place).</li><li><code>row</code> — the row currently being filled with a queen.</li><li><code>cols, diag, anti</code> — bitmasks marking which columns, &quot;\&quot; diagonals, and &quot;/&quot; diagonals are already under attack from queens placed in earlier rows.</li><li><code>free</code> — a bitmask of columns still safe to place a queen in for this row.</li><li><code>bit</code> — one specific safe column, extracted from <code>free</code> as its lowest set bit.</li><li><b>Returns</b> — the number of ways to complete a valid board from <code>row</code> onward; the outer call returns the total count of N-Queens solutions.</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>int totalNQueens(int n){ return place(n,0,0,0,0); }
 int place(int n,int row,int cols,int diag,int anti){
     if (row==n) return 1;
@@ -3019,6 +3028,7 @@ class Solution:
 
 <div class="optBox">
 <h4>Generate all unique BSTs</h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>lo, hi</code> — the inclusive range of values still available to build a subtree from.</li><li><code>root</code> — the value chosen as the root of the current subtree; smaller values become the left subtree, larger ones the right.</li><li><code>l, r</code> — one candidate left subtree and one candidate right subtree, taken from the recursive results for the smaller ranges.</li><li><code>res</code> — the list of all distinct subtree shapes built for the range <code>[lo, hi]</code>.</li><li><b>Returns</b> — every structurally unique BST that can be built from the values in <code>[lo, hi]</code>; the top-level call returns all unique BSTs for values <code>1..n</code>.</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>List&lt;TreeNode&gt; generateTrees(int n){ return build(1, n); }
 List&lt;TreeNode&gt; build(int lo, int hi){
     List&lt;TreeNode&gt; res = new ArrayList&lt;&gt;();
@@ -3072,6 +3082,7 @@ function build(lo: number, hi: number): (TreeNode | null)[] {
     return res;
 }</code></pre></div>
 <h4>Just the count (Catalan via DP)</h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>n</code> — the number of nodes in the tree.</li><li><code>dp[k]</code> — the number of structurally unique BSTs that can be built from <code>k</code> nodes.</li><li><code>nodes</code> — the tree size currently being computed, built up from smaller sizes already solved.</li><li><code>root</code> — which position (1..nodes) is chosen as the root, splitting the rest into a left subtree of size <code>root-1</code> and a right subtree of size <code>nodes-root</code>.</li><li><b>Returns</b> — <code>dp[n]</code>, the total count of unique BST shapes possible with <code>n</code> nodes.</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>int numTrees(int n){
     int[] dp = new int[n+1];
     dp[0] = dp[1] = 1;
@@ -3229,6 +3240,7 @@ function build(lo: number, hi: number): (TreeNode | null)[] {
 
 <div class="optBox">
 <h4>Optimal — Kahn's <span class="cx good">O(V + E)</span></h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>n</code> — the number of nodes.</li><li><code>edges</code> — the directed edges, each meaning &quot;must come before&quot;.</li><li><code>adj</code> — adjacency list built from <code>edges</code>.</li><li><code>indeg</code> — for each node, how many prerequisites it still has; a node is ready once this hits 0.</li><li><code>q</code> — the queue of nodes currently ready to be output (in-degree 0).</li><li><code>order</code> — the topological ordering being assembled.</li><li><code>k</code> — how many nodes have been placed into <code>order</code> so far.</li><li><b>Returns</b> — the full topological order if all <code>n</code> nodes were placed; an empty result if some nodes were never freed, meaning the graph has a cycle.</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>int[] topoSort(int n, int[][] edges){
     List&lt;Integer&gt;[] adj = new List[n];
     for (int i=0;i&lt;n;i++) adj[i]=new ArrayList&lt;&gt;();
@@ -3443,6 +3455,7 @@ function build(lo: number, hi: number): (TreeNode | null)[] {
 
 <div class="optBox">
 <h4>Optimal — Dijkstra with a binary heap <span class="cx good">O(E log V)</span></h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>adj</code> — weighted adjacency list; <code>adj[u]</code> holds each neighbor <code>v</code> and edge weight <code>w</code>.</li><li><code>src</code> — the starting node.</li><li><code>dist</code> — the best (smallest) distance found so far from <code>src</code> to each node.</li><li><code>pq</code> — a min-heap of <code>(node, distance)</code> pairs, always expanding the currently-closest unvisited node next.</li><li><code>u, d</code> — the node popped from <code>pq</code> and the distance it was recorded with when pushed.</li><li><code>d &gt; dist[u]</code> — a staleness check that skips a queue entry for a node already improved since it was pushed.</li><li><code>v, w</code> — a neighbor of <code>u</code> and the weight of the edge to it.</li><li><b>Returns</b> — an array of shortest distances from <code>src</code> to every other node.</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>int[] dijkstra(List&lt;int[]&gt;[] adj, int src, int n){   // adj[u] = {v, w}
     int[] dist = new int[n];
     Arrays.fill(dist, Integer.MAX_VALUE);
@@ -3943,6 +3956,7 @@ class DSU {
 
 <div class="optBox">
 <h4>Optimal — DSU with both optimizations <span class="cx good">~O(α(n)) per op</span></h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>parent</code> — for each node, a pointer toward its set&#39;s representative (&quot;root&quot;); <code>parent[x] == x</code> means <code>x</code> is a root.</li><li><code>rank</code> — a rough measure of each tree&#39;s height/size, used to always attach the smaller tree under the bigger one.</li><li><code>count</code> — how many disjoint sets (components) currently exist.</li><li><code>find(x)</code> — walks up parent pointers to <code>x</code>&#39;s root, compressing the path along the way so future lookups are faster.</li><li><code>ra, rb</code> — the set representatives (roots) of <code>a</code> and <code>b</code>, compared to decide whether they&#39;re already connected.</li><li><b>Returns</b> — <code>find</code> returns the representative (root) of a node&#39;s set; <code>union</code> returns <code>false</code> if <code>a</code> and <code>b</code> were already in the same set (no-op), <code>true</code> if it merged two sets.</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>class DSU {
     int[] parent, rank; int count;
     DSU(int n){
@@ -4184,6 +4198,7 @@ public:
 
 <div class="optBox">
 <h4>Template A · exact / boundary search in a sorted array <span class="cx good">O(log n)</span></h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>a</code> — the sorted array being searched.</li><li><code>target</code> — the value whose boundary position you want.</li><li><code>lo, hi</code> — the current search window, kept half-open as <code>[lo, hi)</code> so it shrinks cleanly to a single point.</li><li><code>mid</code> — the midpoint index being tested each iteration.</li><li><b>Returns</b> — the first index whose value is <code>&gt;= target</code> (the &quot;insertion point&quot;); equals the array length if every element is smaller.</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>int lowerBound(int[] a, int target){       // first index with a[i] &gt;= target
     int lo = 0, hi = a.length;              // [lo, hi) half-open
     while (lo &lt; hi){
@@ -4218,6 +4233,7 @@ public:
     return lo;                              // insertion point; == length if none
 }</code></pre></div>
 <h4>Template B · binary search on the answer (feasibility predicate)</h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>piles</code> — the sizes of the banana piles to eat through.</li><li><code>h</code> — the number of hours available.</li><li><code>lo, hi</code> — the current range of candidate eating speeds still being narrowed down.</li><li><code>mid</code> — the candidate speed being tested this iteration.</li><li><code>feasible(piles, speed, h)</code> — the predicate: can all piles be eaten within <code>h</code> hours at this <code>speed</code>?</li><li><code>hours</code> — the total hours <code>feasible</code> computes it would take at the candidate speed.</li><li><b>Returns</b> — the smallest eating speed that still finishes all piles within <code>h</code> hours.</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>// smallest speed so Koko finishes all piles within h hours
 int minEatingSpeed(int[] piles, int h){
     int lo = 1, hi = 0;
@@ -4688,6 +4704,7 @@ pq.isEmpty();         // true if empty, O(1)</code></pre>
 
 <div class="optBox">
 <h4>Template A · kth largest with a size-k min-heap <span class="cx good">O(n log k)</span></h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>nums</code> — the input array to search.</li><li><code>k</code> — which largest element to find (1 = the largest, 2 = second largest, etc.).</li><li><code>min</code> — a min-heap capped at size <code>k</code>, always holding the <code>k</code> largest values seen so far.</li><li><code>x</code> — the current element from <code>nums</code> being inserted into the heap.</li><li><b>Returns</b> — the smallest value among the <code>k</code> largest — i.e. the kth largest element overall (the top of the min-heap once it settles at size <code>k</code>).</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>int findKthLargest(int[] nums, int k){
     PriorityQueue&lt;Integer&gt; min = new PriorityQueue&lt;&gt;();  // keeps k largest
     for (int x : nums){
@@ -4718,6 +4735,7 @@ pq.isEmpty();         // true if empty, O(1)</code></pre>
     return min[0];                           // kth largest overall
 }</code></pre></div>
 <h4>Template B · merge k sorted lists <span class="cx good">O(N log k)</span></h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>lists</code> — the array of already-sorted linked lists to merge.</li><li><code>pq</code> — a min-heap ordered by node value, holding the current head node of each list still in play.</li><li><code>dummy</code> — a placeholder head node used only to make building the result list easier; the real answer starts at <code>dummy.next</code>.</li><li><code>tail</code> — a pointer to the last node appended so far in the merged output.</li><li><code>n</code> — the smallest node just popped from <code>pq</code>; its successor (if any) is pushed back in to keep that list represented.</li><li><b>Returns</b> — the head of one fully merged, sorted linked list combining all input lists.</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>ListNode mergeKLists(ListNode[] lists){
     PriorityQueue&lt;ListNode&gt; pq = new PriorityQueue&lt;&gt;((a,b)-&gt;a.val-b.val);
     for (ListNode l : lists) if (l!=null) pq.offer(l);
@@ -4771,6 +4789,7 @@ pq.isEmpty();         // true if empty, O(1)</code></pre>
     return dummy.next;
 }</code></pre></div>
 <h4>Template C · two heaps for a running median</h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>lo</code> — a max-heap holding the smaller half of all numbers seen so far (its top is the largest of that small half).</li><li><code>hi</code> — a min-heap holding the larger half of all numbers seen so far (its top is the smallest of that large half).</li><li><code>x</code> — the new number being inserted by <code>add</code>.</li><li><code>funnel/rebalance step</code> — every new value goes into <code>lo</code> first, then its max is pushed to <code>hi</code>, then sizes are rebalanced so <code>lo</code> never holds more than one extra element over <code>hi</code>.</li><li><b>Returns</b> — <code>add</code> returns nothing (it just updates the two heaps); <code>median()</code> returns the median of every number added so far, taken from the top(s) of <code>lo</code>/<code>hi</code>.</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>PriorityQueue&lt;Integer&gt; lo = new PriorityQueue&lt;&gt;(Collections.reverseOrder()); // max-heap, lower half
 PriorityQueue&lt;Integer&gt; hi = new PriorityQueue&lt;&gt;();                          // min-heap, upper half
 void add(int x){
@@ -5079,6 +5098,7 @@ class Solution:
 
 <div class="optBox">
 <h4>Template A · opposite ends — two-sum on a sorted array <span class="cx good">O(n)</span></h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>a</code> — the sorted (ascending) array being searched</li><li><code>target</code> — the sum the two chosen elements must add up to</li><li><code>lo</code> — pointer starting at the left, smallest-value end</li><li><code>hi</code> — pointer starting at the right, largest-value end</li><li><code>sum</code> — a[lo] + a[hi], compared against target to decide which pointer moves</li><li><b>Returns</b> — the indices [lo, hi] of a pair that sums to target, or [-1, -1] if no pair works</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>int[] twoSum(int[] a, int target){        // a sorted ascending
     int lo = 0, hi = a.length - 1;
     while (lo &lt; hi){
@@ -5118,6 +5138,7 @@ class Solution:
     return [-1, -1];
 }</code></pre></div>
 <h4>Template B · fast/slow — cycle detection &amp; middle</h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>head</code> — the first node of the linked list</li><li><code>slow</code> — pointer that advances one node per step</li><li><code>fast</code> — pointer that advances two nodes per step</li><li><b>Returns</b> — true if fast ever laps slow (a cycle exists), false if fast reaches the end first</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>boolean hasCycle(ListNode head){
     ListNode slow = head, fast = head;
     while (fast != null &amp;&amp; fast.next != null){
@@ -5148,6 +5169,7 @@ class Solution:
     return false;
 }</code></pre></div>
 <h4>Template C · in-place partition — Dutch national flag (sort 0/1/2)</h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>a</code> — array containing only the values 0, 1, and 2, rearranged in place</li><li><code>low</code> — boundary marking where the block of 0s ends</li><li><code>mid</code> — index of the element currently being classified</li><li><code>high</code> — boundary marking where the block of 2s begins</li><li><b>Returns</b> — nothing (void) — a ends up reordered as all 0s, then all 1s, then all 2s</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>void sortColors(int[] a){
     int low = 0, mid = 0, high = a.length - 1;
     while (mid &lt;= high){
@@ -5188,6 +5210,7 @@ class Solution:
     }
 }</code></pre></div>
 <h4>Template D · one pointer per sorted array — count pairs ≤ target</h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>a, b</code> — two sorted arrays whose elements are paired up</li><li><code>target</code> — the maximum sum a pair is allowed to have</li><li><code>j</code> — pointer into b that only ever moves left, marking the largest b-index that still keeps a[i] + b[j] within target</li><li><code>count</code> — running total of qualifying pairs found so far</li><li><b>Returns</b> — the total number of pairs (one value from a, one from b) whose sum is at most target</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>long countPairs(int[] a, int[] b, int target){    // both sorted
     long count = 0; int j = b.length - 1;
     for (int i = 0; i &lt; a.length; i++){
@@ -5612,6 +5635,7 @@ public:
 <p>For "longest/shortest/count of contiguous subarray or substring with property P", keep a window <code>[left, right]</code>. Grow <code>right</code> to include new elements; when the window violates P, shrink from <code>left</code> until valid again. Each index enters and leaves at most once → O(n). Works when extending never <i>fixes</i> a violation (i.e., the property is monotonic in window size).</p>
 
 <h4>The universal shape</h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>left</code> — start index of the current window</li><li><code>right</code> — end index of the current window, extended one element at a time</li><li><code>add()</code> — placeholder step: fold a[right] into the window's tracked state</li><li><code>invalid()</code> — placeholder check: does the window currently break the required property?</li><li><code>remove()</code> — placeholder step: drop a[left] from the window's tracked state while shrinking</li><li><code>best</code> — largest valid window size seen so far</li><li><b>Returns</b> — (as a pattern) the best valid window size found over the whole scan</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>int left = 0;
 for (int right = 0; right &lt; n; right++){
     add(a[right]);                 // extend window
@@ -5642,6 +5666,7 @@ for (let right = 0; right &lt; n; right++) {
 
 <div class="optBox">
 <h4>Template A · variable window — longest substring without repeats <span class="cx good">O(n)</span></h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>s</code> — the input string being scanned</li><li><code>last</code> — array mapping a character to the most recent index where it was seen (-1 if never)</li><li><code>left</code> — start of the current repeat-free window</li><li><code>right</code> — end of the current window, the character just examined</li><li><code>c</code> — the character at position right</li><li><code>best</code> — length of the longest repeat-free window found so far</li><li><b>Returns</b> — the length of the longest substring with no repeated characters</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>int lengthOfLongestSubstring(String s){
     int[] last = new int[128]; Arrays.fill(last, -1);
     int left = 0, best = 0;
@@ -5682,6 +5707,7 @@ for (let right = 0; right &lt; n; right++) {
     return best;
 }</code></pre></div>
 <h4>Template B · fixed window — max sum of size k</h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>a</code> — the input array</li><li><code>k</code> — the fixed number of elements the window must contain</li><li><code>sum</code> — running total of the current k-element window</li><li><code>best</code> — largest window sum seen so far</li><li><b>Returns</b> — the maximum sum of any k consecutive elements</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>int maxSum(int[] a, int k){
     int sum = 0, best;
     for (int i = 0; i &lt; k; i++) sum += a[i];
@@ -5717,6 +5743,7 @@ for (let right = 0; right &lt; n; right++) {
     return best;
 }</code></pre></div>
 <h4>Template C · counting windows — "at most K" trick for "exactly K"</h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>a</code> — the input array</li><li><code>k</code> — the maximum number of distinct values a window may contain</li><li><code>freq</code> — map from a value to how many times it currently appears in the window</li><li><code>left</code> — start of the window, pushed forward whenever there are too many distinct values</li><li><code>right</code> — end of the window, the element just added</li><li><code>v</code> — the value being dropped from the window as it shrinks</li><li><code>count</code> — running count of valid windows ending at each right</li><li><b>Returns</b> — the number of subarrays with at most k distinct values (subtracting atMost(K-1) from atMost(K) gives exactly K)</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>// # subarrays with exactly K distinct = atMost(K) - atMost(K-1)
 int atMost(int[] a, int k){
     Map&lt;Integer,Integer&gt; freq = new HashMap&lt;&gt;();
@@ -6079,6 +6106,7 @@ for (const v of dq) {} // iterate, O(n)
 
 <div class="optBox">
 <h4>Template A · next greater element (days until warmer) <span class="cx good">O(n)</span></h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>t</code> — array of temperatures, one per day</li><li><code>res</code> — output array; res[i] becomes the number of days until a warmer temperature</li><li><code>st</code> — stack of day indices still waiting for their next-warmer day, kept temperature-decreasing from bottom to top</li><li><code>i</code> — the day currently being processed</li><li><code>j</code> — an index popped off st once day i turns out to be warmer than it</li><li><b>Returns</b> — for each day, the number of days until a strictly warmer temperature (0 if none exists)</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>int[] dailyTemperatures(int[] t){
     int n = t.length; int[] res = new int[n];
     Deque&lt;Integer&gt; st = new ArrayDeque&lt;&gt;();   // indices, temps decreasing down the stack
@@ -6124,6 +6152,7 @@ for (const v of dq) {} // iterate, O(n)
     return res;                               // unresolved stay 0
 }</code></pre></div>
 <h4>Template B · largest rectangle in a histogram <span class="cx good">O(n)</span></h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>h</code> — array of bar heights making up the histogram</li><li><code>st</code> — stack of bar indices whose rectangle isn't closed yet, kept height-increasing from bottom to top</li><li><code>i</code> — the bar currently being processed; the loop runs one extra step past the end as a sentinel</li><li><code>cur</code> — height of the current bar, or 0 on the sentinel step so the stack fully empties</li><li><code>height</code> — height of the bar popped off st — the shortest bar in the rectangle being closed</li><li><code>width</code> — how many bars wide that rectangle spans</li><li><code>best</code> — largest rectangle area found so far</li><li><b>Returns</b> — the area of the largest rectangle that fits under the histogram</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>int largestRectangleArea(int[] h){
     int n = h.length, best = 0;
     Deque&lt;Integer&gt; st = new ArrayDeque&lt;&gt;();
@@ -6348,6 +6377,7 @@ for (const v of dq) {} // iterate, O(n)
 
 <div class="optBox">
 <h4>Template A · count subarrays summing to k (prefix + hashmap) <span class="cx good">O(n)</span></h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>nums</code> — the input array</li><li><code>k</code> — the target sum a subarray must add up to</li><li><code>seen</code> — map from a prefix-sum value to how many times it has occurred, seeded with sum 0 occurring once for the empty prefix</li><li><code>sum</code> — running prefix sum through the current element</li><li><code>x</code> — the element currently being folded into sum</li><li><code>count</code> — running total of subarrays found so far that sum to k</li><li><b>Returns</b> — the number of contiguous subarrays whose elements sum exactly to k</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>int subarraySum(int[] nums, int k){
     Map&lt;Integer,Integer&gt; seen = new HashMap&lt;&gt;();
     seen.put(0, 1);                       // empty prefix
@@ -6387,6 +6417,7 @@ for (const v of dq) {} // iterate, O(n)
     return count;
 }</code></pre></div>
 <h4>Template B · 2D prefix sum (sub-matrix sum in O(1))</h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>a</code> — the input 2D matrix</li><li><code>m, n</code> — number of rows and columns in a</li><li><code>P</code> — prefix-sum grid, one row/column larger than a, where P[i+1][j+1] is the sum of every cell from (0,0) to (i,j)</li><li><code>r1, c1, r2, c2</code> — the top-left and bottom-right corners of the rectangle being queried</li><li><code>sum</code> — the total of every cell inside that rectangle, computed from P by inclusion-exclusion</li><li><b>Returns</b> — the sum of any rectangular sub-matrix in O(1) time after the one-time O(m·n) build</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>// P[i+1][j+1] = sum of the rectangle from (0,0) to (i,j)
 int[][] P = new int[m+1][n+1];
 for (int i=0;i&lt;m;i++)
@@ -6413,6 +6444,7 @@ for (let i = 0; i &lt; m; i++)
 // sum of rows [r1,r2], cols [c1,c2]:
 const sum = P[r2+1][c2+1] - P[r1][c2+1] - P[r2+1][c1] + P[r1][c1];</code></pre></div>
 <h4>Template C · difference array (range add in O(1))</h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>diff</code> — helper array where a bump at diff[l] and an opposite bump at diff[r+1] represent adding val across the whole range [l, r]</li><li><code>l, r, val</code> — the inclusive range and the amount to add to it in one O(1) update</li><li><code>run</code> — running total used while replaying diff back into the final array</li><li><b>Returns</b> — build() reconstructs the fully-updated array by taking a running sum over diff; addRange() itself changes no return value</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>int[] diff = new int[n+1];
 void addRange(int l, int r, int val){ diff[l] += val; diff[r+1] -= val; }
 int[] build(){ int[] a=new int[n]; int run=0;
@@ -6543,6 +6575,7 @@ function build(): number[] {
 
 <div class="bruteBox">
 <h4>Brute force — naive recursion <span class="cx bad">exponential</span></h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>c</code> — array of available coin denominations</li><li><code>amt</code> — amount still needed to reach exactly 0</li><li><code>coin</code> — one denomination being tried as the next coin to use</li><li><code>sub</code> — result of recursing on the smaller remaining amount (amt - coin), or -1 if that's impossible</li><li><code>best</code> — fewest coins found so far among all branches tried at this call</li><li><b>Returns</b> — the minimum number of coins needed to make amt, or -1 if it can't be made</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>int coins(int[] c, int amt){                 // recompute same amounts repeatedly
     if (amt == 0) return 0;
     if (amt &lt; 0)  return -1;
@@ -6586,6 +6619,7 @@ function build(): number[] {
 
 <div class="optBox">
 <h4>Template A · 1D min — coin change (fewest coins) <span class="cx good">O(amount·coins)</span></h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>coins</code> — array of available coin denominations</li><li><code>amount</code> — the target amount to make</li><li><code>dp</code> — dp[a] holds the fewest coins needed to make amount a, started at a large "infinity" sentinel</li><li><code>a</code> — the amount currently being solved, built up from 1 to amount</li><li><code>c</code> — one coin denomination tried as the last coin used to reach a</li><li><b>Returns</b> — the minimum number of coins needed to make amount, or -1 if impossible</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>int coinChange(int[] coins, int amount){
     int[] dp = new int[amount+1];
     Arrays.fill(dp, amount+1);           // "infinity"
@@ -6617,6 +6651,7 @@ function build(): number[] {
     return dp[amount] &gt; amount ? -1 : dp[amount];
 }</code></pre></div>
 <h4>Template B · 1D counting — number of ways (combinations)</h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>amount</code> — the target amount to make</li><li><code>coins</code> — array of available coin denominations</li><li><code>dp</code> — dp[a] holds the number of distinct combinations of coins that sum to a</li><li><code>c</code> — the coin denomination in the outer loop — iterating coins first keeps combinations order-independent</li><li><code>a</code> — the amount being updated in the inner loop</li><li><b>Returns</b> — the total number of distinct ways to make amount using any number of each coin</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>int change(int amount, int[] coins){
     int[] dp = new int[amount+1]; dp[0] = 1;
     for (int c : coins)                   // coin outer ⇒ order-independent combos
@@ -6644,6 +6679,7 @@ function build(): number[] {
     return dp[amount];
 }</code></pre></div>
 <h4>Template C · 0/1 knapsack (each item once — iterate capacity downward)</h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>w</code> — array of item weights</li><li><code>v</code> — array of item values, parallel to w</li><li><code>W</code> — total knapsack capacity</li><li><code>dp</code> — dp[c] holds the best total value achievable using capacity c so far</li><li><code>i</code> — index of the item currently being considered</li><li><code>c</code> — capacity being updated; iterating it downward ensures each item is only used once</li><li><b>Returns</b> — the maximum total value obtainable without exceeding capacity W</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>int knapsack(int[] w, int[] v, int W){
     int[] dp = new int[W+1];
     for (int i = 0; i &lt; w.length; i++)
@@ -6669,6 +6705,7 @@ function build(): number[] {
     return dp[W];
 }</code></pre></div>
 <h4>Template D · Kadane — max subarray (running-best DP)</h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>a</code> — the input array of numbers, which may include negatives</li><li><code>cur</code> — the best sum of a subarray that must end at the current index</li><li><code>best</code> — the best subarray sum found anywhere in the scan so far</li><li><b>Returns</b> — the maximum sum achievable by any contiguous subarray</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>int maxSubArray(int[] a){
     int best = a[0], cur = a[0];
     for (int i = 1; i &lt; a.length; i++){
@@ -6697,6 +6734,7 @@ function build(): number[] {
     return best;
 }</code></pre></div>
 <h4>Template E · parsing DP — decode ways (rolling O(1) memory)</h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>s</code> — the string of digits to decode, e.g. "12" could be "AB" or "L"</li><li><code>prev2</code> — number of ways to decode the string up to two characters back</li><li><code>prev1</code> — number of ways to decode the string up to one character back</li><li><code>cur</code> — number of ways to decode up through the current character, combining a valid 1-digit take from prev1 and a valid 2-digit take (10-26) from prev2</li><li><code>two</code> — the two-digit number formed by the previous and current character, checked for validity (10-26)</li><li><b>Returns</b> — the total number of ways to decode the whole string</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>int numDecodings(String s){
     if (s.charAt(0)=='0') return 0;
     int prev2 = 1, prev1 = 1;
@@ -7187,6 +7225,7 @@ public:
 
 <div class="optBox">
 <h4>Template A · Longest Common Subsequence <span class="cx good">O(m·n)</span></h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>a</code>, <code>b</code> — the two input strings being compared.</li><li><code>m</code>, <code>n</code> — lengths of <code>a</code> and <code>b</code>.</li><li><code>dp[i][j]</code> — length of the longest common subsequence using the first <code>i</code> chars of <code>a</code> and first <code>j</code> chars of <code>b</code>.</li><li><code>i</code>, <code>j</code> — 1-indexed scan positions into <code>a</code> and <code>b</code> (so the actual chars are <code>a[i-1]</code>, <code>b[j-1]</code>).</li><li><b>Returns</b> — the length of the longest common subsequence shared by <code>a</code> and <code>b</code>.</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>int lcs(String a, String b){
     int m = a.length(), n = b.length();
     int[][] dp = new int[m+1][n+1];
@@ -7223,6 +7262,7 @@ public:
     return dp[m][n];
 }</code></pre></div>
 <h4>Template B · Edit distance (Levenshtein)</h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>a</code>, <code>b</code> — the source string and the target string to transform it into.</li><li><code>m</code>, <code>n</code> — lengths of <code>a</code> and <code>b</code>.</li><li><code>dp[i][j]</code> — minimum edits (insert/delete/replace) to turn the first <code>i</code> chars of <code>a</code> into the first <code>j</code> chars of <code>b</code>.</li><li><code>dp[i][0]</code>, <code>dp[0][j]</code> — base rows/columns: turning a prefix into empty (all deletes) or empty into a prefix (all inserts).</li><li><b>Returns</b> — the minimum number of single-character edits to turn <code>a</code> into <code>b</code>.</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>int editDistance(String a, String b){
     int m=a.length(), n=b.length();
     int[][] dp = new int[m+1][n+1];
@@ -7273,6 +7313,7 @@ public:
     return dp[m][n];
 }</code></pre></div>
 <h4>Template C · count distinct subsequences (rolling 1D)</h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>s</code> — the source string you pick characters from.</li><li><code>t</code> — the target string you are trying to spell out as a subsequence.</li><li><code>n</code> — length of <code>t</code>.</li><li><code>dp[j]</code> — number of ways to form the first <code>j</code> characters of <code>t</code> using the part of <code>s</code> scanned so far.</li><li><code>dp[0]</code> — base case: there is exactly one way to form an empty target (choose nothing).</li><li><b>Returns</b> — the count of distinct ways the characters of <code>s</code>, in order, can spell out <code>t</code>.</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>int numDistinct(String s, String t){
     int n = t.length();
     long[] dp = new long[n+1]; dp[0] = 1;
@@ -7305,6 +7346,7 @@ public:
     return dp[n];
 }</code></pre></div>
 <h4>Template D · word break (segmentation DP)</h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>s</code> — the string to try to split into dictionary words.</li><li><code>dict</code> / <code>words</code> — the set of valid words allowed as pieces.</li><li><code>dp[i]</code> — true if the prefix <code>s[0..i)</code> can be fully split into dictionary words.</li><li><code>j</code> — a candidate split point tried for each <code>i</code>, checking whether <code>s[j..i)</code> is itself a dictionary word.</li><li><b>Returns</b> — whether the entire string <code>s</code> can be segmented into dictionary words.</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>boolean wordBreak(String s, List&lt;String&gt; dict){
     Set&lt;String&gt; words = new HashSet&lt;&gt;(dict);
     boolean[] dp = new boolean[s.length()+1]; dp[0] = true;
@@ -7338,6 +7380,7 @@ public:
     return dp[s.length];
 }</code></pre></div>
 <h4>Template E · Longest Increasing Subsequence <span class="cx good">O(n log n)</span></h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>nums</code> — the input array to find the longest increasing subsequence in.</li><li><code>tails</code> — <code>tails[k]</code> holds the smallest possible tail value of an increasing subsequence of length <code>k+1</code> found so far.</li><li><code>size</code> — length of the longest increasing subsequence found so far.</li><li><code>x</code> — the current number from <code>nums</code> being placed into <code>tails</code>.</li><li><code>lo</code>, <code>hi</code>, <code>mid</code> — binary-search bounds used to find where <code>x</code> belongs in <code>tails</code>.</li><li><b>Returns</b> — the length of the longest strictly increasing subsequence in <code>nums</code>.</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>int lengthOfLIS(int[] nums){
     int[] tails = new int[nums.length]; int size = 0;
     for (int x : nums){
@@ -7686,6 +7729,7 @@ public:
 <p>When the state is "<b>which subset</b> of ≤ ~20 items have I used", encode that subset as the bits of an integer. <code>dp[mask][i]</code> then means "best having visited exactly the set <code>mask</code>, currently at item <code>i</code>." This turns factorial search (n! orderings) into <code>O(2ⁿ · n²)</code> — the standard weapon for TSP, assignment, and "visit all" problems.</p>
 
 <h4>Bit operations you need</h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>mask</code> — an integer whose bits each represent whether one item is currently in the subset.</li><li><code>i</code> — the index (bit position) of the item being tested, added, or removed.</li><li><code>1 &lt;&lt; i</code> — a mask with only bit <code>i</code> set, used to check/add/remove that one item.</li><li><code>mask &amp; -mask</code> — isolates the lowest set bit, i.e. the lowest-numbered item currently in the set.</li><li><b>Returns</b> — these are standalone expressions, not a function — each line evaluates to a new mask, a boolean, or a count of set bits.</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>mask &amp; (1 &lt;&lt; i)        // is item i in the set?
 mask | (1 &lt;&lt; i)        // add item i
 mask &amp; ~(1 &lt;&lt; i)       // remove item i
@@ -7711,6 +7755,7 @@ mask &amp; -mask                                       // lowest set bit</code><
 
 <div class="optBox">
 <h4>Template · shortest Hamiltonian path (TSP core) <span class="cx good">O(2ⁿ·n²)</span></h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>dist</code> — the distance/cost matrix between every pair of nodes.</li><li><code>n</code> — number of nodes (cities/tasks) to visit.</li><li><code>FULL</code> — the bitmask with all <code>n</code> bits set, meaning &quot;every node has been visited&quot;.</li><li><code>dp[mask][i]</code> — cheapest cost of a path that has visited exactly the nodes in <code>mask</code> and currently ends at node <code>i</code>.</li><li><code>mask</code> — bitmask of nodes visited so far on a given path.</li><li><code>j</code> — a candidate next node to move to (must not already be set in <code>mask</code>).</li><li><code>nm</code> — the new mask after adding node <code>j</code> to <code>mask</code>.</li><li><code>ans</code> — running minimum total cost across all possible ending nodes once every node is visited.</li><li><b>Returns</b> — the minimum cost of a path that visits every node exactly once (the shortest Hamiltonian path).</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>int tsp(int[][] dist){
     int n = dist.length, FULL = (1 &lt;&lt; n) - 1;
     int[][] dp = new int[1 &lt;&lt; n][n];
@@ -7948,6 +7993,7 @@ mask &amp; -mask                                       // lowest set bit</code><
 
 <div class="optBox">
 <h4>Template A · interval scheduling (max non-overlapping) — sort by end <span class="cx good">O(n log n)</span></h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>iv</code> — the list of intervals/meetings, each given as <code>[start, end]</code>.</li><li><code>count</code> — number of intervals selected so far.</li><li><code>end</code> — end time of the most recently selected interval (when the resource becomes free again).</li><li><code>m</code> — the interval currently being considered, in sorted order.</li><li><b>Returns</b> — the maximum number of non-overlapping intervals that can be scheduled.</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>int maxMeetings(int[][] iv){
     Arrays.sort(iv, (a,b) -&gt; a[1] - b[1]);      // earliest finish first
     int count = 0, end = Integer.MIN_VALUE;
@@ -7977,6 +8023,7 @@ mask &amp; -mask                                       // lowest set bit</code><
     return count;
 }</code></pre></div>
 <h4>Template B · jump game II (fewest jumps) — BFS-like frontier</h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>a</code> — array where <code>a[i]</code> is the farthest number of steps you can jump from index <code>i</code>.</li><li><code>jumps</code> — number of jumps taken so far.</li><li><code>curEnd</code> — the farthest index reachable using the jumps taken so far — the boundary of the current &quot;layer&quot;.</li><li><code>farthest</code> — the farthest index reachable from any position seen while scanning through the current layer.</li><li><code>i</code> — the index currently being scanned.</li><li><b>Returns</b> — the minimum number of jumps needed to reach the last index of <code>a</code>.</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>int jump(int[] a){
     int jumps = 0, curEnd = 0, farthest = 0;
     for (int i = 0; i &lt; a.length - 1; i++){
@@ -8313,6 +8360,7 @@ class Trie {
 
 <div class="optBox">
 <h4>Template A · Trie <span class="cx good">O(L) per op</span></h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>next</code> — array of 26 child pointers (one per letter) forming the tree's edges out of this node.</li><li><code>end</code> — flag marking that a complete inserted word ends exactly at this node.</li><li><code>w</code> / <code>word</code> — the word being inserted.</li><li><code>p</code> / <code>prefix</code> — the prefix being tested by <code>startsWith</code>.</li><li><code>node</code> — the trie node currently being visited while walking down character by character.</li><li><code>walk(s)</code> — helper that follows the path spelled by <code>s</code> and returns the node reached, or null if the path breaks partway.</li><li><b>Returns</b> — <code>insert</code> builds the tree (no value); <code>search</code>/<code>startsWith</code> return true/false; <code>walk</code> returns the node at the end of the path or null.</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>class Trie {
     private final Trie[] next = new Trie[26];
     private boolean end;
@@ -8413,6 +8461,7 @@ public:
     }
 }</code></pre></div>
 <h4>Template B · KMP substring search <span class="cx good">O(n+m)</span></h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>text</code> — the string being searched in.</li><li><code>pat</code> — the pattern being searched for.</li><li><code>m</code> — length of <code>pat</code>.</li><li><code>lps</code> — &quot;longest proper prefix that is also a suffix&quot; table: <code>lps[k]</code> says how much of the pattern's start already matches its own end up to position <code>k</code>, so a mismatch can skip re-comparing characters already known to match.</li><li><code>i</code> — position scanning through <code>text</code> (or through <code>pat</code> while building <code>lps</code>).</li><li><code>j</code> / <code>len</code> — position in <code>pat</code> currently being matched (or matched against itself while building <code>lps</code>).</li><li><b>Returns</b> — the index in <code>text</code> where <code>pat</code> first occurs, or -1 if it never occurs.</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>int strStr(String text, String pat){
     int m = pat.length(); int[] lps = new int[m];  // longest proper prefix=suffix
     for (int i=1,len=0; i&lt;m; ){
@@ -8903,6 +8952,7 @@ private:
 
 <div class="optBox">
 <h4>Template A · merge overlapping intervals <span class="cx good">O(n log n)</span></h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>iv</code> — the input list of intervals, each <code>[start, end]</code>.</li><li><code>cur</code> — the interval currently being extended as later intervals are folded into it.</li><li><code>out</code> — the list of finalized, non-overlapping merged intervals.</li><li><code>i</code> — index of the next interval being considered, after sorting by start.</li><li><b>Returns</b> — the list of intervals after merging every pair that overlapped.</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>int[][] merge(int[][] iv){
     Arrays.sort(iv, (a,b) -&gt; a[0] - b[0]);
     List&lt;int[]&gt; out = new ArrayList&lt;&gt;();
@@ -8948,6 +8998,7 @@ private:
     return out;
 }</code></pre></div>
 <h4>Template B · sweep line — max concurrent intervals</h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>iv</code> — the input list of intervals.</li><li><code>starts</code>, <code>ends</code> — all interval start times and all end times, each sorted independently (not paired by original interval).</li><li><code>i</code> — pointer into <code>starts</code>: the next interval about to begin.</li><li><code>j</code> — pointer into <code>ends</code>: the next interval about to finish.</li><li><code>cur</code> — number of intervals currently overlapping at the sweep position.</li><li><code>best</code> — the highest value <code>cur</code> has reached so far.</li><li><b>Returns</b> — the maximum number of intervals that are ever active at the same time.</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>int maxOverlap(int[][] iv){
     int n = iv.length; int[] starts = new int[n], ends = new int[n];
     for (int i=0;i&lt;n;i++){ starts[i]=iv[i][0]; ends[i]=iv[i][1]; }
@@ -9407,6 +9458,7 @@ head = prev;
 
 <div class="optBox">
 <h4>Template A · reverse a list <span class="cx good">O(n), O(1) space</span></h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>head</code> — the first node of the linked list.</li><li><code>prev</code> — the node that will become <code>cur</code>'s new &quot;next&quot;; starts as null since the new tail should point to nothing.</li><li><code>cur</code> — the node currently having its pointer flipped.</li><li><code>next</code> — a saved copy of <code>cur</code>'s original next node, taken before <code>cur.next</code> is overwritten so the rest of the list isn't lost.</li><li><b>Returns</b> — the new head of the reversed list (the original list's last node).</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>ListNode reverse(ListNode head){
     ListNode prev = null, cur = head;
     while (cur != null){
@@ -9439,6 +9491,7 @@ head = prev;
     return prev;
 }</code></pre></div>
 <h4>Template B · reverse first k nodes (building block for reverse-in-groups)</h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>head</code> — the first node of the segment to reverse.</li><li><code>k</code> — how many nodes from the front to reverse.</li><li><code>prev</code>, <code>cur</code>, <code>next</code> — same roles as in plain reversal: the node built so far, the node being flipped, and its saved original successor.</li><li><b>Returns</b> — the new head of the reversed <code>k</code>-node segment; the original <code>head</code> (now the segment's tail) is relinked to whatever followed the segment.</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>ListNode reverseK(ListNode head, int k){
     ListNode prev = null, cur = head;
     while (k-- &gt; 0 &amp;&amp; cur != null){
@@ -9474,6 +9527,7 @@ head = prev;
     return prev;          // new head of this segment
 }</code></pre></div>
 <h4>Template C · remove nth from end (dummy + gap pointers)</h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>head</code> — the first node of the list.</li><li><code>n</code> — how many nodes counted from the end should be removed (1 = the last node).</li><li><code>dummy</code> — a placeholder node placed before <code>head</code> so the removal logic works even when the target is the very first real node.</li><li><code>fast</code> — pointer advanced <code>n+1</code> steps ahead of <code>slow</code> to open a fixed-size gap.</li><li><code>slow</code> — pointer that ends up just before the node to remove once <code>fast</code> reaches the end of the list.</li><li><b>Returns</b> — the head of the list with the nth-from-the-end node removed.</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>ListNode removeNthFromEnd(ListNode head, int n){
     ListNode dummy = new ListNode(0); dummy.next = head;
     ListNode fast = dummy, slow = dummy;
@@ -10136,6 +10190,7 @@ s.size;                                          // number of elements, O(1)</co
 
 <div class="optBox">
 <h4>Template A · complement lookup — two sum <span class="cx good">O(n)</span></h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>a</code> — the input array of numbers.</li><li><code>target</code> — the sum the two chosen numbers must add up to.</li><li><code>seen</code> — map from a value already scanned to its index, so a matching partner can be looked up in O(1).</li><li><code>need</code> — the complement value (<code>target - a[i]</code>) that would pair with the current element to hit <code>target</code>.</li><li><code>i</code> — index of the element currently being checked.</li><li><b>Returns</b> — the indices of the two numbers in <code>a</code> that add up to <code>target</code>.</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>int[] twoSum(int[] a, int target){
     Map&lt;Integer,Integer&gt; seen = new HashMap&lt;&gt;();
     for (int i = 0; i &lt; a.length; i++){
@@ -10170,6 +10225,7 @@ s.size;                                          // number of elements, O(1)</co
     return [];
 }</code></pre></div>
 <h4>Template B · grouping — anagrams by sorted-key</h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>strs</code> — the input list of words.</li><li><code>groups</code> — map from a canonical key (the word's letters sorted) to the list of original words sharing that key.</li><li><code>c</code> — the sorted-character version of the current word, used as the grouping key since every anagram of a word shares the same sorted form.</li><li><code>s</code> — the current word being placed into a group.</li><li><b>Returns</b> — the input words grouped into lists, one list per set of anagrams.</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>List&lt;List&lt;String&gt;&gt; groupAnagrams(String[] strs){
     Map&lt;String,List&lt;String&gt;&gt; groups = new HashMap&lt;&gt;();
     for (String s : strs){
@@ -10202,6 +10258,7 @@ s.size;                                          // number of elements, O(1)</co
     return Array.from(groups.values());
 }</code></pre></div>
 <h4>Template C · frequency count</h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>a</code> — the input collection of values to tally.</li><li><code>freq</code> — map from a value to how many times it has appeared so far.</li><li><code>x</code> — the current value being counted.</li><li><b>Returns</b> — a map/counter giving the occurrence count of each distinct value in <code>a</code>.</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>Map&lt;Integer,Integer&gt; freq = new HashMap&lt;&gt;();
 for (int x : a) freq.merge(x, 1, Integer::sum);   // idiomatic counter</code></pre><pre class="code lang-cpp"><code>std::unordered_map&lt;int,int&gt; freq;
 for (int x : a) freq[x]++;   // idiomatic counter</code></pre><pre class="code lang-python"><code>freq = Counter(a)   # idiomatic counter</code></pre><pre class="code lang-ts"><code>const freq = new Map&lt;number, number&gt;();
@@ -10662,6 +10719,7 @@ for (const v of [...st].reverse()) {} // iterate top-to-bottom, O(n)</code></pre
 
 <div class="optBox">
 <h4>Template A · balanced brackets <span class="cx good">O(n)</span></h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>s</code> — the input string of brackets to check.</li><li><code>st</code> — a stack holding the opening brackets seen so far that haven't been closed yet.</li><li><code>match</code> — a lookup from each closing bracket to the opening bracket it must pair with.</li><li><code>c</code> — the current character being scanned from <code>s</code>.</li><li><b>Returns</b> — <code>true</code> if every bracket is properly opened and closed in the right order, else <code>false</code>.</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>boolean isValid(String s){
     Deque&lt;Character&gt; st = new ArrayDeque&lt;&gt;();
     Map&lt;Character,Character&gt; match = Map.of(')','(', ']','[', '}','{');
@@ -10699,6 +10757,7 @@ for (const v of [...st].reverse()) {} // iterate top-to-bottom, O(n)</code></pre
     return st.length === 0;
 }</code></pre></div>
 <h4>Template B · evaluate reverse Polish notation</h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>tokens</code> — the expression written in Reverse Polish Notation, one number or operator per entry.</li><li><code>st</code> — a stack holding operands waiting to be combined.</li><li><code>t</code> — the current token being processed.</li><li><code>a</code>, <code>b</code> — the two most recently pushed operands popped for a binary operator, with <code>b</code> as the right-hand operand and <code>a</code> as the left-hand one.</li><li><b>Returns</b> — the single number left on the stack once every token has been consumed.</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>int evalRPN(String[] tokens){
     Deque&lt;Integer&gt; st = new ArrayDeque&lt;&gt;();
     for (String t : tokens){
@@ -11112,6 +11171,7 @@ arr.splice(lowerBound(arr, x), 1);         // remove x, O(n)</code></pre>
 
 <div class="optBox">
 <h4>Template A · LRU cache (map + access-ordered linked map) <span class="cx good">O(1)</span></h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>cap</code> — the maximum number of entries the cache may hold.</li><li><code>map</code> — the key→value store kept in access order, so the least-recently-used entry always sits at the front.</li><li><code>k</code> — the key being looked up or inserted.</li><li><code>v</code> — the value being stored for that key.</li><li><b>Returns</b> — <code>get</code> returns the value for <code>k</code> or <code>-1</code> if absent; <code>put</code> inserts/updates and evicts the least-recently-used entry once <code>cap</code> is exceeded.</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>class LRUCache {
     private final int cap;
     private final LinkedHashMap&lt;Integer,Integer&gt; map;
@@ -11193,6 +11253,7 @@ public:
     }
 }</code></pre></div>
 <h4>Template B · min-stack (pair each value with the min-so-far)</h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>st</code> — a stack where each entry pairs a pushed value with the minimum of everything at or below it.</li><li><code>x</code> — the value being pushed.</li><li><code>m</code> — the minimum among <code>x</code> and everything currently on the stack, stored alongside <code>x</code> so it's retrievable in O(1).</li><li><b>Returns</b> — <code>top</code> gives the most recently pushed value, <code>getMin</code> gives the minimum over all values currently on the stack.</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>class MinStack {
     private final Deque&lt;int[]&gt; st = new ArrayDeque&lt;&gt;();  // {value, minAtOrBelow}
     void push(int x){ int m = st.isEmpty()? x : Math.min(x, st.peek()[1]); st.push(new int[]{x,m}); }
@@ -11380,6 +11441,7 @@ class LRUCache:                          # O(1) get/put
 
 <div class="optBox">
 <h4>Template A · spiral matrix (shrinking borders) <span class="cx good">O(m·n)</span></h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>m</code> — the input 2-D matrix to read in spiral order.</li><li><code>res</code> — the output list being built in spiral order.</li><li><code>top</code>, <code>bot</code>, <code>left</code>, <code>right</code> — the current unvisited rectangle's boundaries, each shrinking by one after its edge is walked.</li><li><code>r</code>, <code>c</code> — the row/column index used while walking one edge of the current boundary.</li><li><b>Returns</b> — all matrix elements in spiral (clockwise, outside-in) order.</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>List&lt;Integer&gt; spiralOrder(int[][] m){
     List&lt;Integer&gt; res = new ArrayList&lt;&gt;();
     int top=0, bot=m.length-1, left=0, right=m[0].length-1;
@@ -11426,6 +11488,7 @@ class LRUCache:                          # O(1) get/put
     return res;
 }</code></pre></div>
 <h4>Template B · rotate image 90° in place (transpose then reverse rows)</h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>a</code> — the square matrix, rotated in place (no new matrix is allocated).</li><li><code>n</code> — the matrix's side length.</li><li><code>i</code>, <code>j</code> — row/column indices used while transposing (swapping <code>a[i][j]</code> with <code>a[j][i]</code>).</li><li><code>t</code> — a scratch variable used to swap two values.</li><li><code>row</code>, <code>l</code>, <code>r</code> — the row being reversed and its left/right pointers, which walk inward to reverse it.</li><li><b>Returns</b> — nothing; <code>a</code> ends up rotated 90° clockwise.</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>void rotate(int[][] a){
     int n = a.length;
     for (int i=0;i&lt;n;i++) for (int j=i+1;j&lt;n;j++){ int t=a[i][j]; a[i][j]=a[j][i]; a[j][i]=t; }
@@ -11556,6 +11619,7 @@ class LRUCache:                          # O(1) get/put
 
 <div class="optBox">
 <h4>Template A · single number via XOR <span class="cx good">O(n), O(1) space</span></h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>a</code> — the input array where every value appears exactly twice except one.</li><li><code>x</code> — the running XOR of all values seen so far; paired values cancel out to zero.</li><li><code>v</code> — the current array element being folded into <code>x</code>.</li><li><b>Returns</b> — the one value that has no matching pair.</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>int singleNumber(int[] a){ int x=0; for (int v:a) x^=v; return x; }   // pairs vanish</code></pre><pre class="code lang-cpp"><code>int singleNumber(std::vector&lt;int&gt;&amp; a){ int x=0; for (int v : a) x^=v; return x; }   // pairs vanish</code></pre><pre class="code lang-python"><code>def single_number(a):
     x = 0
     for v in a:
@@ -11566,6 +11630,7 @@ class LRUCache:                          # O(1) get/put
     return x;
 }</code></pre></div>
 <h4>Template B · fast modular exponentiation <span class="cx good">O(log e)</span></h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>base</code> — the number being raised to a power, reduced mod <code>mod</code> as it's squared repeatedly.</li><li><code>e</code> — the exponent, consumed one bit at a time by shifting right each iteration.</li><li><code>mod</code> — the modulus all results are kept under.</li><li><code>r</code> — the running result, multiplied by <code>base</code> whenever the current low bit of <code>e</code> is 1.</li><li><b>Returns</b> — <code>base</code> raised to the <code>e</code>-th power, modulo <code>mod</code>.</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>long power(long base, long e, long mod){
     long r = 1; base %= mod;
     while (e &gt; 0){
@@ -11601,6 +11666,7 @@ class LRUCache:                          # O(1) get/put
     return r;
 }</code></pre></div>
 <h4>Common bit tricks</h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>n</code> — the integer whose bits are being inspected or manipulated.</li><li><code>i</code> — the bit position (from the low end) being toggled in the last line.</li><li><b>Returns</b> — each line is a standalone expression: clearing the lowest set bit, isolating it, counting set bits (popcount), or flipping bit <code>i</code>.</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>n &amp; (n-1)              // drop lowest set bit  → power-of-two test: n&gt;0 &amp;&amp; (n&amp;(n-1))==0
 n &amp; -n                 // isolate lowest set bit
 Integer.bitCount(n)    // popcount
@@ -12023,6 +12089,7 @@ public:
 
 <div class="optBox">
 <h4>Template A · Sieve of Eratosthenes <span class="cx good">O(n log log n)</span></h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>n</code> — count primes strictly below this bound.</li><li><code>composite</code> — a boolean array where <code>composite[x]</code> is true once <code>x</code> has been marked as having a factor, meaning it's not prime.</li><li><code>count</code> — the running tally of primes found so far.</li><li><code>i</code> — the current candidate number being tested; if still unmarked, it's prime.</li><li><code>j</code> — walks through the multiples of <code>i</code> (starting at <code>i*i</code>) to mark them composite.</li><li><b>Returns</b> — the number of primes strictly less than <code>n</code>.</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>int countPrimes(int n){
     if (n &lt; 3) return 0;
     boolean[] composite = new boolean[n];
@@ -12066,6 +12133,7 @@ public:
     return count;
 }</code></pre></div>
 <h4>Template B · GCD / LCM</h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>a</code>, <code>b</code> — the two integers to combine; <code>gcd</code> repeatedly replaces them with <code>(b, a % b)</code> until one is zero.</li><li><b>Returns</b> — <code>gcd</code> returns the greatest common divisor; <code>lcm</code> returns the least common multiple, computed as <code>a / gcd(a, b) * b</code> to avoid overflowing before dividing.</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>long gcd(long a, long b){ return b == 0 ? a : gcd(b, a % b); }
 long lcm(long a, long b){ return a / gcd(a, b) * b; }        // divide first to avoid overflow</code></pre><pre class="code lang-cpp"><code>long long gcd(long long a, long long b){ return b == 0 ? a : gcd(b, a % b); }
 long long lcm(long long a, long long b){ return a / gcd(a, b) * b; }        // divide first to avoid overflow</code></pre><pre class="code lang-python"><code>def gcd(a, b):
@@ -12248,6 +12316,7 @@ function rangeQuery(l: number, r: number): number {   // sum of [l..r] = prefixQ
 
 <div class="optBox">
 <h4>Template A · Fenwick tree (BIT) <span class="cx good">O(log n) update &amp; query</span></h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>t</code> — the 1-indexed internal array; each slot stores the sum of a power-of-two-sized block of the original array.</li><li><code>n</code> — the number of elements the tree covers.</li><li><code>i</code> — the 1-indexed position being updated or queried; <code>i &amp; -i</code> isolates its lowest set bit to jump to the next node.</li><li><code>delta</code> — the amount added to position <code>i</code> in <code>update</code>.</li><li><code>l</code>, <code>r</code> — the inclusive bounds of the range whose sum <code>range</code> computes.</li><li><code>s</code> — the running total accumulated while walking up (or down) the tree in <code>prefix</code>.</li><li><b>Returns</b> — <code>prefix(i)</code> gives the sum of elements <code>1..i</code>; <code>range(l, r)</code> gives the sum of elements <code>l..r</code>.</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>class Fenwick {                    // 1-indexed
     int[] t; int n;
     Fenwick(int n){ this.n=n; t=new int[n+1]; }
@@ -12287,6 +12356,7 @@ public:
     range(l: number, r: number): number { return this.prefix(r) - this.prefix(l - 1); }
 }</code></pre></div>
 <h4>Template B · segment tree (range sum, point update)</h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>t</code> — the array-based binary tree of size <code>2n</code>; leaves occupy indices <code>n..2n-1</code> and each internal node stores the sum of its two children.</li><li><code>n</code> — the number of leaves (elements in the original array).</li><li><code>i</code> — in <code>update</code>, the leaf index being changed (before being shifted into <code>n..2n-1</code>).</li><li><code>val</code> — the new value written to leaf <code>i</code>.</li><li><code>l</code>, <code>r</code> — the half-open query range <code>[l, r)</code>, shifted by <code>n</code> to walk the tree from the leaves upward.</li><li><code>s</code> — the running sum accumulated while <code>query</code> climbs toward the root.</li><li><b>Returns</b> — <code>query(l, r)</code> gives the sum of the original array over indices <code>[l, r)</code> after any prior updates.</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>class SegTree {
     int[] t; int n;
     SegTree(int[] a){ n=a.length; t=new int[2*n];
@@ -12482,6 +12552,7 @@ public:
 
 <div class="optBox">
 <h4>Template A · quickselect — kth smallest <span class="cx good">avg O(n)</span></h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>a</code> — the array being searched for its k-th smallest value; it's reordered in place.</li><li><code>k</code> — the target 0-based rank (0 = smallest).</li><li><code>lo</code>, <code>hi</code> — the current search window within <code>a</code>.</li><li><code>p</code> — the final resting index of the pivot after <code>partition</code>, i.e. its rank among the current window.</li><li><code>pivot</code> — the value chosen to partition around (here, <code>a[hi]</code>).</li><li><code>i</code> — the boundary index; everything before it in the window is known to be less than <code>pivot</code>.</li><li><code>j</code> — the scan index sweeping the window to find elements smaller than <code>pivot</code>.</li><li><b>Returns</b> — the value that would sit at index <code>k</code> if <code>a</code> were fully sorted.</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>int quickselect(int[] a, int k){          // k is 0-based rank
     int lo=0, hi=a.length-1;
     while (lo &lt; hi){
@@ -12552,6 +12623,7 @@ function partition(a: number[], lo: number, hi: number): number {
     return i;
 }</code></pre></div>
 <h4>Template B · reservoir sampling — one uniform pick from a stream</h4>
+<div class="varlegend"><b>What each variable means</b><ul><li><code>stream</code> — the sequence of elements to sample one uniformly-random pick from.</li><li><code>result</code> — the element currently held as the sample; it may be replaced as later elements are seen.</li><li><code>count</code> — how many elements have been seen so far, including the current one.</li><li><code>x</code> — the current element from <code>stream</code>.</li><li><code>rand</code> — the random source used to decide, with probability <code>1/count</code>, whether to replace <code>result</code> with <code>x</code>.</li><li><b>Returns</b> — one element chosen uniformly at random from the whole stream, using O(1) memory regardless of stream length.</li></ul></div>
 <div class="snippet"><pre class="code lang-java"><code>int pick(int[] stream){
     Random rand = new Random();
     int result = 0, count = 0;
